@@ -63,7 +63,7 @@ function Login() {
     return (
         <div className="login-page" style={{
 
-            backgroundImage: `url('/kiruna0.png')`,
+            backgroundImage: `url('/kiruna0.webp')`,
             backgroundSize: 'cover', // Ensures the image covers the entire container
             backgroundPosition: 'center', // Centers the image within the container
             backgroundRepeat: 'no-repeat', // Prevents repeating the image
