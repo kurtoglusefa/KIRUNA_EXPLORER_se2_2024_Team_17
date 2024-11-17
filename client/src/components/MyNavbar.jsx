@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Navbar, Container, Button, Nav, ToggleButtonGroup, ToggleButton} from 'react-bootstrap';
+import { Navbar, Container, Button, Nav, ToggleButtonGroup, ToggleButton } from 'react-bootstrap';
 import AppContext from '../AppContext';
 import '../App.css'
 
@@ -64,16 +64,16 @@ export function MyNavbar() {
           }
         </Nav>
         <Nav className=" d-flex justify-content-end">
-            {loginState.loggedIn ? (
-              <>
-                <div className='me-4'>
-                  <Navbar.Text style={{color:'black'}}>
-                    <span>Signed in as: <strong>{loginState.user.name}</strong></span>
-                    <br></br>
-                    <span>Role: <strong>{loginState.user.role}</strong></span>
-                  </Navbar.Text>
-                </div>
-                <div>
+          {loginState.loggedIn ? (
+            <>
+              <div className='me-4'>
+                <Navbar.Text style={{ color: 'black' }}>
+                  <span>Signed in as: <strong>{loginState.user.name}</strong></span>
+                  <br></br>
+                  <span>Role: <strong>{loginState.user.role}</strong></span>
+                </Navbar.Text>
+              </div>
+              <div>
                 <Button className='mx-2 rounded-pill btn-logout' variant='' onClick={() => {
                   loginState.doLogout();
                   navigate('/');
@@ -81,16 +81,16 @@ export function MyNavbar() {
                   {'Logout '}
                   <i className="bi bi-person-fill" />
                 </Button>
-                  </div>
-              </>
-            ) : (
-              <>
-                <Button className='mx-2 rounded-pill btn-main' variant='' onClick={() => navigate('/login')}>
-                  {'Login '}
-                  <i className="bi bi-person-fill" />
-                </Button>
-              </>
-            )}
+              </div>
+            </>
+          ) : (
+            <>
+              <Button className='mx-2 rounded-pill btn-main' variant='' onClick={() => navigate('/login')}>
+                {'Login '}
+                <i className="bi bi-person-fill" />
+              </Button>
+            </>
+          )}
         </Nav>
       </Container>
     </Navbar>
