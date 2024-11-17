@@ -140,3 +140,59 @@ describe("Document API with Session Authentication", () => {
     expect(updateResponse.status).toBe(400);
   });
 });
+
+describe('Document Search API', () => {
+  it('should retrieve all documents', async () => {
+    const response = await request(app).get('/api/documents');
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body)).toBe(true);
+  });
+
+  it('should retrieve a document by title', async () => {
+    const title = "Sample Title"; // replace with an existing title in the database
+    const response = await request(app).get(`/api/documents/title/${title}`);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("Title", title);
+  });
+
+  it('should return 404 if document title not found', async () => {
+    const response = await request(app).get('/api/documents/title/NonExistentTitle');
+    expect(response.status).toBe(404);
+    expect(response.body).toHaveProperty('error', 'Document not found');
+  });
+});
+describe('Define Geolocated Area API', () => {
+  it('should create a new geolocated area', async () => {
+    const newArea = {
+      location_type: "Area",
+      area_coordinates: JSON.stringify([{ lat: 40.7128, lng: -74.0060 }, { lat: 40.7127, lng: -74.0059 }]),
+      area_name: "Test Area"
+    };
+
+    const response = await request(app).post('/api/locations').send(newArea);
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty("message", "Location added successfully.");
+  });
+
+  it('should return 400 if area coordinates are missing', async () => {
+    const incompleteArea = { location_type: "Area" };
+    const response = await request(app).post('/api/locations').send(incompleteArea);
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error', 'For \'Area\' locationType, areaCoordinates are required.');
+  });
+});
+describe('Get All Document Areas API', () => {
+  it('should retrieve all geolocated areas', async () => {
+    const response = await request(app).get('/api/locations/area');
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body)).toBe(true);
+  });
+
+  it('should handle errors if location retrieval fails', async () => {
+    // Simulate failure (e.g., mock a database failure)
+    const response = await request(app).get('/api/locations/area');
+    expect(response.status).toBe(500);
+    expect(response.body).toHaveProperty('error', 'Internal server error');
+  });
+});
+
