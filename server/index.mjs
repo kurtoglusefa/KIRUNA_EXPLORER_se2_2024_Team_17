@@ -320,14 +320,14 @@ app.patch("/api/documents/:documentId/connection", async (req, res) => {
 app.post(
   "/api/documents/:documentId/resources",
   checkDocumentExists,
-  upload.single("file"),
+  upload.array('files'),
   async (req, res) => {
-    if (req.file) {
+    if (req.body.files) {
       const documentId = parseInt(req.params.documentId);
       res.json({
-        message: "File uploaded successfully!",
+        message: "Files uploaded successfully!",
         documentId: documentId,
-        filename: req.file.filename,
+        files: req.files,
       });
     } else {
       res.status(400).json({ message: "File upload failed." });

@@ -498,10 +498,29 @@ const getAllTypeConnections = () => {
   });
 };
 
-const addResourceToDocument = (idDocument, file) => {
+const getDocumentResources = async (id) => {
+  return new Promise((resolve, reject) => {
+    fetch(URL + '/documents/'+ id + '/resources',{
+      credentials: "include",
+    })
+    .then(res => {
+      if (res.ok) {
+        res.json().then(files => {
+          resolve(files);
+        });
+      } else {
+        res.json().then(message => {
+          reject(message);
+        });
+      }
+    });
+  });
+}
+
+const addResourcesToDocument = (idDocument, files) => {
   return new Promise((resolve, reject) => {
     const formData = new FormData();
-    formData.append('file', file);  // Append the file to the form data
+    formData.append('files', files);  // Append the file to the form data
     formData.append('idDocument', idDocument); // Add the documentId field to the form data
 
     fetch(URL + "/documents/" + idDocument + "/resources", {
@@ -559,6 +578,6 @@ const addArea = (areaName, area_coordinates,center_lat,center_lng) => {
 };
 
 
-const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, createDocumentConnection, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea,addResourceToDocument,addArea};
+const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, createDocumentConnection, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea, getDocumentResources, addResourcesToDocument, addArea};
 
 export default API;

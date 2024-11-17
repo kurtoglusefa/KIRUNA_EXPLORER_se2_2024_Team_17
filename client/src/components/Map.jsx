@@ -523,18 +523,18 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                     ) : (
                       <Form.Group>
                         <Form.Label>
-                          <strong>Select Area</strong>
+                          <strong>Area</strong>
                         </Form.Label>
-                        <Form.Control
-                          as="select"
+                        <Form.Select
                           value={selectedArea ? selectedArea.IdLocation : ""}
                           onChange={(e) => {
                             const area = locationsArea[e.target.value];
                             setSelectedArea(area);
                             console.log("Selected Area:", area);
                           }}
+                          required={true}
                         >
-                          <option value="">Select an Area</option>
+                          <option>Select an Area</option>
                           {Object.values(locationsArea).map((area) => (
                             <option
                               key={area.IdLocation}
@@ -543,7 +543,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                               {area.Area_Name || `Area ${area.IdLocation}`}
                             </option>
                           ))}
-                        </Form.Control>
+                        </Form.Select>
                       </Form.Group>
                     )
                   }
@@ -556,11 +556,15 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                     size="md"
                     onClick={() => {
                       if (!selectedLocation) {
-                        setSelectedLocation(selectedArea);
-                        navigate('documents/create-document', { state: { location: selectedArea } })
+                        if(!selectedArea) {
+                          setSelectedLocation(selectedArea);
+                          alert('Select an area')
+                          return;
+                        }
+                        navigate(`../documents/create-document`, { state: { location: selectedArea }, relative: 'path' })
                       }
                       else {
-                        navigate('documents/create-document', { state: { location: selectedLocation } })
+                        navigate(`../documents/create-document`, { state: { location: selectedLocation }, relative: 'path' })
                       }
                     }}
                   >
@@ -606,6 +610,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                 placeholder="Enter Area name"
                 value={areaName}
                 onChange={(e) => setAreaName(e.target.value)}
+                required
               />
             </Form.Group>
           </Form>

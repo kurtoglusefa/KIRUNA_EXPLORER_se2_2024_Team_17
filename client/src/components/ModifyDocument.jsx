@@ -22,6 +22,9 @@ function ModifyDocument() {
     const [type, setType] = useState('');
     const [latitude, setLatitude] = useState(selectedLocation && selectedLocation.lat != null ? selectedLocation.lat.toFixed(4) : 0);
     const [longitude, setLongitude] = useState(selectedLocation && selectedLocation.lng != null ? selectedLocation.lng.toFixed(4) : 0);
+    const [resources, setResources] = useState([{Title: 'Resource 1'}, {Title: 'Resource 2'}]);
+    const [addResources, setAddResources] = useState([]);
+    //const [resources, setResources] = useState([]);
 
     const [selectedDocument, setSelectedDocument] = useState('');
     const [connectionType, setConnectionType] = useState('');
@@ -110,14 +113,26 @@ function ModifyDocument() {
             }
         };
 
+        const fetchResources = async () => {
+          try {
+              const res = await API.getDocumentResources(documentId);
+              setResources(res);
+          } catch (err) {
+              console.error(err);
+          }
+        };
+
         getStakeholders();
         getTypes();
         getAllTypeConnections();
         getDocumentConnections();
 
-        if(documentId)
+        if(documentId) {
           fetchDocument();
+          //fetchResources();
+        }
     },[]);
+
     const handleUpdate = async() => {
       if(!title || !scale || !issuanceDate.year || !description  || !stakeholder || !type){
         setMessage("Please complete all fields to add a document.");
@@ -135,30 +150,38 @@ function ModifyDocument() {
           return;
         }
         console.log(date);
+        console.log(addResources);
         if (documentId) {
-          const result= await API.updateDocument(documentId, title,stakeholder.id ? stakeholder.id: stakeholder, scale, date, language, pages,description,  type.id ? type.id: type); 
-          navigate('/');
+          const result= await API.updateDocument(documentId, title,stakeholder.id ? stakeholder.id: stakeholder, scale, date, language, pages,description,  type.id ? type.id: type);
         } else {
-              if( selectedLocation!= null && selectedLocation.lat != null && selectedLocation.lng != null){
-                // insert the document which is a point 
-                //console.log(selectedLocation);
-                //console.log({ title, scale, issuanceDate, description, connections, language, pages, stakeholder: stakeholder, type: type, locationType : "Point", latitude : selectedLocation.lat , longitude: selectedLocation.lng, area_coordinates :"" });
-                const result= await API.addDocument( title,stakeholder, scale, date, language, pages,description,  type,  "Point",  latitude , longitude, "" );
-                navigate('/');
-              }
-              else if (selectedLocation!= null && selectedLocation.Location_Type =="Area"){
-                //insert the document inside an area
-                const result = await API.addDocumentArea( title,stakeholder, scale, date, language, pages,description,  type, selectedLocation.IdLocation );
-                navigate('/');
-            }
-            // insert the document
-            /*const result= await API.addDocument({ title, scale, issuanceDate, description, connections, language, pages, stakeholder: stakeholder.id, type: type.id });
-            console.log(result);
-            navigate('/');*/
+          if( selectedLocation!= null && selectedLocation.lat != null && selectedLocation.lng != null){
+            // insert the document which is a point 
+            //console.log(selectedLocation);
+            //console.log({ title, scale, issuanceDate, description, connections, language, pages, stakeholder: stakeholder, type: type, locationType : "Point", latitude : selectedLocation.lat , longitude: selectedLocation.lng, area_coordinates :"" });
+            const result= await API.addDocument( title,stakeholder, scale, date, language, pages,description,  type,  "Point",  latitude , longitude, "" );
           }
+          else if (selectedLocation!= null && selectedLocation.Location_Type =="Area"){
+            //insert the document inside an area
+            const result = await API.addDocumentArea( title,stakeholder, scale, date, language, pages,description,  type, selectedLocation.IdLocation );
+          }
+          // insert the document
+          /*const result= await API.addDocument({ title, scale, issuanceDate, description, connections, language, pages, stakeholder: stakeholder.id, type: type.id });
+          console.log(result);
+          navigate('/');*/
         }
-        };
-        const handleAddConnection = async() => {
+        
+        if(addResources.length > 0) {
+          try {
+            await API.addResourcesToDocument(documentId, addResources);
+          } catch (err) {
+            console.error(err);
+          } 
+        }
+        navigate(-1);
+      }
+    };
+
+    const handleAddConnection = async() => {
         if (selectedDocument && connectionType) {
             await API.createDocumentConnection(documentId, selectedDocument.IdDocument, connectionType);
             // now i have to call again the document to update the connections
@@ -190,6 +213,8 @@ function ModifyDocument() {
         setSelectedDocument(doc);
         setFilteredDocuments([]); // Clear suggestions after selection
     };
+
+    /* ------------------------------------ FORM ------------------------------------------ */
     return (
       <>
         <Card className="container my-5 bg-light rounded form">
@@ -198,7 +223,7 @@ function ModifyDocument() {
           </Card.Title>
           <Card.Body>
             <Row>
-                {/* Left Column: Document Fields and Connections */}
+                {/* ---------------------- Left Column --------------------------- */}
                 <Col md={6}>
                       <Form.Group controlid="title" className="mb-3">
                           <FloatingLabel label="Title*" className="mb-3">
@@ -304,25 +329,55 @@ function ModifyDocument() {
 
                       {documentId &&
                         <div className="mb-3">
-                          <Form.Label>Connections</Form.Label>
-                          {connections.length > 0 ? (
-                            <ListGroup variant="flush" className="mb-2">
-                                  {connections.map((conn, index) => (
-                                    <ListGroup.Item key={index}>
-                                          {conn.IdDocument1 == documentId ? `${documents.find((document) => document.IdDocument == conn.IdDocument2).Title} - ${typeConnections[conn.IdConnection].Type}` : `${documents.find((document) => document.IdDocument == conn.IdDocument1).Title} - ${typeConnections[conn.IdConnection].Type}`}
-                                      </ListGroup.Item>
-                                  ))}
-                              </ListGroup>
-                          ) : (
-                              <p className="text-muted">No connections added yet.</p>
-                          )}
-                          <Button variant="outline-dark" className='rounded-pill' onClick={() => setShowAddConnection(true)}>
-                              Add Connection
-                          </Button>
+                          <Form.Label as='strong'>Connections</Form.Label>
+                          <div className=' d-flex justify-content-between mt-2'>
+                            <div className='col-8 text-start mx-3'>
+                              {connections.length > 0 ? (
+                                <ListGroup variant="flush" className="mb-2">
+                                      {connections.map((conn, index) => (
+                                        <ListGroup.Item key={index}>
+                                              {conn.IdDocument1 == documentId ? `${documents.find((document) => document.IdDocument == conn.IdDocument2).Title} - ${typeConnections[conn.IdConnection].Type}` : `${documents.find((document) => document.IdDocument == conn.IdDocument1).Title} - ${typeConnections[conn.IdConnection].Type}`}
+                                          </ListGroup.Item>
+                                      ))}
+                                  </ListGroup>
+                              ) : (
+                                <p className="text-muted">No connections added yet.</p>
+                              )}
+                            </div>
+                            <div>
+                              <Button variant="outline-dark" className='rounded-pill' onClick={() => setShowAddConnection(true)}>
+                                  Add Connection
+                              </Button>
+                            </div>
+                          </div>
                         </div>}
+                        {/* Add resources */}
+                        <div className="mb-3">
+                        <Form.Group controlId="formFileMultiple" className="mb-3">
+                          <Form.Label as='strong'>Resources</Form.Label>
+                          <div className=' d-flex justify-content-between mt-3'>
+                            <div className='text-start col ms-3 me-5'>
+                              {resources.length > 0 ? (
+                                <ListGroup variant="flush" className="mb-2">
+                                      {resources.map((res, index) => (
+                                        <ListGroup.Item key={index}>
+                                              {res.Title}
+                                          </ListGroup.Item>
+                                      ))}
+                                  </ListGroup>
+                              ) : (
+                                <p className="text-muted">No resources added yet.</p>
+                              )}
+                            </div>
+                            <div className='col-6'>
+                              <Form.Control type="file" multiple style={{borderColor:'black', borderRadius:'2rem'}} onChange={(e) => setAddResources(e.target.files)} />
+                            </div>
+                          </div>
+                        </Form.Group>
+                      </div>
                 </Col>
 
-                {/* Right Column: Description and Action Buttons */}
+                {/* ---------------------- Right Column --------------------------- */}
                 <Col md={6}>
                     <FormGroup controlid="stakeholder" className="mb-3">
                           <FloatingLabel  label="Stakeholder*" className="mb-3">
@@ -400,7 +455,7 @@ function ModifyDocument() {
             </Row>
             </Card.Body>
                     <div className="d-flex justify-content-center mb-4 mx-5">
-                        <Button variant="outline-secondary" className='mx-2 rounded-pill px-4' onClick={() => navigate('/')}>
+                        <Button variant="outline-secondary" className='mx-2 rounded-pill px-4' onClick={() => navigate(-1)}>
                             Cancel
                         </Button>
                         <Button variant="" className='mx-2 btn-document rounded-pill px-4' onClick={handleUpdate}>
@@ -409,7 +464,11 @@ function ModifyDocument() {
                     </div>
           </Card>
 
-        {/* Modal for Adding a Connection */}
+
+
+
+
+        {/* ----------------------- Modal for Adding a Connection ----------------------------- */}
         <Modal show={showAddConnection} centered onHide={() => setShowAddConnection(false)}>
             <Modal.Header closeButton>
                 <Modal.Title>Add Connection</Modal.Title>
