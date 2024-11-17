@@ -24,6 +24,7 @@ describe("Location API", () => {
           Location_Type: "Point",
           Latitude: 12.34,
           Longitude: 56.78,
+          AreaCoordinates: null,
         },
       ];
 
@@ -53,6 +54,7 @@ describe("Location API", () => {
         Location_Type: "Point",
         Latitude: 12.34,
         Longitude: 56.78,
+        AreaCoordinates: null,
       };
 
       locationDao.getLocationById.mockResolvedValue(mockLocation);
