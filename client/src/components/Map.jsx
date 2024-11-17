@@ -41,9 +41,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
     const updateArea = async () => {
       
       if (selectedArea && newCoordinates.length > 0) {
-        console.log("sono dentro la usefefft");
-        console.log("Selected Area:", selectedArea);
-        console.log("Selected Area Coordinates:", newCoordinates);
   
         // Assuming getCenter is available and newCoordinates is a valid object
         const { lat, lng } = getCenter(newCoordinates);
@@ -124,8 +121,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
     let totalLat = 0;
     let totalLng = 0;
     const count = areaCoordinates[0].length;
-    console.log("Count:", count);
-
     areaCoordinates[0].forEach((point) => {
       totalLat += point.lat;
       totalLng += point.lng;
@@ -140,10 +135,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
 
   const handleAddArea = async () => {
     if (areaName) {
-      console.log("Adding area:", areaName);
-      console.log("Area coordinates:", areaCoordinates[0]);
-      
-      console.log("Center:", getCenter(areaCoordinates));
       API.addArea(
         areaName,
         JSON.stringify(areaCoordinates[0]),
@@ -206,8 +197,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
         ""
       )
         .then(() => {
-          console.log('Position updated successfully');
-
           // Update local state to reflect the new position
           const updatedLocations = { ...locations };
           if (updatedLocations[document.IdLocation]) {

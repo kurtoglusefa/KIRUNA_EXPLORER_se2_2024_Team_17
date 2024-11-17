@@ -82,7 +82,6 @@ function Home(props) {
           acc[location.IdLocation] = location;
           return acc;
         }, {});
-        console.log(locationsById);
         // Set the transformed object to state
         setLocationsArea(locationsById);
         setLoading(false);

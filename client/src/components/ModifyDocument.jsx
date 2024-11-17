@@ -4,7 +4,7 @@ import { Button, Form, Card, Row, Col, Modal, ListGroup, FloatingLabel, FormGrou
 import { useNavigate, useParams } from 'react-router-dom';
 import API from '../API';
 function ModifyDocument() {
-    const { documentId } = useParams();
+    let { documentId } = useParams();
     const [showAddConnection, setShowAddConnection] = useState(false);
     const [message, setMessage] = useState('');
     const location = useLocation(); 
@@ -22,10 +22,8 @@ function ModifyDocument() {
     const [type, setType] = useState('');
     const [latitude, setLatitude] = useState(selectedLocation && selectedLocation.lat != null ? selectedLocation.lat.toFixed(4) : 0);
     const [longitude, setLongitude] = useState(selectedLocation && selectedLocation.lng != null ? selectedLocation.lng.toFixed(4) : 0);
-    const [resources, setResources] = useState([{Title: 'Resource 1'}, {Title: 'Resource 2'}]);
+    const [resources, setResources] = useState([]);
     const [addResources, setAddResources] = useState([]);
-    //const [resources, setResources] = useState([]);
-
     const [selectedDocument, setSelectedDocument] = useState('');
     const [connectionType, setConnectionType] = useState('');
     const [connections, setConnections] = useState([]); // List of added connections
@@ -39,6 +37,7 @@ function ModifyDocument() {
     const [filteredDocuments, setFilteredDocuments] = useState([]); // used to filter documents
 
     useEffect(() => {
+      
         const getStakeholders = async () => {
             try {
                 const res = await API.getAllStakeholders();
@@ -98,7 +97,6 @@ function ModifyDocument() {
                     acc[conn.IdConnection] = conn;
                     return acc;
                 }, {});
-                console.log(res);
                 setTypeConnections(typeConnectionId);
             } catch (err) {
                 console.error(err);
@@ -129,7 +127,8 @@ function ModifyDocument() {
 
         if(documentId) {
           fetchDocument();
-          //fetchResources();
+          fetchResources();
+          
         }
     },[]);
 
@@ -138,7 +137,6 @@ function ModifyDocument() {
         setMessage("Please complete all fields to add a document.");
       } else {
         let date;
-        console.log(issuanceDate);
         if (issuanceDate.year && issuanceDate.month && issuanceDate.day) {
           date = `${issuanceDate.year}/${issuanceDate.month}/${issuanceDate.day}`;
         } else if (issuanceDate.year && issuanceDate.month && !issuanceDate.day) {
@@ -149,8 +147,6 @@ function ModifyDocument() {
           setMessage("Please provide a valid date format.");
           return;
         }
-        console.log(date);
-        console.log(addResources);
         if (documentId) {
           const result= await API.updateDocument(documentId, title,stakeholder.id ? stakeholder.id: stakeholder, scale, date, language, pages,description,  type.id ? type.id: type);
         } else {
@@ -214,6 +210,23 @@ function ModifyDocument() {
         setFilteredDocuments([]); // Clear suggestions after selection
     };
 
+    const addResourcesDocument = async () => {
+      if (addResources.length > 0) {
+        try {
+    
+          // Send FormData to your API function
+          await API.addResourcesToDocument(documentId, addResources);
+          // Optionally, fetch the updated resources list
+          const res = await API.getDocumentResources(documentId);
+          setResources(res);
+        } catch (err) {
+          console.error('Error uploading resources:', err);
+        }
+      } else {
+        console.log('No files selected');
+      }
+    };
+    
     /* ------------------------------------ FORM ------------------------------------------ */
     return (
       <>
@@ -361,7 +374,7 @@ function ModifyDocument() {
                                 <ListGroup variant="flush" className="mb-2">
                                       {resources.map((res, index) => (
                                         <ListGroup.Item key={index}>
-                                              {res.Title}
+                                              <a href={`http://localhost:3001${res.url}`} target="_blank">{res.filename}</a>
                                           </ListGroup.Item>
                                       ))}
                                   </ListGroup>
@@ -370,9 +383,12 @@ function ModifyDocument() {
                               )}
                             </div>
                             <div className='col-6'>
-                              <Form.Control type="file" multiple style={{borderColor:'black', borderRadius:'2rem'}} onChange={(e) => setAddResources(e.target.files)} />
+                              <Form.Control type="file" multiple style={{borderColor:'black', borderRadius:'2rem'}} onChange={(e) => setAddResources(Array.from(e.target.files))} />
                             </div>
                           </div>
+                          <Button variant="outline-dark" className='rounded-pill' onClick={addResourcesDocument}>
+                                  Add Resources
+                          </Button>
                         </Form.Group>
                       </div>
                 </Col>
