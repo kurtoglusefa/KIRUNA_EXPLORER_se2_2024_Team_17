@@ -13,22 +13,22 @@ const Location = require("../models/location"); // Import the Location class
  */
 exports.addLocation = (location_type,latitude,longitude,area_coordinates,area_name) => {
 
-  return new Promise((resolve, reject) => {
-    const sql =
-      "INSERT INTO Location (Location_type, Latitude, Longitude, Area_coordinates,Area_Name) VALUES (?,?,?,?,?)";
-    db.run(
-      sql,[location_type,latitude,longitude,JSON.stringify(area_coordinates),area_name],
-      function (err) {
-        if (err) {
-          reject(err);
-          return;
+    return new Promise((resolve, reject) => {
+      const sql =
+        "INSERT INTO Location (Location_type, Latitude, Longitude, Area_coordinates,Area_Name) VALUES (?,?,?,?,?)";
+      db.run(
+        sql,[location_type,latitude,longitude,JSON.stringify(area_coordinates),area_name],
+        function (err) {
+          if (err) {
+            reject(err);
+            return;
+          }
+          const newlocation = new Location(this.lastID,location_type,latitude,longitude,area_coordinates,area_name);
+          resolve(this.lastID);
         }
-        const newlocation = new Location(this.lastID,location_type,latitude,longitude,area_coordinates,area_name);
-        resolve(this.lastID);
-      }
-    );
-  });
-};
+      );
+    });
+  };
 /**
  * Get locatios point to the database.
  * @function getLocations

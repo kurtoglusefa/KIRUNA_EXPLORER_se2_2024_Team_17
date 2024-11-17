@@ -140,3 +140,85 @@ describe("Document API with Session Authentication", () => {
     expect(updateResponse.status).toBe(400);
   });
 });
+
+describe('Document Search API', () => {
+  it('should retrieve all documents', async () => {
+    const response = await request(app).get('/api/documents');
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body)).toBe(true);
+  });
+
+  it('should retrieve a document by title', async () => {
+    const title = "Updated Sample Title"; // replace with an existing title in the database
+    const response = await request(app).get(`/api/documents/title/${title}`);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("Title", title);
+  });
+
+  it('should return 404 if document title not found', async () => {
+    const response = await request(app).get('/api/documents/title/NonExistentTitle');
+    expect(response.status).toBe(404);
+    expect(response.body).toHaveProperty('error', 'Document not found');
+  });
+});
+describe("Define Geolocated Area API", () => {
+  let authenticatedAgent;
+
+  beforeAll(async () => {
+    authenticatedAgent = request.agent(app);
+
+    const loginResponse = await authenticatedAgent
+      .post("/api/sessions")
+      .send({ username: "mario@test.it", password: "pwd" });
+
+    expect(loginResponse.status).toBe(200); // Ensure login is successful
+  });
+
+  it("should create a new geolocated area", async () => {
+    const newArea = {
+      location_type: "Area",
+      center_lat : 40.7128,
+      center_lng : 74.006,
+      area_coordinates: JSON.stringify([
+        { lat: 40.7128, lng: 74.006 },
+        { lat: 40.7127, lng: 74.0059 },
+      ]),
+      areaName: "Test Area", // Ensure correct naming
+    };
+  
+    const response = await authenticatedAgent.post("/api/locations").send(newArea);
+    console.log("Create Area Response:", response.body); // Debugging
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty("message", "Location added successfully.");
+  });
+  
+
+  it("should return 400 if area coordinates are missing", async () => {
+    const incompleteArea = { location_type: "Area", areaName: "Test Area" };
+
+    const response = await authenticatedAgent.post("/api/locations").send(incompleteArea);
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty(
+      "error",
+      "For 'Area' locationType, areaCoordinates are required."
+    );
+  });
+});
+
+describe('Get All Document Areas API', () => {
+  it('should retrieve all geolocated areas', async () => {
+    const response = await request(app).get('/api/locations/area');
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body)).toBe(true);
+  });
+
+  it('should handle errors if location retrieval fails', async () => {
+    // Simulate failure (e.g., mock a database failure)
+    locationDao.getLocationsArea = jest.fn().mockRejectedValue(new Error('Database error'));
+
+    const response = await request(app).get('/api/locations/area');
+    expect(response.status).toBe(500);
+    console.log("Error Response:", response.body); // Debugging
+    expect(response.body).toHaveProperty('error', 'Internal server error');
+  });
+});
