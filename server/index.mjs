@@ -468,7 +468,7 @@ app.get("/api/locations/area", (req, res) => {
   locationDao
     .getLocationsArea()
     .then((locations) => res.json(locations))
-    .catch(() => res.status(500).end());
+    .catch(() => res.status(500).json({ error: "Internal server error" }));
 });
 
 app.get("/api/locations/:locationId", (req, res) => {
@@ -482,6 +482,7 @@ app.get("/api/locations/:locationId", (req, res) => {
 });
 
 app.post("/api/locations", isUrbanPlanner, async (req, res) => {
+
   console.log(req.body);
   
   const { location_type: locationType, center_lat: latitude, center_lng: longitude, area_coordinates: areaCoordinates,areaName: area_name } = req.body;
@@ -508,9 +509,7 @@ app.post("/api/locations", isUrbanPlanner, async (req, res) => {
     }
   }
   try {
-    console.log("dio sabnto"+area_name);
     const transformedCoordinates = JSON.parse(areaCoordinates).map(point => [point.lat, point.lng]);
-    console.log(transformedCoordinates);
     const result = await locationDao.addLocation(
       locationType,
       latitude,
@@ -518,6 +517,7 @@ app.post("/api/locations", isUrbanPlanner, async (req, res) => {
       transformedCoordinates,
       area_name
     );
+    console.log(result);
     if (result) {
       res.status(201).json({ message: "Location added successfully." });
     } else {

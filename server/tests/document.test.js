@@ -149,7 +149,7 @@ describe('Document Search API', () => {
   });
 
   it('should retrieve a document by title', async () => {
-    const title = "Sample Title"; // replace with an existing title in the database
+    const title = "Updated Sample Title"; // replace with an existing title in the database
     const response = await request(app).get(`/api/documents/title/${title}`);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("Title", title);
@@ -177,9 +177,11 @@ describe("Define Geolocated Area API", () => {
   it("should create a new geolocated area", async () => {
     const newArea = {
       location_type: "Area",
+      center_lat : 40.7128,
+      center_lng : 74.006,
       area_coordinates: JSON.stringify([
-        { lat: 40.7128, lng: -74.006 },
-        { lat: 40.7127, lng: -74.0059 },
+        { lat: 40.7128, lng: 74.006 },
+        { lat: 40.7127, lng: 74.0059 },
       ]),
       areaName: "Test Area", // Ensure correct naming
     };
@@ -212,8 +214,11 @@ describe('Get All Document Areas API', () => {
 
   it('should handle errors if location retrieval fails', async () => {
     // Simulate failure (e.g., mock a database failure)
+    locationDao.getLocationsArea = jest.fn().mockRejectedValue(new Error('Database error'));
+
     const response = await request(app).get('/api/locations/area');
     expect(response.status).toBe(500);
+    console.log("Error Response:", response.body); // Debugging
     expect(response.body).toHaveProperty('error', 'Internal server error');
   });
 });
