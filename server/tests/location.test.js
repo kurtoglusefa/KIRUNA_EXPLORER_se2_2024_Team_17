@@ -10,12 +10,10 @@ describe("Location API", () => {
 
   beforeAll(async () => {
     agent = request.agent(app);
-
     await agent
       .post("/api/sessions")
       .send({ username: "mario@test.it", password: "pwd" });
   });
-
   describe("GET /api/locations", () => {
     it("should retrieve all point locations", async () => {
       const mockLocations = [
@@ -85,72 +83,73 @@ describe("Location API", () => {
     });
   });
 
-  //   describe("POST /api/locations", () => {
-  //     it("should create a new location with valid data", async () => {
-  //       const newLocation = {
-  //         locationType: "Point",
-  //         latitude: 67.85,
-  //         longitude: 20.22,
-  //         areaCoordinates: "", // assuming this is optional for Point
-  //         areaName: "", // optional field
-  //       };
+  describe("POST /api/locations", () => {
+    it("should create a new location with valid data", async () => {
+      const newLocation = {
+        location_type: "Point",
+        center_lat: 67.85,
+        center_lng: 20.22,
+        area_coordinates: "", // assuming this is optional for Point
+        areaName: "", // optional field
+      };
 
-  //       locationDao.addLocation.mockResolvedValue(1); // simulate database response with a new location ID
+      locationDao.addLocation.mockResolvedValue(1); // simulate database response with a new location ID
 
-  //       const response = await request(app)
-  //         .post("/api/locations")
-  //         .send(newLocation);
+      const response = await agent
+        .post("/api/locations")
+        .send(newLocation);
 
-  //       expect(response.status).toBe(201);
-  //       expect(response.body).toEqual({
-  //         message: "Location added successfully.",
-  //         locationId: 1,
-  //       });
-  //     });
+      expect(response.status).toBe(201);
+      expect(response.body).toEqual({
+        message: "Location added successfully.",
+        locationId: 1,
+      });
+    });
 
-  //     it("should return 400 when required fields are missing", async () => {
-  //       const incompleteLocation = {
-  //         locationType: "Point",
-  //         longitude: 20.22,
-  //       }; // missing latitude and areaCoordinates
+    it("should return 400 when required fields are missing", async () => {
+      const incompleteLocation = {
+        center_lat: 20.22,
+        center_lng: 20.22,
+      }; // missing locationType
 
-  //       const response = await request(app)
-  //         .post("/api/locations")
-  //         .send(incompleteLocation);
+      const response = await agent
+        .post("/api/locations")
+        .send(incompleteLocation);
 
-  //       expect(response.status).toBe(400);
-  //       expect(response.body).toEqual({
-  //         error: "Missing required fields: locationType, latitude, longitude",
-  //       });
-  //     });
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({
+        error: "locationType is required.",
+      });
+    });
 
-  //     it("should return 500 when there is a server/database error", async () => {
-  //       const newLocation = {
-  //         locationType: "Point",
-  //         latitude: 67.85,
-  //         longitude: 20.22,
-  //         areaCoordinates: "",
-  //       };
+    it("should return 500 when there is a server/database error", async () => {
+      const newLocation = {
+        location_type: "Point",
+        center_lat: 67.85,
+        center_lng: 20.22,
+        area_coordinates: "", // assuming this is optional for Point
+        areaName: "" // optional field
+      };
 
-  //       locationDao.addLocation.mockRejectedValue(new Error("Database error"));
+      locationDao.addLocation.mockRejectedValue(new Error("Database error"));
 
-  //       const response = await request(app)
-  //         .post("/api/locations")
-  //         .send(newLocation);
+      const response = await agent
+        .post("/api/locations")
+        .send(newLocation);
 
-  //       expect(response.status).toBe(500);
-  //       expect(response.body).toEqual({
-  //         error: "Internal server error",
-  //       });
-  //     });
-  //   });
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        error: "Database error",
+      });
+    });
+  });
 
   describe("PATCH /api/locations/:locationId", () => {
     it("should update the location successfully", async () => {
       const updatedLocation = {
         location_type: "Point",
         latitude: 12.34,
-        longitude: 56.78,
+        longitude: 56.78
       };
 
       locationDao.getLocationById.mockResolvedValue({ IdLocation: 1 }); // checking if location exists
@@ -170,7 +169,7 @@ describe("Location API", () => {
       const updatedLocation = {
         location_type: "Point",
         latitude: 12.34,
-        longitude: 56.78,
+        longitude: 56.78
       };
 
       locationDao.getLocationById.mockResolvedValue(null); // location does not exist

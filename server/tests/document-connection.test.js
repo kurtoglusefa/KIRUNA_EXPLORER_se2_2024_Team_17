@@ -157,8 +157,9 @@ describe("Document Connections API", () => {
         IdDocument2: 2,
         IdConnection: 3,
       };
+      console.log("sto facendo update");
 
-      DocumentConnectionDao.updateDocumentConnection.mockResolvedValue(true);
+      DocumentConnectionDao.updateConnection.mockResolvedValue(true);
 
       const response = await agent
         .patch(`/api/documents/${documentId}/connection`)
@@ -194,7 +195,7 @@ describe("Document Connections API", () => {
         IdConnection: 3,
       };
 
-      DocumentConnectionDao.updateDocumentConnection.mockResolvedValue(false);
+      DocumentConnectionDao.updateConnection.mockResolvedValue(false);
 
       const response = await agent
         .patch(`/api/documents/${documentId}/connection`)
@@ -211,7 +212,7 @@ describe("Document Connections API", () => {
         IdConnection: 3,
       };
 
-      DocumentConnectionDao.updateDocumentConnection.mockRejectedValue(
+      DocumentConnectionDao.updateConnection.mockRejectedValue(
         new Error("Database error")
       );
 

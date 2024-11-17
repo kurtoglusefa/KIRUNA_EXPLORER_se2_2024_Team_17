@@ -64,6 +64,22 @@ describe('userDao', () => {
 
             await expect(userDao.getUser(email, password)).rejects.toThrow('DB error');
         });
+        it('should resolve false if the password does not match', async () => {
+
+            db.get.mockImplementation((sql, params, callback) => {
+                callback(null, mockRow); // Simulate db returning a valid row
+            });
+            jest.spyOn(crypto, 'scrypt').mockImplementation((password, salt, keylen, callback) => {
+                // Call the callback with an error
+                callback(new Error('scrypt error'), null);
+              });
+          
+              const email = 'test@example.com';
+              const password = 'password123';
+          
+              // Call your function
+              await expect(userDao.getUser(email, password)).rejects.toThrow('scrypt error');
+        });
     });
 
     describe('getUserById', () => {
