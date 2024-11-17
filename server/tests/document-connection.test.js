@@ -8,7 +8,6 @@ jest.mock("../dao/document-connection-dao.js");
 // jest.mock("../dao/user-dao");
 
 describe("Document Connections API", () => {
-
   let agent;
 
   beforeAll(async () => {
@@ -81,8 +80,6 @@ describe("Document Connections API", () => {
       expect(response.body).toEqual({ error: "Internal server error" });
     });
   });
-
-  
 
   describe("POST /api/document-connections", () => {
     it("should create a new document connection when authenticated", async () => {
@@ -160,8 +157,9 @@ describe("Document Connections API", () => {
         IdDocument2: 2,
         IdConnection: 3,
       };
+      console.log("sto facendo update");
 
-      DocumentConnectionDao.updateDocumentConnection.mockResolvedValue(true);
+      DocumentConnectionDao.updateConnection.mockResolvedValue(true);
 
       const response = await agent
         .patch(`/api/documents/${documentId}/connection`)
@@ -197,7 +195,7 @@ describe("Document Connections API", () => {
         IdConnection: 3,
       };
 
-      DocumentConnectionDao.updateDocumentConnection.mockResolvedValue(false);
+      DocumentConnectionDao.updateConnection.mockResolvedValue(false);
 
       const response = await agent
         .patch(`/api/documents/${documentId}/connection`)
@@ -214,7 +212,7 @@ describe("Document Connections API", () => {
         IdConnection: 3,
       };
 
-      DocumentConnectionDao.updateDocumentConnection.mockRejectedValue(
+      DocumentConnectionDao.updateConnection.mockRejectedValue(
         new Error("Database error")
       );
 
@@ -224,6 +222,37 @@ describe("Document Connections API", () => {
 
       expect(response.status).toBe(500);
       expect(response.body).toEqual({ error: "Database error" });
+    });
+  });
+
+  describe("GET /api/connections", () => {
+    it("should retrieve all connection types for a document successfully", async () => {
+      const mockConnections = [
+        { IdConnection: 1, Type: "Projection" },
+        { IdConnection: 2, Type: "Collateral Consequence" },
+      ];
+
+      DocumentConnectionDao.getAllConnectionsType.mockResolvedValue(
+        mockConnections
+      );
+
+      const response = await request(app).get("/api/connections");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(mockConnections);
+      expect(DocumentConnectionDao.getAllConnectionsType).toHaveBeenCalled();
+    });
+
+    it("should return 500 if the DAO method throws an error", async () => {
+      DocumentConnectionDao.getAllConnectionsType.mockRejectedValue(
+        new Error("Database error")
+      );
+
+      const response = await request(app).get("/api/connections");
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({ error: "Internal server error" });
+      expect(DocumentConnectionDao.getAllConnectionsType).toHaveBeenCalled();
     });
   });
 });

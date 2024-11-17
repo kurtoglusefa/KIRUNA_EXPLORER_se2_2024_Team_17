@@ -299,7 +299,7 @@ app.patch("/api/documents/:documentId/connection", async (req, res) => {
   }
 
   try {
-    const result = await DocumentConnectionDao.updateDocumentConnection(
+    const result = await DocumentConnectionDao.updateConnection(
       documentId,
       newDocumentId2,
       newConnectionId
@@ -508,9 +508,10 @@ app.post("/api/locations", isUrbanPlanner, async (req, res) => {
     }
   }
   try {
-    console.log("dio sabnto"+area_name);
-    const transformedCoordinates = JSON.parse(areaCoordinates).map(point => [point.lat, point.lng]);
-    console.log(transformedCoordinates);
+    let  transformedCoordinates;
+    if(locationType == "Area"){
+      transformedCoordinates= JSON.parse(areaCoordinates).map(point => [point.lat, point.lng]);
+    }
     const result = await locationDao.addLocation(
       locationType,
       latitude,
@@ -519,7 +520,7 @@ app.post("/api/locations", isUrbanPlanner, async (req, res) => {
       area_name
     );
     if (result) {
-      res.status(201).json({ message: "Location added successfully." });
+      res.status(201).json({ locationId: result,message: "Location added successfully." });
     } else {
       res.status(500).json({ error: "Failed to add location." });
     }
@@ -603,6 +604,7 @@ const server = async () => {
     const server = app.listen(port, () => {
       console.log(`Server listening at http://localhost:${port}`);
     });
+    return server;
   }
 };
 server().catch(err => console.error(err));
