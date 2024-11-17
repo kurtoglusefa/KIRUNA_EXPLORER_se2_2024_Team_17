@@ -37,6 +37,19 @@ function ModifyDocument() {
     const [filteredDocuments, setFilteredDocuments] = useState([]); // used to filter documents
 
     useEffect(() => {
+      const fetchResources = async () => {
+        try {
+            const res = await API.getDocumentResources(documentId);
+            setResources(res);
+        } catch (err) {
+            setMessage(err);
+        }
+      };
+      if(documentId)
+        fetchResources();
+    }, [addResources]);
+
+    useEffect(() => {
       
         const getStakeholders = async () => {
             try {
@@ -111,25 +124,14 @@ function ModifyDocument() {
             }
         };
 
-        const fetchResources = async () => {
-          try {
-              const res = await API.getDocumentResources(documentId);
-              setResources(res);
-          } catch (err) {
-              console.error(err);
-          }
-        };
-
         getStakeholders();
         getTypes();
         getAllTypeConnections();
         getDocumentConnections();
 
-        if(documentId) {
+        if(documentId)
           fetchDocument();
-          fetchResources();
           
-        }
     },[]);
 
     const handleUpdate = async() => {
@@ -218,12 +220,13 @@ function ModifyDocument() {
           await API.addResourcesToDocument(documentId, addResources);
           // Optionally, fetch the updated resources list
           const res = await API.getDocumentResources(documentId);
-          setResources(res);
+          setAddResources([]);
+          setMessage('');
         } catch (err) {
-          console.error('Error uploading resources:', err);
+          setMessage('Error uploading resources:' + err);
         }
       } else {
-        console.log('No files selected');
+        setMessage('No files selected');
       }
     };
     
@@ -250,7 +253,7 @@ function ModifyDocument() {
                       </Form.Group>
                       
                       <Form.Group controlid="scale" className="mb-3">
-                        <FloatingLabel label="Scale" className="mb-3">
+                        <FloatingLabel label="Scale*" className="mb-3">
                           <Form.Control
                               placeholder='scale'
                               type="text"
@@ -365,32 +368,34 @@ function ModifyDocument() {
                           </div>
                         </div>}
                         {/* Add resources */}
-                        <div className="mb-3">
-                        <Form.Group controlId="formFileMultiple" className="mb-3">
-                          <Form.Label as='strong'>Resources</Form.Label>
-                          <div className=' d-flex justify-content-between mt-3'>
-                            <div className='text-start col ms-3 me-5'>
-                              {resources.length > 0 ? (
-                                <ListGroup variant="flush" className="mb-2">
-                                      {resources.map((res, index) => (
-                                        <ListGroup.Item key={index}>
-                                              <a href={`http://localhost:3001${res.url}`} target="_blank">{res.filename}</a>
-                                          </ListGroup.Item>
-                                      ))}
-                                  </ListGroup>
-                              ) : (
-                                <p className="text-muted">No resources added yet.</p>
-                              )}
-                            </div>
-                            <div className='col-6'>
-                              <Form.Control type="file" multiple style={{borderColor:'black', borderRadius:'2rem'}} onChange={(e) => setAddResources(Array.from(e.target.files))} />
-                            </div>
-                          </div>
-                          <Button variant="outline-dark" className='rounded-pill' onClick={addResourcesDocument}>
+                        {documentId &&
+                          <div className="mb-3">
+                          <Form.Group controlId="formFileMultiple" className="mb-3">
+                            <Form.Label as='strong'>Resources</Form.Label>
+                            <div className=' d-flex justify-content-between mt-3'>
+                              <div className='text-start col ms-3 me-5'>
+                                {resources.length > 0 ? (
+                                  <ListGroup variant="flush" className="mb-2">
+                                        {resources.map((res, index) => (
+                                          <ListGroup.Item key={index}>
+                                                <a href={`http://localhost:3001${res.url}`} target="_blank"><u>{res.filename}</u></a>
+                                            </ListGroup.Item>
+                                        ))}
+                                    </ListGroup>
+                                ) : (
+                                  <p className="text-muted">No resources added yet.</p>
+                                )}
+                              </div>
+                              <div className='col-6'>
+                                <Form.Control type="file" multiple onChange={(e) => setAddResources(Array.from(e.target.files))} />
+                                <Button variant="outline-dark" className='rounded-pill mt-3' onClick={addResourcesDocument}>
                                   Add Resources
-                          </Button>
-                        </Form.Group>
-                      </div>
+                                </Button>
+                              </div>
+                            </div>
+                          </Form.Group>
+                        </div>
+                      }
                 </Col>
 
                 {/* ---------------------- Right Column --------------------------- */}
@@ -410,7 +415,7 @@ function ModifyDocument() {
                         <FormGroup controlid="type" className="mb-3">
                           <FloatingLabel label="Document Type" className="mb-3">
                             <Form.Select value={type.id} onChange={(e) => setType(e.target.value)} >
-                              <option>Select Document Type</option>
+                              <option>Select Document Type*</option>
                               {types.map((tp) => 
                                 <option key={tp.id} value={tp.id}>{tp.type}</option>
                               )
@@ -419,7 +424,7 @@ function ModifyDocument() {
                           </FloatingLabel>  
                     </FormGroup>
                     <Form.Group controlid="description" className="mb-3">
-                      <FloatingLabel label="Description" className="mb-3">
+                      <FloatingLabel label="Description*" className="mb-3">
                         <Form.Control
                             placeholder='description'
                             className='mt-auto'

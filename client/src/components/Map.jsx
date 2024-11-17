@@ -11,6 +11,8 @@ import CardDocument from './CardDocument';
 import "leaflet-draw/dist/leaflet.draw.css";
 import { EditControl } from "react-leaflet-draw"; // Import for the drawing tool
 import { FeatureGroup } from "react-leaflet"; // Import for the drawing tool
+
+
 function MapComponent({ locations, setLocations, locationsArea, documents, setSelectedLocation, propsDocument, selectedLocation, handleDocumentClick, numberofconnections,fetchLocationsArea}) {
   const selectedDocument = useContext(AppContext).selectedDocument;
   const setSelectedDocument = useContext(AppContext).setSelectedDocument;
@@ -23,6 +25,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   const context = useContext(AppContext);
   const isLogged = context.loginState.loggedIn;
   const [documentTypes, setDocumentTypes] = useState([]);
+  const [stakeholders, setStakeholders] = useState([]);
   const [modifyMode, setModifyMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const offsetDistance = 0.0020; //offset distance between markers
@@ -35,12 +38,43 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   const [selectedArea, setSelectedArea] = useState(null);
 
   const [newCoordinates, setNewCoordinates] = useState([]);
+  const [icons, setIcons] = useState({});
+
+  useEffect(() => {
+    const getIcon = async (document) => {
+      const res = await fetch(`src/icon/${documentTypes[document.IdType - 1]?.iconsrc}`);
+      const svg = await res.text();
+      svg.replace('fill="black"', 'fill="red"');
+      return new L.DivIcon({
+        iconUrl:`src/icon/${documentTypes[document.IdType - 1]?.iconsrc}`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32],
+        className: "",
+      });
+    };
+
+    const loadIcons = async () => {
+      const newIcons = {};
+      for (const document of documents) {
+        const icon = await getIcon(document);
+        newIcons[document.IdLocation] = icon;
+      }
+      setIcons(newIcons);
+    };
+
+    loadIcons();
+  }, [documents]);
+
 
   useEffect(() => {
     // Define an async function inside useEffect
     const updateArea = async () => {
       
       if (selectedArea && newCoordinates.length > 0) {
+        console.log("sono dentro la usefefft");
+        console.log("Selected Area:", selectedArea);
+        console.log("Selected Area Coordinates:", newCoordinates);
   
         // Assuming getCenter is available and newCoordinates is a valid object
         const { lat, lng } = getCenter(newCoordinates);
@@ -102,9 +136,10 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
     setLoading(true);
     const fetchDocumentTypes = async () => {
       try {
-        const res = await API.getAllTypesDocument();
-
-        setDocumentTypes(res);
+        const types = await API.getAllTypesDocument();
+        setDocumentTypes(types);
+        const stakeholders = await API.getAllStakeholders();
+        setStakeholders(stakeholders);
       } catch (err) {
         console.error(err);
       }
@@ -121,6 +156,8 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
     let totalLat = 0;
     let totalLng = 0;
     const count = areaCoordinates[0].length;
+    console.log("Count:", count);
+
     areaCoordinates[0].forEach((point) => {
       totalLat += point.lat;
       totalLng += point.lng;
@@ -135,6 +172,10 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
 
   const handleAddArea = async () => {
     if (areaName) {
+      console.log("Adding area:", areaName);
+      console.log("Area coordinates:", areaCoordinates[0]);
+      
+      console.log("Center:", getCenter(areaCoordinates));
       API.addArea(
         areaName,
         JSON.stringify(areaCoordinates[0]),
@@ -197,6 +238,8 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
         ""
       )
         .then(() => {
+          console.log('Position updated successfully');
+
           // Update local state to reflect the new position
           const updatedLocations = { ...locations };
           if (updatedLocations[document.IdLocation]) {
@@ -281,16 +324,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                         <Marker
                           key={index}
                           position={position}
-                          icon={
-                            new L.Icon({
-                              iconUrl: `src/icon/${
-                                documentTypes[document.IdType - 1]?.iconsrc
-                              }`,
-                              iconSize: [32, 32],
-                              iconAnchor: [16, 32],
-                              popupAnchor: [0, -32],
-                            })
-                          }
+                          icon={new L.DivIcon(icons[document.IdLocation])}
                           draggable={modifyMode}
                           eventHandlers={{
                             dragend: (e) => {
