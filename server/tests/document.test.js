@@ -161,26 +161,48 @@ describe('Document Search API', () => {
     expect(response.body).toHaveProperty('error', 'Document not found');
   });
 });
-describe('Define Geolocated Area API', () => {
-  it('should create a new geolocated area', async () => {
+describe("Define Geolocated Area API", () => {
+  let authenticatedAgent;
+
+  beforeAll(async () => {
+    authenticatedAgent = request.agent(app);
+
+    const loginResponse = await authenticatedAgent
+      .post("/api/sessions")
+      .send({ username: "mario@test.it", password: "pwd" });
+
+    expect(loginResponse.status).toBe(200); // Ensure login is successful
+  });
+
+  it("should create a new geolocated area", async () => {
     const newArea = {
       location_type: "Area",
-      area_coordinates: JSON.stringify([{ lat: 40.7128, lng: -74.0060 }, { lat: 40.7127, lng: -74.0059 }]),
-      area_name: "Test Area"
+      area_coordinates: JSON.stringify([
+        { lat: 40.7128, lng: -74.006 },
+        { lat: 40.7127, lng: -74.0059 },
+      ]),
+      areaName: "Test Area", // Ensure correct naming
     };
-
-    const response = await request(app).post('/api/locations').send(newArea);
+  
+    const response = await authenticatedAgent.post("/api/locations").send(newArea);
+    console.log("Create Area Response:", response.body); // Debugging
     expect(response.status).toBe(201);
     expect(response.body).toHaveProperty("message", "Location added successfully.");
   });
+  
 
-  it('should return 400 if area coordinates are missing', async () => {
-    const incompleteArea = { location_type: "Area" };
-    const response = await request(app).post('/api/locations').send(incompleteArea);
+  it("should return 400 if area coordinates are missing", async () => {
+    const incompleteArea = { location_type: "Area", areaName: "Test Area" };
+
+    const response = await authenticatedAgent.post("/api/locations").send(incompleteArea);
     expect(response.status).toBe(400);
-    expect(response.body).toHaveProperty('error', 'For \'Area\' locationType, areaCoordinates are required.');
+    expect(response.body).toHaveProperty(
+      "error",
+      "For 'Area' locationType, areaCoordinates are required."
+    );
   });
 });
+
 describe('Get All Document Areas API', () => {
   it('should retrieve all geolocated areas', async () => {
     const response = await request(app).get('/api/locations/area');
@@ -195,4 +217,3 @@ describe('Get All Document Areas API', () => {
     expect(response.body).toHaveProperty('error', 'Internal server error');
   });
 });
-
