@@ -14,8 +14,9 @@
 .leaflet-container {
   height: 80vh;
   border-radius: 1rem;
-  margin-top: 50px; /* Increase margin for more space below navbar */
-  
+  margin-top: 50px;
+  /* Increase margin for more space below navbar */
+
 }
 
 .mapContainer {
@@ -64,9 +65,9 @@
 }
 
 .btn-logout {
-  background-color: #B52C92;
+  background-color: #A89559;
   color: white;
-  border-color: #B52C92;
+
 }
 
 .btn-document {
