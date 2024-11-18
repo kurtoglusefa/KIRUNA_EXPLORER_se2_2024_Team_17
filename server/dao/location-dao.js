@@ -12,7 +12,6 @@ const Location = require("../models/location"); // Import the Location class
  * @returns {Promise<Number>} Resolves with the id created location.
  */
 exports.addLocation = (location_type,latitude,longitude,area_coordinates,area_name) => {
-
     return new Promise((resolve, reject) => {
       const sql =
         "INSERT INTO Location (Location_type, Latitude, Longitude, Area_coordinates,Area_Name) VALUES (?,?,?,?,?)";
@@ -20,8 +19,8 @@ exports.addLocation = (location_type,latitude,longitude,area_coordinates,area_na
         sql,[location_type,latitude,longitude,JSON.stringify(area_coordinates),area_name],
         function (err) {
           if (err) {
+            console.log(err);
             reject(err);
-            return;
           }
           const newlocation = new Location(this.lastID,location_type,latitude,longitude,area_coordinates,area_name);
           resolve(this.lastID);

@@ -1,10 +1,13 @@
 import request from "supertest";
 const { app, server } = require("../index.mjs");
 const locationDao = require("../dao/location-dao.js");
+const fs = require('fs');
+const path = require('path');
 
+let documentId;
 describe("Document API with Session Authentication", () => {
   let agent;
-  let documentId;
+  
 
   beforeAll(async () => {
     agent = request.agent(app);
@@ -185,9 +188,9 @@ describe("Define Geolocated Area API", () => {
       ]),
       areaName: "Test Area", // Ensure correct naming
     };
-  
+    locationDao.addLocation = jest.fn().mockResolvedValue(1); 
+
     const response = await authenticatedAgent.post("/api/locations").send(newArea);
-    console.log("Create Area Response:", response.body); // Debugging
     expect(response.status).toBe(201);
     expect(response.body).toHaveProperty("message", "Location added successfully.");
   });
@@ -206,6 +209,18 @@ describe("Define Geolocated Area API", () => {
 });
 
 describe('Get All Document Areas API', () => {
+
+  let agent;
+
+  beforeAll(async () => {
+    agent = request.agent(app);
+
+    const loginResponse = await agent
+      .post("/api/sessions")
+      .send({ username: "mario@test.it", password: "pwd" });
+    expect(loginResponse.status).toBe(200);
+  });
+
   it('should retrieve all geolocated areas', async () => {
     const response = await request(app).get('/api/locations/area');
     expect(response.status).toBe(200);
@@ -218,7 +233,68 @@ describe('Get All Document Areas API', () => {
 
     const response = await request(app).get('/api/locations/area');
     expect(response.status).toBe(500);
-    console.log("Error Response:", response.body); // Debugging
     expect(response.body).toHaveProperty('error', 'Internal server error');
   });
+});
+describe('File Upload API', () => {
+
+  let agent;
+  beforeAll(async () => {
+    agent = request.agent(app);
+
+    const loginResponse = await agent
+      .post("/api/sessions")
+      .send({ username: "mario@test.it", password: "pwd" });
+    expect(loginResponse.status).toBe(200);
+  });
+  it('should upload a file successfully', async () => {
+    // Mock the file upload process
+    const mockFile = { filename: 'testfile.txt' };
+
+    // Mock the req.file object to simulate a successful file upload
+    const mockRequest = {
+      file: mockFile,
+      params: { documentId: documentId }
+    };
+    const mockMiddleware = (req, res, next) => next();  
+
+    const mockUpload = {
+      single: jest.fn().mockImplementation(() => (req, res, next) => next()) // Simulate file upload middleware
+    };
+
+    console.log(path.resolve(__dirname, 'mock_file/testfile.txt')); // Add this for debugging
+
+    const response = await agent
+      .post('/api/documents/'+documentId+'/resources')
+      .attach('file', path.resolve(__dirname, 'mock_file/testfile.txt'))  // Attach a mock file
+      .set('Content-Type', 'multipart/form-data');
+    console.log(response.body); // Add this for debugging
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe('File uploaded successfully!');
+    expect(response.body.documentId).toBe(documentId);
+    expect(response.body.filename).toBe(mockFile.filename);
+  });
+  it('should return a list of resources for a document', async () => {
+    const mockFiles = ['testfile.txt'];
+
+    // Mock the file system behavior to simulate existing files
+
+    const response = await agent
+      .get('/api/documents/'+documentId+'/resources');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveLength(mockFiles.length);
+    expect(response.body[0].filename).toBe(mockFiles[0]);
+  });
+  it('should return 404 if no resources are found for the document', async () => {
+    const documentIdmock = '99999999';
+
+    // Simulate no files for the document
+
+    const response = await agent
+      .get(`/api/documents/${documentIdmock}/resources`);
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBe('Document not found');
+  });  
 });

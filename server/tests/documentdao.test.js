@@ -22,6 +22,15 @@ describe("documentDao", () => {
       const documents = await documentDao.getDocuments();
       expect(documents).toEqual(mockDocuments);
     });
+    it("should return an error when retrieving documents fails", async () => {
+      db.all.mockImplementation((sql, callback) => {
+        callback(new Error("Failed to retrieve documents"));
+      });
+
+      await expect(documentDao.getDocuments()).rejects.toThrow(
+        "Failed to retrieve documents"
+      );
+    });
   });
 
   describe("getDocumentById", () => {
@@ -45,6 +54,15 @@ describe("documentDao", () => {
 
       const document = await documentDao.getDocumentById(1);
       expect(document).toEqual(mockDocument);
+    });
+    it("should return an error when retrieving a document by ID fails", async () => {
+      db.get.mockImplementation((sql, params, callback) => {
+        callback(new Error("Failed to retrieve document"));
+      });
+
+      await expect(documentDao.getDocumentById(1)).rejects.toThrow(
+        "Failed to retrieve document"
+      );
     });
   });
 
@@ -99,4 +117,29 @@ describe("documentDao", () => {
       ).rejects.toThrow("Failed to update document.");
     });
   });
+  describe("addDocument", () => {
+
+    it("should return an error when adding a document fails", async () => {
+      db.run.mockImplementation((sql, params, callback) => {
+        callback(new Error("Failed to add document"));
+      });
+
+      await expect(documentDao.addDocument(new Document())).rejects.toThrow(
+        "Failed to add document"
+      );
+    });
+  });
+  describe("getDocumentByTitle", () => {
+    it("should return error if problem in db", async () => {
+      db.get.mockImplementation((sql, params, callback) => {
+        callback(new Error("Failed to retrieve document"));
+      });
+
+      await expect(documentDao.getDocumentByTitle("Title")).rejects.toThrow(
+        "Failed to retrieve document"
+      );
+
+    });
+  });
+
 });

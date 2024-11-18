@@ -157,8 +157,6 @@ describe("Document Connections API", () => {
         IdDocument2: 2,
         IdConnection: 3,
       };
-      console.log("sto facendo update");
-
       DocumentConnectionDao.updateConnection.mockResolvedValue(true);
 
       const response = await agent

@@ -27,7 +27,6 @@ describe('Document Type API', () => {
         
         const response = await agent.get(`/api/types/${typeId}`);
         
-        console.log('Get Type by ID Response:', response.body);
         if (response.status === 200) {
             expect(response.body).toHaveProperty('id', typeId);
             expect(response.body).toHaveProperty('iconsrc');

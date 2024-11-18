@@ -21,47 +21,47 @@ To run the web app refer to the following step:
 
 ## Docker 
 
-# How to Launch the Kiruna Explorer Application
+### Prerequisites
 
-You can launch the Kiruna Explorer application using the image provided in docker.
+- Docker Desktop installed on your machine
 
-## Running the Application Using Docker Compose 
+### Building the Docker container
 
-This method uses Docker Compose to link two containers (client and server) for the application.
+To start your application  easily with Docker, you first need to open docker desktop on you machine
+Then open a terminal or a shell in the root of the project and run the following command:
 
-### Steps:
+```sh
+docker-compose up --build
+```
 
-1. **Clone the repository**:
-    ```bash
-    git clone repourl
-    ```
-2. **Run Docker Compose**:
+### **Recommended method if Docker Compose runs without success**
 
-    ```bash
-    docker-compose up -d
-    ```
+If Docker Compose runs without success, you need to build each Docker images (client and server) individually.
+To do so, you need to go inside both directory (client and server) and type the following commands:
+(Open two terminals from the root: one for the client and one for the server to start each one the application)
+
+for the client:
+
+```
+cd client
+docker build .
+```
+
+and for the server:
+
+```
+cd server
+docker build .
+```
+
+then return back in the root directory and type again
+
+```sh
+docker-compose up --build
+```
+
 You will see the kiruna explore at address: http://localhost:5173/
 
-
-## Notes
-- Ensure you have Docker and Docker Compose installed on your machine.
-- Make sure you're logged into Docker Hub before pushing images:
-
-    ```bash
-    docker login
-    ```
-
-- You can stop the application with:
-
-    ```bash
-    docker-compose down
-    ```
-
-This setup will link the client and server containers, allowing the application to run seamlessly.
-
-
-
-Nb we pushed the server and client images using this command: `docker build -t my-node-app .`
 
 
 ## How to test the backend API's app

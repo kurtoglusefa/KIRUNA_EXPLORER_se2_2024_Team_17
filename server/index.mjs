@@ -92,16 +92,8 @@ const storage = multer.diskStorage({
     cb(null, dirPath);
   },
   filename: (req, file, cb) => {
-    const documentId = req.params.documentId;
-    const currentDate = new Date()
-      .toISOString()
-      .replace(/[-:]/g, "")
-      .replace("T", "_")
-      .split(".")[0];
-    const fileExtension = path.extname(file.originalname);
-
-    // Filename format: documentId_YYYYMMDD_HHMMSS.extension
-    const newFilename = `${documentId}_${currentDate}${fileExtension}`;
+    const fileExtension = path.extname(file.originalname).toLowerCase();
+    const newFilename = `${file.originalname}`;
     cb(null, newFilename);
   },
 });
@@ -198,7 +190,6 @@ app.get("/api/sessions/current", (req, res) => {
 // POST /api/documents, only possible for authenticated users and if he/she is a urban planner
 app.post("/api/documents", isUrbanPlanner, async (req, res) => {
   const document = req.body;
-  console.log(document);
   if (!document.title || !document.idStakeholder || !document.idtype) {
     res
       .status(400)
@@ -323,6 +314,7 @@ app.post(
   upload.single("file"),
   async (req, res) => {
     if (req.file) {
+      console.log("SONO QUA");
       const documentId = parseInt(req.params.documentId);
       res.json({
         message: "File uploaded successfully!",
@@ -482,8 +474,6 @@ app.get("/api/locations/:locationId", (req, res) => {
 });
 
 app.post("/api/locations", isUrbanPlanner, async (req, res) => {
-
-  console.log(req.body);
   
   const { location_type: locationType, center_lat: latitude, center_lng: longitude, area_coordinates: areaCoordinates,areaName: area_name } = req.body;
 
@@ -520,7 +510,6 @@ app.post("/api/locations", isUrbanPlanner, async (req, res) => {
       transformedCoordinates,
       area_name
     );
-    console.log(result);
     if (result) {
       res.status(201).json({ locationId: result,message: "Location added successfully." });
     } else {
@@ -533,8 +522,6 @@ app.post("/api/locations", isUrbanPlanner, async (req, res) => {
 
 app.patch("/api/locations/:locationId", isUrbanPlanner, async (req, res) => {
   const idLocation = parseInt(req.params.locationId);
-  console.log(idLocation);
-  console.log(req.body);
   const {
     location_type: locationType,
     latitude,
@@ -601,10 +588,10 @@ const isPortInUse = (port) => {
 const server = async () => {
   const isInUse = await isPortInUse(port);
   if (isInUse) {
-    console.log(`Port ${port} is already in use. Server not started.`);
+    //console.log(`Port ${port} is already in use. Server not started.`);
   } else {
     const server = app.listen(port, () => {
-      console.log(`Server listening at http://localhost:${port}`);
+      //console.log(`Server listening at http://localhost:${port}`);
     });
     return server;
   }
