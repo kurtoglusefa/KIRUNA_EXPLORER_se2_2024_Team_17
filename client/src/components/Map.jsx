@@ -458,7 +458,7 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
             {selectedLocation && modifyMode && <Marker position={selectedLocation} /> }
             
             {/* setView on selected Marker*/}
-            {selectedMarker && <MarkerFocus position={locationsArea[selectedMarker?.IdLocation] ? {lat: locationsArea[selectedMarker?.IdLocation].Latitude, lng:locationsArea[selectedMarker?.IdLocation].Longitude} : {lat:locations[selectedMarker?.IdLocation]?.Latitude, lng: locations[selectedMarker?.IdLocation]?.Longitude}} />}
+            {(locations && locationsArea && selectedMarker) && <MarkerFocus position={locationsArea[selectedMarker?.IdLocation] ? {lat: locationsArea[selectedMarker?.IdLocation].Latitude, lng:locationsArea[selectedMarker?.IdLocation].Longitude} : {lat:locations[selectedMarker?.IdLocation]?.Latitude, lng: locations[selectedMarker?.IdLocation]?.Longitude}} />}
             {/* Markers 
             {documents.map((document, index) => {
               //used to not overleap the documents

@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Navbar, Container, Button, Nav, ToggleButtonGroup, ToggleButton, Form, InputGroup, Modal, Card, FormGroup, FloatingLabel } from 'react-bootstrap';
+import { Navbar, Container, Button, Nav, ToggleButtonGroup, ToggleButton, Form, InputGroup, Modal, Card, FormGroup, FloatingLabel, Badge } from 'react-bootstrap';
 import AppContext from '../AppContext';
 import '../App.css'
 import API from '../API';
@@ -98,14 +98,12 @@ export function MyNavbar({documents,setDocuments}) {
     <>
       <Navbar sticky='top' bg="light" variant="dark">
         <Container fluid>
-          <Navbar.Brand>
-            <div className="d-flex align-items-center">
-              <Link onClick={() => navigate('/')} className="ms-3 mx-auto text-center main-color h1">Kiruna eXplorer</Link>
-            </div>
+          <Navbar.Brand href='/'>
+            <span className='main-color h3'>Kiruna eXplorer</span>
           </Navbar.Brand>
           <Nav>
             {loginState.loggedIn && location.pathname === '/home' &&
-              <div className=' d-flex justify-content-center mt-3'>
+              <div className=' d-flex justify-content-center align-items-center'>
                 <ToggleButtonGroup
                   type="radio"
                   name="options"
@@ -202,15 +200,15 @@ export function MyNavbar({documents,setDocuments}) {
           <Nav className=" d-flex justify-content-end">
             {loginState.loggedIn ? (
               <>
-                <div className='me-4'>
-                  <Navbar.Text style={{ color: 'black' }}>
+                <div className='d-flex align-items-center'>
+                  <Badge bg='light' style={{ color: 'black' }}>
                     <span>Signed in as: <strong>{loginState.user.name}</strong></span>
                     <br></br>
                     <span>Role: <strong>{loginState.user.role}</strong></span>
-                  </Navbar.Text>
+                  </Badge>
                 </div>
-                <div>
-                  <Button className='mx-2 rounded-pill btn-logout' variant='' onClick={() => {
+                <div className='d-flex align-items-center'>
+                  <Button  size='sm' className='mx-2 rounded-pill btn-logout' variant='' onClick={() => {
                     loginState.doLogout();
                     navigate('/');
                   }}>
@@ -220,12 +218,12 @@ export function MyNavbar({documents,setDocuments}) {
                 </div>
               </>
             ) : (
-              <>
-                <Button className='mx-2 rounded-pill btn-main' variant='' onClick={() => navigate('/login')}>
+              <div>
+                <Button size='sm' className='mx-2 rounded-pill btn-main' variant='' onClick={() => navigate('/login')}>
                   {'Login '}
                   <i className="bi bi-person-fill" />
                 </Button>
-              </>
+              </div>
             )}
           </Nav>
         </Container>
