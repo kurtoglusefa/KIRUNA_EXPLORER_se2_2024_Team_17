@@ -543,6 +543,7 @@ You will see the kiruna explore at address: http://localhost:5173/
 ![Screenshot](/images/visualizeDocument.png)
 ![Screenshot](/images/visualizeDocumentMap.png)
 ![Screenshot](/images/updateDocument.png)
+![Screenshot](/images/createDocument.png)
 
 ## License
 
