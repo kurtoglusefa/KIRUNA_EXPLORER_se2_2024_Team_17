@@ -590,7 +590,7 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                 latitude={locations[selectedMarker?.IdLocation]?.Latitude.toFixed(4)}
                 longitude={locations[selectedMarker?.IdLocation]?.Longitude.toFixed(4)}
                 setShowCard={setSelectedDocument}
-                setSelectedDocument={setSelectedMarker}
+                setSelectedDocument={setSelectedDocument}
                 isLogged={isLogged}
                 viewMode='map'
                 numberofconnections={numberofconnections}

@@ -159,6 +159,8 @@ function ModifyDocument() {
         if (documentId) {
           result = documentId;
           await API.updateDocument(documentId, title,stakeholder.id ? stakeholder.id: stakeholder, scale, date, language, pages,description,  type.id ? type.id: type);
+          if(!area)
+            await API.updateLocationDocument(document.IdLocation, "Point", latitude, longitude, "");
         } else {
           if( selectedLocation!= null && selectedLocation.lat != null && selectedLocation.lng != null){
             // insert the document which is a point 

@@ -521,9 +521,7 @@ const addResourcesToDocument = (idDocument, file) => {
 
     // Check if file
     if (file) {
-      Array.from(file).forEach((file) => {
         formData.append('file', file); // Append each file individually
-      });
     } else {
       console.error("No files provided for upload.");
       reject({ error: "No files provided for upload." });
