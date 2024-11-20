@@ -34,7 +34,7 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
     };
       fetchResources();
       fetchStakeholders();
-  }, []);
+  }, [document.IdDocument]);
 
  
   const handleModifyDocument = () => {

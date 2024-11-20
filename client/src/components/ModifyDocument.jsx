@@ -24,7 +24,7 @@ function ModifyDocument() {
     const [longitude, setLongitude] = useState(selectedLocation.lng ? selectedLocation.lng : '');
     const [area, setArea] = useState(location.state.area ? location.state.area : null);
     const [resources, setResources] = useState([]);
-    const [addResources, setAddResources] = useState([]);
+    const [addResources, setAddResources] = useState(null);
     const [selectedDocument, setSelectedDocument] = useState('');
     const [connectionType, setConnectionType] = useState('');
     const [connections, setConnections] = useState([]); // List of added connections
@@ -181,7 +181,7 @@ function ModifyDocument() {
         }
         
 
-        if(addResources.length > 0) {
+        if(addResources) {
           try {
             console.log(addResources);
             await API.addResourcesToDocument(result, addResources);
@@ -398,7 +398,7 @@ function ModifyDocument() {
                                       <p className="text-muted">No resource added yet.</p>
                                     </div>
                                     <div  className='col-6'>
-                                    <Form.Control type="file" onChange={(e) => setAddResources(e.target.files)} size='sm'/>
+                                    <Form.Control type="file" onChange={(e) => setAddResources(e.target.files[0])} size='sm'/>
                                     </div>
                                     {/*<div className='text-end'>
                                     <Button variant="secondary" size='sm' className='rounded-pill' onClick={addResourcesDocument}>

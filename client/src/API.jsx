@@ -515,14 +515,14 @@ const getDocumentResources = async (id) => {
   });
 }
 
-const addResourcesToDocument = (idDocument, files) => {
+const addResourcesToDocument = (idDocument, file) => {
   return new Promise((resolve, reject) => {
     const formData = new FormData();
 
-    // Check if files is an array (handling multiple files)
-    if (files && files.length > 0) {
-      Array.from(files).forEach((file) => {
-        formData.append('files', file); // Append each file individually
+    // Check if file
+    if (file) {
+      Array.from(file).forEach((file) => {
+        formData.append('file', file); // Append each file individually
       });
     } else {
       console.error("No files provided for upload.");
