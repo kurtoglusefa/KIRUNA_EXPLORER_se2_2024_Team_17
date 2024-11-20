@@ -509,9 +509,7 @@ const getDocumentResources = async (id) => {
           resolve(files);
         });
       } else {
-        res.json().then(message => {
-          reject(message);
-        });
+        resolve(res.status);
       }
     });
   });

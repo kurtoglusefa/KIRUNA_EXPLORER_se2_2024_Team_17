@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Polygon, useMap, LayersControl, LayerGroup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Polygon, useMap, LayersControl, LayerGroup, ZoomControl } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { Button, Card, Form, Spinner, Modal, CardFooter, Col, Overlay } from "react-bootstrap"; // Importing required components
 import { redirect, useLinkClickHandler, useNavigate } from "react-router-dom";
@@ -254,8 +254,12 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
     const map = useMap();
 
     useEffect(() => {
-      if(position) {
-        map.setView(position, map.getZoom());
+      if(selectedMarker && position != [undefined,undefined]) {
+        try {
+          map.setView(position ? position : {lat: 67.8558, lng: 20.2253}, map.getZoom());
+        } catch (e) {
+          console.log(e);
+        }
       }
     }, [position, map]);
 
@@ -270,6 +274,13 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
           setSelectedLocation({ lat, lng });
         }
       },
+      mouseover: () => {
+        if (modifyMode) {
+          mapRef.current.getContainer().style.cursor = "pointer";
+        } else {
+          mapRef.current.getContainer().style.cursor = "";
+        }
+      }
     });
     return null;
   }
@@ -286,12 +297,12 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
         <Spinner animation="border" variant="primary" />
       ) : (
         <div>
-          <MapContainer ref={mapRef} center={[67.8558, 20.2253]} zoom={12} maxBounds={[[67.7, 19.6],[68, 20.8]]} minZoom={12}>
+          <MapContainer ref={mapRef} center={[67.8558, 20.2253]} zoomControl={false} zoom={12} maxBounds={[[67.7, 19.6],[68, 20.8]]} minZoom={12}>
             {/* Location listener */}
             <LocationMarker />
 
             {/* Layers */}
-            <LayersControl position="topright" collapsed={false}>
+            <LayersControl position="topleft" collapsed>
               <LayersControl.BaseLayer checked name="Satellite">
                 <TileLayer
                   url='https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
@@ -305,6 +316,12 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                 />
               </LayersControl.BaseLayer>
             </LayersControl>
+
+            {/* Zoom Buttons - changed position to have it under the satellite/street view */}
+            <ZoomControl position="topleft" />
+            
+            {/* Layers */}
+            {isLogged ? (
             <LayersControl position="topright" collapsed={false}>
               <LayersControl.Overlay name="Documents" checked>
                 <LayerGroup>
@@ -392,7 +409,57 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                 </LayerGroup>
               </LayersControl.Overlay>
             </LayersControl>
+            ) : (
+              <LayerGroup>
+                  {documents.map((document, index) => {
+                    // Determine the location of the document
+                    const location =
+                      locationsArea[document.IdLocation] ||
+                      locations[document.IdLocation];
 
+                    if (location) {
+                      let position = [];
+                      if (location.Location_Type === "Point") {
+                        position = [location.Latitude, location.Longitude];
+                      } else {
+                        position = [location.Latitude, location.Longitude];
+                      }
+
+
+                      const iconPath = `src/icon/${stakeholders[document.IdStakeholder-1]?.color}/${documentTypes[document.IdType - 1]?.iconsrc}`;
+                      
+                      return (
+                        <Marker
+                          key={index}
+                          position={position}
+                          icon={
+                            new L.Icon({
+                              iconUrl: iconPath,
+                              iconSize: [32, 32],
+                              iconAnchor: [16, 32],
+                              popupAnchor: [0, -32],
+                            })
+                          }
+                          draggable={modifyMode}
+                          eventHandlers={{
+                            dragend: (e) => {
+                              if (isLogged) {
+                                handleDragEnd(document, e);
+                              }
+                            },
+                            click: () => handleMarkerClick(document),
+                          }}
+                        >
+                          <Popup>{document.Title}</Popup>
+                        </Marker>
+                      );
+                    }
+                    return null; // Ensure that the map function returns null if location is not found
+                  })}
+                </LayerGroup>
+            )}
+
+            {/* Drawing tools */}
             {isLogged ? (
               <FeatureGroup key={"normal"}>
                 <EditControl
@@ -455,10 +522,10 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                 }
               })}
             {/* Marker for selected location */}
-            {selectedLocation && modifyMode && <Marker position={selectedLocation} /> }
+            {modifyMode && selectedLocation && <Marker position={selectedLocation} /> }
             
             {/* setView on selected Marker*/}
-            {(locations && locationsArea && selectedMarker) && <MarkerFocus position={locationsArea[selectedMarker?.IdLocation] ? {lat: locationsArea[selectedMarker?.IdLocation].Latitude, lng:locationsArea[selectedMarker?.IdLocation].Longitude} : {lat:locations[selectedMarker?.IdLocation]?.Latitude, lng: locations[selectedMarker?.IdLocation]?.Longitude}} />}
+            {(!loading && locations && locationsArea && selectedMarker && selectedDocument) ? <MarkerFocus position={locationsArea[selectedMarker?.IdLocation] ? {lat: locationsArea[selectedMarker?.IdLocation].Latitude, lng:locationsArea[selectedMarker?.IdLocation].Longitude} : {lat:locations[selectedMarker?.IdLocation]?.Latitude, lng: locations[selectedMarker?.IdLocation]?.Longitude}} /> : <MarkerFocus position={{lat:67.8558,lng: 20.2253}}/>}
             {/* Markers 
             {documents.map((document, index) => {
               //used to not overleap the documents

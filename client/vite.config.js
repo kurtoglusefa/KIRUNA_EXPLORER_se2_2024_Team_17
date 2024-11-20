@@ -7,9 +7,6 @@ export default defineConfig({
   base: "/",
   plugins: [
     react(),
-    raw({
-      match: /\.svg$/, // Only apply to SVG files
-    }),
   ],
   server: {
    port: 5173,

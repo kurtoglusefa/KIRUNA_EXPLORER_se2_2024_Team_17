@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Card } from "react-bootstrap";
+import { Badge, Button, Card } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import API from "../API";
 
@@ -10,13 +10,13 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
   const [stakeholders, setStakeholders] = useState([]);
 
   useEffect(() => {
-    console.log("stakeholders"+stakeholders);
     const fetchResources = async () => {
       try {
           const res = await API.getDocumentResources(document.IdDocument);
           setResource(res);
       } catch (err) {
-        if(err.response.status === 404) {
+        console.log(err);
+        if(err === 404) {
           setResource([]);
         } else {
           setMessage('Error fetching resources');
@@ -71,7 +71,7 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
             <Card.Text style={{ fontSize: '16px' }}><strong>Date:</strong> {document?.Issuance_Date}</Card.Text>
             <Card.Text style={{ fontSize: '16px' }}><strong>Scale:</strong> {document?.Scale}</Card.Text>
             {document?.Language && <Card.Text style={{ fontSize: '16px' }}><strong>Language:</strong> {document?.Language}</Card.Text>}
-            {document?.IdStakeholder && stakeholders && <Card.Text style={{ fontSize: '16px' }}><strong>Stakeholder :</strong> {stakeholders.find(s => s.id === document.IdStakeholder-1)?.name || 'Unknown'}</Card.Text>}
+            {document?.IdStakeholder && stakeholders && <Card.Text style={{ fontSize: '16px' }}><strong>Stakeholder :</strong> {stakeholders.find(s => s.id === document.IdStakeholder)?.name || 'Unknown'}</Card.Text>}
             {document?.Pages && <Card.Text style={{ fontSize: '16px' }}><strong>Pages:</strong> {document?.Pages}</Card.Text>}
             {/*<Card.Text style={{ fontSize: '16px' }}><strong>Type: </strong> {locationType}</Card.Text>*/}
             <Card.Text style={{ fontSize: '16px'}}><strong>Connections:</strong> {numberofconnections}</Card.Text>
@@ -82,27 +82,27 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
               ): (
                 <span style={{fontSize:'13px'}}>No original resource added</span>
               )}
-              </Card.Text> 
+              </Card.Text>
             {isLogged &&
-              <div style={{paddingTop:'50px'}}>
-              {locationType == 'Point' ?
-
-                <div  >
+              <Badge bg='light' className="p-3 mt-4" style={{color:'black', fontWeight:'normal'}}>
+              {locationType == 'Point' ? (
+              <>
                 <Card.Text style={{ fontSize: '16px' }}>
                 <strong>Latitude:</strong> {latitude}
                 </Card.Text>
                 <Card.Text style={{ fontSize: '16px' }}>
                     <strong>Longitude:</strong> {longitude}
                   </Card.Text>
-                </div>
-                :
-                <div style={{marginTop:'40px'}}>
+                </>  
+              ) : (
+                <>
                 <Card.Text style={{ fontSize: '16px'}}>
                 <strong>Area:</strong> {areaName}
                 </Card.Text>
-                </div>
+                </>
+                ) 
               }
-              </div>
+              </Badge>
             }
           </div>
           <div className="m-1"> 
