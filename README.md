@@ -523,10 +523,8 @@ You will see the kiruna explore at address: http://localhost:5173/
 
 ## Main React Components
 
-- **Authentication.jsx**: Handles the user authentication process, including login and session management.
+- **Login.jsx**: Handles the user authentication process, including login and session management.
 - **Default.jsx**: Fallback component for routes that do not exist, ensuring users are redirected to a 404 page.
-- **Document.jsx**: Displays detailed information about a single document, allowing users to view, download, or edit document details.
-- **Documents.jsx**: Lists all documents in the system, offering features like search, filtering, and browsing of document metadata.
 - **Home.jsx**: The homepage of the application, providing an introduction to the platform and navigation to other parts of the app.
 - **Map.jsx**: Displays an interactive map to visualize geographic data related to documents and locations in the system.
 - **ModifyDocument.jsx**: Allows users to modify an existing document’s metadata, providing an editable form for updates as well as creating a new document.
@@ -534,7 +532,7 @@ You will see the kiruna explore at address: http://localhost:5173/
 - **API.jsx**: Manages API calls to the backend, centralizing data fetching and providing reusable hooks for components.
 - **App.jsx**: The root component that renders the entire application, integrating routing and layout to ensure smooth app functionality.
 - **WelcomePage.jsx**: The main UI component where the users can start using the application and navigate related pages.
-
+- 
 ## Screenshots
 
 ![Screenshot](/images/welcomepage.png)
