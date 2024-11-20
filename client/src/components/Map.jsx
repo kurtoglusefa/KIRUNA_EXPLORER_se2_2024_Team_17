@@ -4,7 +4,7 @@ import "leaflet/dist/leaflet.css";
 import { Button, Card, Form, Spinner, Modal, CardFooter, Col, Overlay } from "react-bootstrap"; // Importing required components
 import { redirect, useLinkClickHandler, useNavigate } from "react-router-dom";
 import AppContext from '../AppContext';
-import L, { DivOverlay, popup } from 'leaf\let';
+import L, { DivOverlay, popup } from 'leaflet';
 import API from '../API';
 import '../App.css';
 import CardDocument from './CardDocument';
