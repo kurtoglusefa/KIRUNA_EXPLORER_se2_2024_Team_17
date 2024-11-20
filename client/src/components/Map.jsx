@@ -4,7 +4,7 @@ import "leaflet/dist/leaflet.css";
 import { Button, Card, Form, Spinner, Modal, CardFooter, Col, Overlay } from "react-bootstrap"; // Importing required components
 import { redirect, useLinkClickHandler, useNavigate } from "react-router-dom";
 import AppContext from '../AppContext';
-import L, { DivOverlay, popup } from 'leaf\let';
+import L, { DivOverlay, popup,Icon } from 'leaflet';
 import API from '../API';
 import '../App.css';
 import CardDocument from './CardDocument';
@@ -39,7 +39,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
 
   const [newCoordinates, setNewCoordinates] = useState([]);
   const [icons, setIcons] = useState({});
-
+/*
   useEffect(() => {
     const getIcon = async (document) => {
       const res = await fetch(`src/icon/${documentTypes[document.IdType - 1]?.iconsrc}`);
@@ -64,7 +64,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
     };
 
     loadIcons();
-  }, [documents]);
+  }, [documents]);*/
 
 
   useEffect(() => {
@@ -72,10 +72,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
     const updateArea = async () => {
       
       if (selectedArea && newCoordinates.length > 0) {
-        console.log("sono dentro la usefefft");
-        console.log("Selected Area:", selectedArea);
-        console.log("Selected Area Coordinates:", newCoordinates);
-  
+    
         // Assuming getCenter is available and newCoordinates is a valid object
         const { lat, lng } = getCenter(newCoordinates);
         // Call the API function with the required parameters
@@ -156,7 +153,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
     let totalLat = 0;
     let totalLng = 0;
     const count = areaCoordinates[0].length;
-    console.log("Count:", count);
 
     areaCoordinates[0].forEach((point) => {
       totalLat += point.lat;
@@ -172,10 +168,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
 
   const handleAddArea = async () => {
     if (areaName) {
-      console.log("Adding area:", areaName);
-      console.log("Area coordinates:", areaCoordinates[0]);
       
-      console.log("Center:", getCenter(areaCoordinates));
       API.addArea(
         areaName,
         JSON.stringify(areaCoordinates[0]),
@@ -238,7 +231,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
         ""
       )
         .then(() => {
-          console.log('Position updated successfully');
 
           // Update local state to reflect the new position
           const updatedLocations = { ...locations };
@@ -258,6 +250,17 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
 
   };
 
+  function MarkerFocus ({position}) {
+    const map = useMap();
+
+    useEffect(() => {
+      if(position) {
+        map.setView(position, map.getZoom());
+      }
+    }, [position, map]);
+
+    return null;
+  }
 
   function LocationMarker() {
     useMapEvents({
@@ -273,7 +276,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
 
   const handleModifyArea = (e) => {
     // update the new area coordinates and will case the useEffect to update the area
-    console.log(e.layers.getLayers()[0].getLatLngs()[0]);
     setNewCoordinates(e.layers.getLayers()[0].getLatLngs());
   };
 
@@ -284,7 +286,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
         <Spinner animation="border" variant="primary" />
       ) : (
         <div>
-          <MapContainer ref={mapRef} center={[67.8558, 20.2253]} zoom={12.4} maxBounds={[[67, 20],[68, 21]]} minZoom={12}>
+          <MapContainer ref={mapRef} center={[67.8558, 20.2253]} zoom={12} maxBounds={[[67.7, 19.6],[68, 20.8]]} minZoom={12}>
             {/* Location listener */}
             <LocationMarker />
             
@@ -320,11 +322,21 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                         position = [location.Latitude, location.Longitude];
                       }
 
+
+                      const iconPath = `src/icon/${stakeholders[document.IdStakeholder-1]?.color}/${documentTypes[document.IdType - 1]?.iconsrc}`;
+                      
                       return (
                         <Marker
                           key={index}
                           position={position}
-                          icon={new L.DivIcon(icons[document.IdLocation])}
+                          icon={
+                            new L.Icon({
+                              iconUrl: iconPath,
+                              iconSize: [32, 32],
+                              iconAnchor: [16, 32],
+                              popupAnchor: [0, -32],
+                            })
+                          }
                           draggable={modifyMode}
                           eventHandlers={{
                             dragend: (e) => {
@@ -343,7 +355,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                   })}
                 </LayerGroup>
               </LayersControl.Overlay>
-              <LayersControl.Overlay name="Area">
+              <LayersControl.Overlay name="Area" checked>
                 <LayerGroup>
                   {locationsArea &&
                     Object.values(locationsArea).map((area, index) => {
@@ -445,9 +457,10 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
             {/* Marker for selected location */}
             {selectedLocation && modifyMode && <Marker position={selectedLocation} /> }
             
-            {/* Markers */}
+            {/* setView on selected Marker*/}
+            {selectedMarker && <MarkerFocus position={locationsArea[selectedMarker?.IdLocation] ? {lat: locationsArea[selectedMarker?.IdLocation].Latitude, lng:locationsArea[selectedMarker?.IdLocation].Longitude} : {lat:locations[selectedMarker?.IdLocation]?.Latitude, lng: locations[selectedMarker?.IdLocation]?.Longitude}} />}
+            {/* Markers 
             {documents.map((document, index) => {
-
               //used to not overleap the documents
               const offsetIndex = index * offsetDistance;
               const location = locationsArea[document.IdLocation] ? locationsArea[document.IdLocation] : locations[document.IdLocation];
@@ -467,10 +480,9 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                 }   
                 return (
                   <Marker
-                    ref={markerRef}
                     icon={
                       new L.Icon({
-                        iconUrl: `src/icon/${documentTypes[document.IdType - 1]?.iconsrc}`,
+                        iconUrl: `src/icon/${stakeholders[document.IdStakeholder-1]?.color}/${documentTypes[document.IdType - 1]?.iconsrc}`,
                         iconSize: [32, 32],
                         iconAnchor: [16, 32],
                         popupAnchor: [0, -32],
@@ -494,9 +506,9 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                   </Marker>
                 );
               }
-            })}
+            })*/}
             <CustomZoomHandler />
-          </MapContainer>
+          </MapContainer> 
 
           {/* Overlay components*/ }
           {/* Document Card */}
@@ -553,7 +565,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                           onChange={(e) => {
                             const area = locationsArea[e.target.value];
                             setSelectedArea(area);
-                            console.log("Selected Area:", area);
                           }}
                           required={true}
                         >
@@ -580,14 +591,13 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                     onClick={() => {
                       if (!selectedLocation) {
                         if(!selectedArea) {
-                          setSelectedLocation(selectedArea);
                           alert('Select an area')
                           return;
                         }
-                        navigate(`../documents/create-document`, { state: { location: selectedArea }, relative: 'path' })
+                        navigate(`../documents/create-document`, { state: { area: selectedArea }, relative: 'path' })
                       }
                       else {
-                        navigate(`../documents/create-document`, { state: { location: selectedLocation }, relative: 'path' })
+                        navigate(`../documents/create-document`, { state: { location: {lat: selectedLocation.lat.toFixed(4), lng: selectedLocation.lng.toFixed(4) }}, relative: 'path' })
                       }
                     }}
                   >

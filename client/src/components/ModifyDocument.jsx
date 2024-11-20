@@ -8,7 +8,7 @@ function ModifyDocument() {
     const [showAddConnection, setShowAddConnection] = useState(false);
     const [message, setMessage] = useState('');
     const location = useLocation(); 
-    const { location: selectedLocation } = location.state || {};
+    const selectedLocation = location.state.location || {};
 
 
     // document fields
@@ -20,8 +20,9 @@ function ModifyDocument() {
     const [pages, setPages] = useState('');
     const [stakeholder, setStakeholder] = useState([]);
     const [type, setType] = useState('');
-    const [latitude, setLatitude] = useState(selectedLocation && selectedLocation.lat != null ? selectedLocation.lat.toFixed(4) : 0);
-    const [longitude, setLongitude] = useState(selectedLocation && selectedLocation.lng != null ? selectedLocation.lng.toFixed(4) : 0);
+    const [latitude, setLatitude] = useState(selectedLocation.lat ? selectedLocation.lat : '');
+    const [longitude, setLongitude] = useState(selectedLocation.lng ? selectedLocation.lng : '');
+    const [area, setArea] = useState(location.state.area ? location.state.area : null);
     const [resources, setResources] = useState([]);
     const [addResources, setAddResources] = useState([]);
     const [selectedDocument, setSelectedDocument] = useState('');
@@ -36,13 +37,18 @@ function ModifyDocument() {
     const [documents, setDocuments] = useState([]); // List of all documents
     const [filteredDocuments, setFilteredDocuments] = useState([]); // used to filter documents
 
+
     useEffect(() => {
       const fetchResources = async () => {
         try {
             const res = await API.getDocumentResources(documentId);
             setResources(res);
         } catch (err) {
-            setMessage(err);
+          if(err.response.status === 404) {
+            setResources([]);
+          } else {
+            setMessage('Error fetching resources');
+          }
         }
       };
       if(documentId)
@@ -149,18 +155,24 @@ function ModifyDocument() {
           setMessage("Please provide a valid date format.");
           return;
         }
+        let result;
         if (documentId) {
-          const result= await API.updateDocument(documentId, title,stakeholder.id ? stakeholder.id: stakeholder, scale, date, language, pages,description,  type.id ? type.id: type);
+          result = documentId;
+          await API.updateDocument(documentId, title,stakeholder.id ? stakeholder.id: stakeholder, scale, date, language, pages,description,  type.id ? type.id: type);
         } else {
           if( selectedLocation!= null && selectedLocation.lat != null && selectedLocation.lng != null){
             // insert the document which is a point 
             //console.log(selectedLocation);
             //console.log({ title, scale, issuanceDate, description, connections, language, pages, stakeholder: stakeholder, type: type, locationType : "Point", latitude : selectedLocation.lat , longitude: selectedLocation.lng, area_coordinates :"" });
-            const result= await API.addDocument( title,stakeholder, scale, date, language, pages,description,  type,  "Point",  latitude , longitude, "" );
+            result = await API.addDocument( title,stakeholder, scale, date, language, pages,description,  type,  "Point",  latitude , longitude, "" );
+            console.log(result);
+            result = await result.idDocument;
           }
-          else if (selectedLocation!= null && selectedLocation.Location_Type =="Area"){
+          else if (area){
             //insert the document inside an area
-            const result = await API.addDocumentArea( title,stakeholder, scale, date, language, pages,description,  type, selectedLocation.IdLocation );
+            result = await API.addDocumentArea( title,stakeholder, scale, date, language, pages,description,  type, area.IdLocation );
+            console.log(result);
+            result = await result.idDocument;
           }
           // insert the document
           /*const result= await API.addDocument({ title, scale, issuanceDate, description, connections, language, pages, stakeholder: stakeholder.id, type: type.id });
@@ -168,9 +180,11 @@ function ModifyDocument() {
           navigate('/');*/
         }
         
+
         if(addResources.length > 0) {
           try {
-            await API.addResourcesToDocument(documentId, addResources);
+            console.log(addResources);
+            await API.addResourcesToDocument(result, addResources);
           } catch (err) {
             console.error(err);
           } 
@@ -212,7 +226,7 @@ function ModifyDocument() {
         setFilteredDocuments([]); // Clear suggestions after selection
     };
 
-    const addResourcesDocument = async () => {
+    /*const addResourcesDocument = async () => {
       if (addResources.length > 0) {
         try {
     
@@ -228,7 +242,7 @@ function ModifyDocument() {
       } else {
         setMessage('No files selected');
       }
-    };
+    };*/
     
     /* ------------------------------------ FORM ------------------------------------------ */
     return (
@@ -244,7 +258,6 @@ function ModifyDocument() {
                       <Form.Group controlid="title" className="mb-3">
                           <FloatingLabel label="Title*" className="mb-3">
                             <Form.Control
-                                placeholder='title'
                                 type="text"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
@@ -255,7 +268,6 @@ function ModifyDocument() {
                       <Form.Group controlid="scale" className="mb-3">
                         <FloatingLabel label="Scale*" className="mb-3">
                           <Form.Control
-                              placeholder='scale'
                               type="text"
                               value={scale}
                               onChange={(e) => setScale(e.target.value)}
@@ -278,10 +290,10 @@ function ModifyDocument() {
                       </Form.Group>
                       
                       <div className='d-flex justify-content-between'>
-                      <Form.Group controlid="pages" className="">
+                      <Form.Group controlid="pages" className='col-2'>
                         <FloatingLabel label="Pages" className="mb-3">
                           <Form.Control
-                              placeholder='pages'
+                              defaultValue={0}
                               size="sm"
                               type="number"
                               value={pages}
@@ -291,16 +303,16 @@ function ModifyDocument() {
                         </FloatingLabel>
                       </Form.Group>
                       
-                      <Form.Group controlid="issuanceDate" className="ms-1 mb-3 d-flex align-items-center justify-content-center">
+                      <Form.Group controlid="issuanceDate" className="ms-1 mb-3 d-flex align-items-center">
                         <label className='me-2'> Issuance Date:</label>
                         <FloatingLabel label='year*'>
 
                           <Form.Control 
+                            size='sm'
                             controlid='year' 
                             className='mx-1' 
                             type='number' 
-                            style={{width:'10ch'}} 
-                            placeholder='yyyy'
+                            style={{width:'10ch'}}
                             maxLength={4} 
                             min={2000} 
                             max={2024} 
@@ -311,10 +323,10 @@ function ModifyDocument() {
                         /
                         <FloatingLabel label='month'>
                           <Form.Control 
+                            size='sm'
                             controlid='month' 
                             className='mx-1' 
                             type='number' 
-                            placeholder='mm' 
                             maxLength={2} 
                             style={{width:'8ch'}} 
                             min={1} 
@@ -327,10 +339,10 @@ function ModifyDocument() {
                         /
                         <FloatingLabel label='day'>
                         <Form.Control 
+                          size='sm'
                           controlid='day' 
                           className='mx-1' 
-                          type='number' 
-                          placeholder='dd' 
+                          type='number'
                           maxLength={2} 
                           style={{width:'8ch'}} 
                           min={1} 
@@ -361,19 +373,16 @@ function ModifyDocument() {
                               )}
                             </div>
                             <div>
-                              <Button variant="outline-dark" className='rounded-pill' onClick={() => setShowAddConnection(true)}>
+                              <Button variant="secondary" size='sm' className='rounded-pill' onClick={() => setShowAddConnection(true)}>
                                   Add Connection
                               </Button>
                             </div>
                           </div>
                         </div>}
                         {/* Add resources */}
-                        {documentId &&
                           <div className="mb-3">
                           <Form.Group controlId="formFileMultiple" className="mb-3">
-                            <Form.Label as='strong'>Resources</Form.Label>
-                            <div className=' d-flex justify-content-between mt-3'>
-                              <div className='text-start col ms-3 me-5'>
+                            <Form.Label as='strong'>Original Resource</Form.Label>
                                 {resources.length > 0 ? (
                                   <ListGroup variant="flush" className="mb-2">
                                         {resources.map((res, index) => (
@@ -383,19 +392,24 @@ function ModifyDocument() {
                                         ))}
                                     </ListGroup>
                                 ) : (
-                                  <p className="text-muted">No resources added yet.</p>
+                                  <>
+                                  <div className='d-flex mt-3 mx-3 justify-content-between'>
+                                    <div>
+                                      <p className="text-muted">No resource added yet.</p>
+                                    </div>
+                                    <div  className='col-6'>
+                                    <Form.Control type="file" onChange={(e) => setAddResources(e.target.files)} size='sm'/>
+                                    </div>
+                                    {/*<div className='text-end'>
+                                    <Button variant="secondary" size='sm' className='rounded-pill' onClick={addResourcesDocument}>
+                                      Add
+                                    </Button>
+                                    </div>*/}
+                                  </div>
+                                  </>
                                 )}
-                              </div>
-                              <div className='col-6'>
-                                <Form.Control type="file" multiple onChange={(e) => setAddResources(Array.from(e.target.files))} />
-                                <Button variant="outline-dark" className='rounded-pill mt-3' onClick={addResourcesDocument}>
-                                  Add Resources
-                                </Button>
-                              </div>
-                            </div>
                           </Form.Group>
                         </div>
-                      }
                 </Col>
 
                 {/* ---------------------- Right Column --------------------------- */}
@@ -413,9 +427,9 @@ function ModifyDocument() {
                         </FormGroup>
                         
                         <FormGroup controlid="type" className="mb-3">
-                          <FloatingLabel label="Document Type" className="mb-3">
+                          <FloatingLabel label="Document Type*" className="mb-3">
                             <Form.Select value={type.id} onChange={(e) => setType(e.target.value)} >
-                              <option>Select Document Type*</option>
+                              <option>Select Document Type</option>
                               {types.map((tp) => 
                                 <option key={tp.id} value={tp.id}>{tp.type}</option>
                               )
@@ -426,7 +440,6 @@ function ModifyDocument() {
                     <Form.Group controlid="description" className="mb-3">
                       <FloatingLabel label="Description*" className="mb-3">
                         <Form.Control
-                            placeholder='description'
                             className='mt-auto'
                             as="textarea"
                             style={{height: '205px'}}
@@ -434,43 +447,20 @@ function ModifyDocument() {
                             onChange={(e) => setDescription(e.target.value)}
                             />
                       </FloatingLabel>
-                    </Form.Group>
-                    {!documentId ? ( 
-                      <>
-                          {(latitude && longitude) ? (
+                    </Form.Group>{(latitude && longitude) ? (
                             <div className='mb-4 d-flex'>
                               <p className='mx-4 d-flex align-items-center'>
-                                <strong className='me-2'>Latitude:</strong> <Form.Control value={latitude} onChange={(e) => setLatitude(e.target.value)}></Form.Control>
+                                <strong className='me-2'>Latitude:</strong> <Form.Control value={latitude} onChange={(e) => setLatitude(e.target.value)} maxLength={7}></Form.Control>
                               </p>
                               <p className='mx-4 d-flex align-items-center'>
-                                <strong className='me-2'>Longitude:</strong> <Form.Control value={longitude} onChange={(e) => setLongitude(e.target.value)}></Form.Control>
+                                <strong className='me-2'>Longitude:</strong> <Form.Control value={longitude} onChange={(e) => setLongitude(e.target.value)} maxLength={7}></Form.Control>
                               </p>
                             </div>
                           ) : (
                             <p>
-                              <strong>Location: </strong> {selectedLocation?.Area_Name}
+                              <strong>Location: </strong> {documentId ? area : area.Area_Name}
                               </p>
                           )}
-                        </>
-                      ) : (
-                        <>
-                            {(selectedLocation && selectedLocation.lat != null && selectedLocation.lng != null) ? (
-                              <div className='mb-4 d-flex'>
-                              <p className='mx-4 d-flex align-items-center'>
-                                <strong className='me-2'>Latitude:</strong> <Form.Control value={latitude} onChange={(e) => setLatitude(e.target.value)}></Form.Control>
-                              </p>
-                              <p className='mx-4 d-flex align-items-center'>
-                                <strong className='me-2'>Longitude:</strong> <Form.Control value={longitude} onChange={(e) => setLongitude(e.target.value)}></Form.Control>
-                              </p>
-                            </div>
-                          ) : (
-                            <p>
-                              <strong>Location: </strong> {location.state.area}
-                            </p>
-                          )}
-                        </>
-                      )}
-                  
                 </Col>
                       {message && <Alert variant="danger" dismissible onClick={() => setMessage('')}>{message}</Alert>}
             </Row>
