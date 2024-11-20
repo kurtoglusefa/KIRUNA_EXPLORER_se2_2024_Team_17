@@ -1,26 +1,26 @@
 "use strict";
 
-import express from "express";
-import morgan from "morgan";
-import cors from "cors";
-import fs from "fs";
-import path from "path";
-import multer from "multer";
-import passport from "passport";
-import LocalStrategy from "passport-local";
-import session from "express-session";
-import userDao from "./dao/user-dao.js";
-import documentDao from "./dao/document-dao.js";
-import stakeholderDao from "./dao/stakeholder-dao.js";
-import typeDocumentDao from "./dao/typeDocument-dao.js";
-import DocumentConnectionDao from "./dao/document-connection-dao.js";
-import locationDao from "./dao/location-dao.js";
-import { fileURLToPath } from "url";
-import net from 'net';  // Import the 'net' module
+const express = require("express");
+const morgan = require("morgan");
+const cors = require("cors");
+const fs = require("fs");
+const path = require("path");
+const multer = require("multer");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const session = require("express-session");
+const userDao = require("./dao/user-dao.js");
+const documentDao = require("./dao/document-dao.js");
+const stakeholderDao = require("./dao/stakeholder-dao.js");
+const typeDocumentDao = require("./dao/typeDocument-dao.js");
+const DocumentConnectionDao = require("./dao/document-connection-dao.js");
+const locationDao = require("./dao/location-dao.js");
+const { fileURLToPath } = require("url");
+const net = require('net');  // Import the 'net' module
+const { dirname } = require('path'); // Import the 'path' module
 
 
 
-const __dirname = path.dirname(__filename);
 
 /*** Set up Passport ***/
 // set up the "username and password" login strategy
@@ -608,4 +608,4 @@ const server = async () => {
 };
 server().catch(err => console.error(err));
 // Export the app and server
-export { app, server };
+module.exports = { app, server };

@@ -6,7 +6,7 @@
   "scripts": {
     "coverage": "jest --coverage",
     "test": "jest",
-    "start": "node index.mjs"
+    "start": "node index.js"
   },
   "author": "",
   "license": "ISC",

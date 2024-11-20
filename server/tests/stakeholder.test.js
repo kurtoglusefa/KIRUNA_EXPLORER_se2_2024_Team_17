@@ -1,5 +1,5 @@
 import request from "supertest";
-const { app, server } = require("../index.mjs");
+import {app,server} from '../index.js';
 const StakeholderDao = require("../dao/stakeholder-dao.js");
 jest.mock("../dao/stakeholder-dao.js");
 require('dotenv').config();

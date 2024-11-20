@@ -1,5 +1,5 @@
 import request from 'supertest'; // Import supertest for testing HTTP requests
-const { app,server } = require('../index.mjs'); // Use require for your app and server
+import {app,server} from '../index.js';
 require('dotenv').config();
 describe('User API', () => {
     // Test for login

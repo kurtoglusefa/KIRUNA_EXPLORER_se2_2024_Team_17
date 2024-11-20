@@ -1,5 +1,5 @@
 import request from 'supertest';
-const { app, server } = require('../index.mjs'); 
+import {app,server} from '../index.js';
 
 describe('Document Type API', () => {
     let agent;
