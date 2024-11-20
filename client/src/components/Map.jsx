@@ -11,7 +11,9 @@ import CardDocument from './CardDocument';
 import "leaflet-draw/dist/leaflet.draw.css";
 import { EditControl } from "react-leaflet-draw"; // Import for the drawing tool
 import { FeatureGroup } from "react-leaflet"; // Import for the drawing tool
-function MapComponent({ locations, setLocations, locationsArea, documents, setSelectedLocation, propsDocument, selectedLocation, handleDocumentClick, numberofconnections,fetchLocationsArea}) {
+
+
+function Map({ locations, setLocations, locationsArea, documents, setSelectedLocation, propsDocument, selectedLocation, handleDocumentClick, numberofconnections, fetchLocationsArea }) {
   const selectedDocument = useContext(AppContext).selectedDocument;
   const setSelectedDocument = useContext(AppContext).setSelectedDocument;
   const [selectedMarker, setSelectedMarker] = useState(selectedDocument);
@@ -28,7 +30,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   const offsetDistance = 0.0020; //offset distance between markers
   const mapRef = useRef(null); // To get a reference to the map instance
   const markerRef = useRef(); // To get a reference to the marker instance
-  
+
   const [areaCoordinates, setAreaCoordinates] = useState([]);
 
   const [areaName, setAreaName] = useState("");
@@ -39,12 +41,12 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   useEffect(() => {
     // Define an async function inside useEffect
     const updateArea = async () => {
-      
+
       if (selectedArea && newCoordinates.length > 0) {
         console.log("sono dentro la usefefft");
         console.log("Selected Area:", selectedArea);
         console.log("Selected Area Coordinates:", newCoordinates);
-  
+
         // Assuming getCenter is available and newCoordinates is a valid object
         const { lat, lng } = getCenter(newCoordinates);
         // Call the API function with the required parameters
@@ -63,7 +65,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   }, [newCoordinates]);  // Make sure to include `selectedArea` in the dependency array
 
   const getNumberOfDocumentsArea = (locationId) => {
-    if(!locations) return 0;
+    if (!locations) return 0;
     return Object.values(documents).filter((document) => document.IdLocation == locationId).length;
 
   };
@@ -116,7 +118,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
     setLoading(false);
   }, [documents]);
 
-  const handleAreaClick = (area) => { 
+  const handleAreaClick = (area) => {
     setSelectedArea(area);
   };
 
@@ -142,7 +144,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
     if (areaName) {
       console.log("Adding area:", areaName);
       console.log("Area coordinates:", areaCoordinates[0]);
-      
+
       console.log("Center:", getCenter(areaCoordinates));
       API.addArea(
         areaName,
@@ -252,16 +254,16 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
         <Spinner animation="border" variant="primary" />
       ) : (
         <div>
-          <MapContainer ref={mapRef} center={[67.8558, 20.2253]} zoom={12.4} maxBounds={[[67, 20],[68, 21]]} minZoom={12}>
+          <MapContainer ref={mapRef} center={[67.8558, 20.2253]} zoom={12.4} maxBounds={[[67, 20], [68, 21]]} minZoom={12}>
             {/* Location listener */}
             <LocationMarker />
-            
+
             {/* Layers */}
             <LayersControl position="topright" collapsed={false}>
               <LayersControl.BaseLayer checked name="Satellite">
                 <TileLayer
                   url='https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
-                  subdomains={['mt1','mt2','mt3']}
+                  subdomains={['mt1', 'mt2', 'mt3']}
                 />
               </LayersControl.BaseLayer>
               <LayersControl.BaseLayer name="Street Map">
@@ -294,9 +296,8 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                           position={position}
                           icon={
                             new L.Icon({
-                              iconUrl: `src/icon/${
-                                documentTypes[document.IdType - 1]?.iconsrc
-                              }`,
+                              iconUrl: `src/icon/${documentTypes[document.IdType - 1]?.iconsrc
+                                }`,
                               iconSize: [32, 32],
                               iconAnchor: [16, 32],
                               popupAnchor: [0, -32],
@@ -336,22 +337,22 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
 
                       return (
                         <Polygon
-                        key={index}
-                        positions={coordinates} // Use the parsed array as positions
-                        pathOptions={{
-                          color: "blue",
-                          fillColor: "blue",
-                          fillOpacity: 0.1,
-                        }}
-                        eventHandlers={{
-                          click: () => handleAreaClick(area),
-                        }}
-                      >
-                      <Popup>
-                        {area.Area_Name} <br />
-                        {getNumberOfDocumentsArea(area.IdLocation)} documents
-                      </Popup>
-                      </Polygon>
+                          key={index}
+                          positions={coordinates} // Use the parsed array as positions
+                          pathOptions={{
+                            color: "blue",
+                            fillColor: "blue",
+                            fillOpacity: 0.1,
+                          }}
+                          eventHandlers={{
+                            click: () => handleAreaClick(area),
+                          }}
+                        >
+                          <Popup>
+                            {area.Area_Name} <br />
+                            {getNumberOfDocumentsArea(area.IdLocation)} documents
+                          </Popup>
+                        </Polygon>
                       );
                     })}
                 </LayerGroup>
@@ -376,25 +377,25 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                     remove: false
                   }}
                 />
-               {selectedArea && (
-            
-                <Polygon
-                  positions={
-                    Array.isArray(selectedArea.Area_Coordinates)
-                      ? selectedArea.Area_Coordinates
-                      : JSON.parse(selectedArea.Area_Coordinates) // Parse if not already an array
-                  }
-                  color="black"          // Border color
-                  fillColor="black"      // Fill color
-                  fillOpacity={0.6}      // Fill opacity
-                  weight={2}
-                  key={selectedArea.IdLocation}
-                />
-              )}
-              </FeatureGroup>
-              ) : null}
+                {selectedArea && (
 
-              {locationsArea &&
+                  <Polygon
+                    positions={
+                      Array.isArray(selectedArea.Area_Coordinates)
+                        ? selectedArea.Area_Coordinates
+                        : JSON.parse(selectedArea.Area_Coordinates) // Parse if not already an array
+                    }
+                    color="black"          // Border color
+                    fillColor="black"      // Fill color
+                    fillOpacity={0.6}      // Fill opacity
+                    weight={2}
+                    key={selectedArea.IdLocation}
+                  />
+                )}
+              </FeatureGroup>
+            ) : null}
+
+            {locationsArea &&
               Object.values(locationsArea).map((area, index) => {
                 if (
                   (selectedArea &&
@@ -420,8 +421,8 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                 }
               })}
             {/* Marker for selected location */}
-            {selectedLocation && modifyMode && <Marker position={selectedLocation} /> }
-            
+            {selectedLocation && modifyMode && <Marker position={selectedLocation} />}
+
             {/* Markers */}
             {documents.map((document, index) => {
 
@@ -429,19 +430,19 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
               const offsetIndex = index * offsetDistance;
               const location = locationsArea[document.IdLocation] ? locationsArea[document.IdLocation] : locations[document.IdLocation];
               if (location) {
-                let position=[];
-                if(location.Location_Type === "Point"){
+                let position = [];
+                if (location.Location_Type === "Point") {
                   position = [
                     location.Latitude,
                     location.Longitude,
                   ];
                 }
-                else{
-                    position = [
+                else {
+                  position = [
                     location.Latitude + (index % 2 === 0 ? offsetIndex : -offsetIndex),
                     location.Longitude + (index % 2 === 0 ? -offsetIndex : offsetIndex),
                   ];
-                }   
+                }
                 return (
                   <Marker
                     ref={markerRef}
@@ -475,31 +476,31 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
             <CustomZoomHandler />
           </MapContainer>
 
-          {/* Overlay components*/ }
+          {/* Overlay components*/}
           {/* Document Card */}
           {selectedDocument && (
-            <div  
-            className='document-card overlay col-lg-3 col-md-6 col-sm-9' 
-            style={{ marginLeft: '1%', bottom: '18%', width: '28%'}}
+            <div
+              className='document-card overlay col-lg-3 col-md-6 col-sm-9'
+              style={{ marginLeft: '1%', bottom: '18%', width: '28%' }}
             >
-              <CardDocument 
-                document={selectedMarker} 
-                locationType={locationsArea[selectedMarker?.IdLocation] ? "Area" : "Point"} 
-                latitude={locations[selectedMarker?.IdLocation]?.Latitude.toFixed(4)} 
-                longitude={locations[selectedMarker?.IdLocation]?.Longitude.toFixed(4)} 
-                setShowCard={setSelectedDocument} 
-                setSelectedDocument={setSelectedMarker} 
-                isLogged={isLogged} 
+              <CardDocument
+                document={selectedMarker}
+                locationType={locationsArea[selectedMarker?.IdLocation] ? "Area" : "Point"}
+                latitude={locations[selectedMarker?.IdLocation]?.Latitude.toFixed(4)}
+                longitude={locations[selectedMarker?.IdLocation]?.Longitude.toFixed(4)}
+                setShowCard={setSelectedDocument}
+                setSelectedDocument={setSelectedMarker}
+                isLogged={isLogged}
                 viewMode='map'
                 numberofconnections={numberofconnections}
                 areaName={locationsArea[selectedMarker?.IdLocation]?.Area_Name}
-                />
-          </div>
+              />
+            </div>
           )}
           {/* Card location for creating new document */}
           {modifyMode &&
             <div className='d-flex justify-content-end me-4'>
-              <Card className='text-start form overlay' style={{bottom:'8%'}}>
+              <Card className='text-start form overlay' style={{ bottom: '8%' }}>
                 <Card.Header>
                   <Card.Title className='text.center mx-4 mt-1'>
                     <strong>Add New Document</strong>
@@ -546,7 +547,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                         </Form.Control>
                       </Form.Group>
                     )
-                  }
+                    }
                   </div>
                 </Card.Body>
                 <div className='d-flex justify-content-center'>
@@ -575,21 +576,21 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
             <>
               <div className='d-flex mt-2 align-items-center justify-content-between ms-3'>
                 <div className='d-flex align-items-center'>
-                  <Button variant='dark' className='rounded-pill mt-2 overlay px-4 mx-2 btn-document' style={{bottom:'7%'}} onClick={() => setModifyMode((mode) => !mode)}>
-                    <span className='h6' style={{fontSize:'16px'}}>{modifyMode ? 'Disable' : 'Enable'} drag / add new location for a document</span>
+                  <Button variant='dark' className='rounded-pill mt-2 overlay px-4 mx-2 btn-document' style={{ bottom: '7%' }} onClick={() => setModifyMode((mode) => !mode)}>
+                    <span className='h6' style={{ fontSize: '16px' }}>{modifyMode ? 'Disable' : 'Enable'} drag / add new location for a document</span>
                   </Button>
-    
+
                   <div>
-                    {modifyMode && <span className='col text-end mx-5 mb-1' style={{position: 'absolute', zIndex:1000, textShadow:'#000000 0px 0px 20px',left:'5%', bottom:'11%',color:'white'}}>Drag / Add new document enabled</span>}
+                    {modifyMode && <span className='col text-end mx-5 mb-1' style={{ position: 'absolute', zIndex: 1000, textShadow: '#000000 0px 0px 20px', left: '5%', bottom: '11%', color: 'white' }}>Drag / Add new document enabled</span>}
                   </div>
                 </div>
               </div>
-    
+
             </>
           }
-      </div>
-    )}
-          <Modal
+        </div>
+      )}
+      <Modal
         show={showCreateArea}
         onHide={() => setShowCreateArea(false)}
         centered
@@ -623,4 +624,4 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   );
 }
 
-export default MapComponent;
+export default Map;

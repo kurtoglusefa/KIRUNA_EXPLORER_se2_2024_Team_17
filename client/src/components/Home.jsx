@@ -1,6 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import MyNavbar from './MyNavbar';
-import MapComponent from './Map';
+import Map from './Map';
 import { Button, ToggleButtonGroup, ToggleButton, ListGroup, Spinner, Card, Row, Col, Container } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
@@ -74,10 +73,10 @@ function Home(props) {
   };
   const fetchLocationsArea = async () => {
     setLoading(true);
-    
+
     API.getAllLocationsArea()
       .then((res) => {
-        
+
         const locationsById = res.reduce((acc, location) => {
           acc[location.IdLocation] = location;
           return acc;
@@ -171,27 +170,27 @@ function Home(props) {
 
   return (
     <>
-      <Container fluid className='justify-content-center mt-3' style={{ width: '100vw' }} >
+      <Container fluid className='justify-content-center mt-3' style={{ paddingTop: '50px' }} >
         {viewMode === 'map' ? (
           loading ? (
             <Spinner animation="border" variant="primary" />
           ) : (
-              <MapComponent locations={locations} setLocations={setLocations} locationsArea={locationsArea} documents={documents} setSelectedLocation={setSelectedLocation} setSelectedDocument={setSelectedDocument} selectedLocation={selectedLocation} handleDocumentClick={handleDocumentClick} numberofconnections={numberofconnections} fetchLocationsArea={fetchLocationsArea}/>
+            <Map locations={locations} setLocations={setLocations} locationsArea={locationsArea} documents={documents} setSelectedLocation={setSelectedLocation} setSelectedDocument={setSelectedDocument} selectedLocation={selectedLocation} handleDocumentClick={handleDocumentClick} numberofconnections={numberofconnections} fetchLocationsArea={fetchLocationsArea} />
           )
 
         ) : (
-          
+
           loading ? (
             <Spinner animation="border" variant="primary" />
           ) : (
             <>
-              <Card className="mt-3" style={{minHeight:'400px'}}>
+              <Card className="mt-3" style={{ minHeight: '400px' }}>
                 <div className='d-flex p-3'>
-                  <div className='me-3 col-md-4 col-sm-3' style={{maxHeight: '600px' }}>
+                  <div className='me-3 col-md-4 col-sm-3' style={{ maxHeight: '600px' }}>
                     {loading ? (
                       <Spinner animation="border" variant="primary" />
                     ) : (
-                      <Card style={{width:'100%'}}>
+                      <Card style={{ width: '100%' }}>
                         <Card.Header>Document List</Card.Header>
                         <ListGroup style={{ maxHeight: '355px', overflowY: 'auto' }}>
                           {documents.map((doc, index) => (
@@ -209,16 +208,16 @@ function Home(props) {
                   </div>
                   <div style={{ flexGrow: 1 }}>
                     {selectedDocument ? (
-                      <CardDocument 
-                      document={selectedDocument} 
-                      locationType={locationsArea[selectedDocument?.IdLocation] ? "Area" : "Point"} 
-                      latitude={locations[selectedDocument?.IdLocation]?.Latitude.toFixed(4)} 
-                      longitude={locations[selectedDocument?.IdLocation]?.Longitude.toFixed(4)} 
-                      setSelectedDocument={setSelectedDocument} 
-                      isLogged={isLogged} 
-                      viewMode={viewMode}
-                      numberofconnections={numberofconnections}
-                      areaName={locationsArea[selectedDocument?.IdLocation]?.Area_Name}
+                      <CardDocument
+                        document={selectedDocument}
+                        locationType={locationsArea[selectedDocument?.IdLocation] ? "Area" : "Point"}
+                        latitude={locations[selectedDocument?.IdLocation]?.Latitude.toFixed(4)}
+                        longitude={locations[selectedDocument?.IdLocation]?.Longitude.toFixed(4)}
+                        setSelectedDocument={setSelectedDocument}
+                        isLogged={isLogged}
+                        viewMode={viewMode}
+                        numberofconnections={numberofconnections}
+                        areaName={locationsArea[selectedDocument?.IdLocation]?.Area_Name}
                       />
                     ) : (
                       <div className="text-muted">Select a document to view its specifications.</div>
