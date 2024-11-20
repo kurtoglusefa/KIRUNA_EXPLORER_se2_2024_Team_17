@@ -2,7 +2,7 @@ import request from "supertest";
 const { app, server } = require("../index.mjs");
 const StakeholderDao = require("../dao/stakeholder-dao.js");
 jest.mock("../dao/stakeholder-dao.js");
-
+require('dotenv').config();
 describe("Stakeholder API", () => {
   let agent;
 
@@ -12,7 +12,7 @@ describe("Stakeholder API", () => {
     // Simulate login
     await agent
       .post("/api/sessions")
-      .send({ username: "mario@test.it", password: "pwd" });
+      .send({ username: "mario@test.it", password: process.env.TEST_USER_PASSWORD });
   });
   describe("GET /api/stakeholders", () => {
     it("should retrieve all stakeholders", async () => {

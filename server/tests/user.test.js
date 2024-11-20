@@ -1,11 +1,12 @@
 import request from 'supertest'; // Import supertest for testing HTTP requests
 const { app,server } = require('../index.mjs'); // Use require for your app and server
+require('dotenv').config();
 describe('User API', () => {
     // Test for login
     it('should login successfully with valid credentials', async () => {
         const response = await request(app)
             .post('/api/sessions')
-            .send({ username: 'mario@test.it', password: 'pwd' });
+            .send({ username: 'mario@test.it', password: process.env.TEST_USER_PASSWORD });
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty('email', 'mario@test.it');
         expect(response.body).toHaveProperty('name', 'Mario');

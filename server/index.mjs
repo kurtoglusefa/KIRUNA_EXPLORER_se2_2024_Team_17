@@ -19,7 +19,7 @@ import { fileURLToPath } from "url";
 import net from 'net';  // Import the 'net' module
 
 
-const __filename = fileURLToPath(import.meta.url);
+
 const __dirname = path.dirname(__filename);
 
 /*** Set up Passport ***/
@@ -319,20 +319,20 @@ app.patch("/api/documents/:documentId/connection", async (req, res) => {
 // Endpoint to upload a file
 app.post(
   "/api/documents/:documentId/resources",
-  upload.array('files',10),
+  upload.single("file"),
   async (req, res) => {
     console.log(req.body);
-    const documentId = req.params.documentId;
+    const documentId = parseInt(req.params.documentId);
     
     // Check if files were uploaded
-    if (req.files) {
+    if (req.file) {
       res.json({
-        message: 'Files uploaded successfully!',
+        message: 'File uploaded successfully!',
         documentId: documentId,
-        files: req.files,
+        file: req.file,
       });
     } else {
-      res.status(400).json({ message: 'No files uploaded or upload failed.' });
+      res.status(400).json({ message: 'No file uploaded or upload failed.' });
     }
   }
 );

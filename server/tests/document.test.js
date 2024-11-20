@@ -3,7 +3,7 @@ const { app, server } = require("../index.mjs");
 const locationDao = require("../dao/location-dao.js");
 const fs = require('fs');
 const path = require('path');
-
+require('dotenv').config();
 let documentId;
 describe("Document API with Session Authentication", () => {
   let agent;
@@ -14,7 +14,7 @@ describe("Document API with Session Authentication", () => {
 
     const loginResponse = await agent
       .post("/api/sessions")
-      .send({ username: "mario@test.it", password: "pwd" });
+      .send({ username: "mario@test.it", password: process.env.TEST_USER_PASSWORD });
     expect(loginResponse.status).toBe(200);
   });
 
@@ -172,7 +172,7 @@ describe("Define Geolocated Area API", () => {
 
     const loginResponse = await authenticatedAgent
       .post("/api/sessions")
-      .send({ username: "mario@test.it", password: "pwd" });
+      .send({ username: "mario@test.it", password: process.env.TEST_USER_PASSWORD });
 
     expect(loginResponse.status).toBe(200); // Ensure login is successful
   });
@@ -217,7 +217,7 @@ describe('Get All Document Areas API', () => {
 
     const loginResponse = await agent
       .post("/api/sessions")
-      .send({ username: "mario@test.it", password: "pwd" });
+      .send({ username: "mario@test.it", password: process.env.TEST_USER_PASSWORD });
     expect(loginResponse.status).toBe(200);
   });
 
@@ -244,7 +244,7 @@ describe('File Upload API', () => {
 
     const loginResponse = await agent
       .post("/api/sessions")
-      .send({ username: "mario@test.it", password: "pwd" });
+      .send({ username: "mario@test.it", password: process.env.TEST_USER_PASSWORD });
     expect(loginResponse.status).toBe(200);
   });
   it('should upload a file successfully', async () => {
@@ -272,7 +272,8 @@ describe('File Upload API', () => {
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('File uploaded successfully!');
     expect(response.body.documentId).toBe(documentId);
-    expect(response.body.filename).toBe(mockFile.filename);
+    expect(response.body.file.filename).toBe(mockFile.filename);
+
   });
   it('should return a list of resources for a document', async () => {
     const mockFiles = ['testfile.txt'];

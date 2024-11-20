@@ -4,7 +4,7 @@ const userDao = require('../dao/user-dao');
 const db = require('../db/db');
 const crypto = require('crypto');
 jest.mock('../db/db'); // Mock the db module
-
+require('dotenv').config();
 describe('userDao', () => {
 
     describe('getUser', () => {
@@ -75,7 +75,7 @@ describe('userDao', () => {
               });
           
               const email = 'test@example.com';
-              const password = 'password123';
+              const password = process.env.TEST_USER_PASSWORD;
           
               // Call your function
               await expect(userDao.getUser(email, password)).rejects.toThrow('scrypt error');

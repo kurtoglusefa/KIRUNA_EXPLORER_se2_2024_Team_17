@@ -4,7 +4,7 @@ const { app, server } = require("../index.mjs");
 
 const locationDao = require("../dao/location-dao.js");
 jest.mock("../dao/location-dao.js");
-
+require('dotenv').config();
 describe("Location API", () => {
   let agent;
 
@@ -12,7 +12,7 @@ describe("Location API", () => {
     agent = request.agent(app);
     await agent
       .post("/api/sessions")
-      .send({ username: "mario@test.it", password: "pwd" });
+      .send({ username: "mario@test.it", password: process.env.TEST_USER_PASSWORD });
   });
   describe("GET /api/locations", () => {
     it("should retrieve all point locations", async () => {
