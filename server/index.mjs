@@ -19,7 +19,8 @@ import { fileURLToPath } from "url";
 import net from 'net';  // Import the 'net' module
 
 
-
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /*** Set up Passport ***/
 // set up the "username and password" login strategy
@@ -81,24 +82,30 @@ const storage = multer.diskStorage({
     }
 
     // Define the directory path based on the document ID
-    const dirPath = path.join(__dirname, "uploads/", documentId);
+    const dirPath = path.join(__dirname, "uploads", documentId);
 
-    // Check if the directory exists, if not, create it
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
+    try {
+      // Check if the directory exists, if not, create it
+      if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
+      }
+      // Use the newly created directory as the destination
+      cb(null, dirPath);
+    } catch (err) {
+      console.error("Error creating directory:", err);
+      cb(new Error("Failed to create upload directory"));
     }
-
-    // Use the newly created directory as the destination
-    cb(null, dirPath);
   },
   filename: (req, file, cb) => {
     const fileExtension = path.extname(file.originalname).toLowerCase();
     const newFilename = `${file.originalname}`;
     cb(null, newFilename);
-  },
+  }
 });
 
 const upload = multer({ storage });
+
+
 
 // init express
 const app = new express();
@@ -108,6 +115,8 @@ const port = 3001;
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.static("public"));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 // CORS configuration
 const corsOptions = {
@@ -310,19 +319,20 @@ app.patch("/api/documents/:documentId/connection", async (req, res) => {
 // Endpoint to upload a file
 app.post(
   "/api/documents/:documentId/resources",
-  checkDocumentExists,
-  upload.single("file"),
+  upload.array('files',10),
   async (req, res) => {
-    if (req.file) {
-      console.log("SONO QUA");
-      const documentId = parseInt(req.params.documentId);
+    console.log(req.body);
+    const documentId = req.params.documentId;
+    
+    // Check if files were uploaded
+    if (req.files) {
       res.json({
-        message: "File uploaded successfully!",
+        message: 'Files uploaded successfully!',
         documentId: documentId,
-        filename: req.file.filename,
+        files: req.files,
       });
     } else {
-      res.status(400).json({ message: "File upload failed." });
+      res.status(400).json({ message: 'No files uploaded or upload failed.' });
     }
   }
 );

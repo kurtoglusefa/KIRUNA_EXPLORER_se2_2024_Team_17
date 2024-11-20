@@ -529,13 +529,15 @@ You will see the kiruna explore at address: http://localhost:5173/
 - **Documents.jsx**: Lists all documents in the system, offering features like search, filtering, and browsing of document metadata.
 - **Home.jsx**: The homepage of the application, providing an introduction to the platform and navigation to other parts of the app.
 - **Map.jsx**: Displays an interactive map to visualize geographic data related to documents and locations in the system.
-- **ModifyDocument.jsx**: Allows users to modify an existing document’s metadata, providing an editable form for updates.
+- **ModifyDocument.jsx**: Allows users to modify an existing document’s metadata, providing an editable form for updates as well as creating a new document.
 - **MyNavBar.jsx**: The navigation bar component that provides links to the homepage, documents, map, and other sections of the app.
 - **API.jsx**: Manages API calls to the backend, centralizing data fetching and providing reusable hooks for components.
 - **App.jsx**: The root component that renders the entire application, integrating routing and layout to ensure smooth app functionality.
+- **WelcomePage.jsx**: The main UI component where the users can start using the application and navigate related pages.
 
 ## Screenshots
 
+![Screenshot](/images/welcomepage.png)
 ![Screenshot](/images/login.png)
 ![Screenshot](/images/map.png)
 ![Screenshot](/images/addDocument.png)

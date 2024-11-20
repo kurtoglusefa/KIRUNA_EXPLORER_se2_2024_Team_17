@@ -14,10 +14,11 @@ import MyNavbar from './components/MyNavbar';
 import WelcomePage from './components/WelcomePage';
 
 function App() {
-  const [user, setUser] = useState(undefined);
+  const [user, setUser] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
   const [viewMode, setViewMode] = useState('map');
   const [selectedDocument, setSelectedDocument] = useState(null);
+  const [documents, setDocuments] = useState([]);
 
   // Authentication check
   useEffect(() => {
@@ -64,10 +65,10 @@ function App() {
         <Routes>
           <Route path="/" element={<WelcomePage />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/home" element={<><MyNavbar /><Home /></>} />
-          <Route path="/documents/modify-document/:documentId" element={<><MyNavbar /><ModifyDocument /></>} />
-          <Route path="/documents/create-document" element={<><MyNavbar /><ModifyDocument /></>} />
-          <Route path="/*" element={<><MyNavbar /><Default /></>} />
+          <Route path="/home" element={<><MyNavbar documents={documents} setDocuments={setDocuments} /><Home documents={documents} setDocuments={setDocuments} /></>} />
+          <Route path="/documents/modify-document/:documentId" element={<><MyNavbar documents={documents} setDocuments={setDocuments} /><ModifyDocument /></>} />
+          <Route path="documents/create-document" element={<><MyNavbar documents={documents} setDocuments={setDocuments} /><ModifyDocument /></>} />
+          <Route path="/*" element={<><MyNavbar documents={documents} setDocuments={setDocuments} /><Default /></>} />
         </Routes>
       </AppContext.Provider>
     </BrowserRouter>

@@ -14,7 +14,6 @@ import CardDocument from './CardDocument';
 
 function Home(props) {
   const viewMode = useContext(AppContext).viewMode.viewMode;
-  const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const selectedDocument = useContext(AppContext).selectedDocument;
   const setSelectedDocument = useContext(AppContext).setSelectedDocument;
@@ -38,7 +37,7 @@ function Home(props) {
   const fetchDocuments = async () => {
     try {
       const res = await API.getAllDocuments();
-      setDocuments(res);
+      props.setDocuments(res);
     } catch (err) {
       console.error(err);
     }
@@ -81,7 +80,6 @@ function Home(props) {
           acc[location.IdLocation] = location;
           return acc;
         }, {});
-        console.log(locationsById);
         // Set the transformed object to state
         setLocationsArea(locationsById);
         setLoading(false);
@@ -151,7 +149,7 @@ function Home(props) {
 
     // Filter documents that match the input
     if (searchValue.length > 0) {
-      const filtered = documents.filter((doc) =>
+      const filtered = props.documents.filter((doc) =>
         doc.Title.toLowerCase().includes(searchValue.toLowerCase()) && doc.IdDocument != selectedDocument.IdDocument
       );
       setFilteredDocuments(filtered);
@@ -175,7 +173,7 @@ function Home(props) {
           loading ? (
             <Spinner animation="border" variant="primary" />
           ) : (
-            <Map locations={locations} setLocations={setLocations} locationsArea={locationsArea} documents={documents} setSelectedLocation={setSelectedLocation} setSelectedDocument={setSelectedDocument} selectedLocation={selectedLocation} handleDocumentClick={handleDocumentClick} numberofconnections={numberofconnections} fetchLocationsArea={fetchLocationsArea} />
+            <Map locations={locations} setLocations={setLocations} locationsArea={locationsArea} documents={props.documents} setSelectedLocation={setSelectedLocation} setSelectedDocument={setSelectedDocument} selectedLocation={selectedLocation} handleDocumentClick={handleDocumentClick} numberofconnections={numberofconnections} fetchLocationsArea={fetchLocationsArea} />
           )
 
         ) : (
@@ -193,7 +191,7 @@ function Home(props) {
                       <Card style={{ width: '100%' }}>
                         <Card.Header>Document List</Card.Header>
                         <ListGroup style={{ maxHeight: '355px', overflowY: 'auto' }}>
-                          {documents.map((doc, index) => (
+                          {props.documents.map((doc, index) => (
                             <ListGroup.Item
                               key={index}
                               onClick={() => handleDocumentClick(doc)}
@@ -207,7 +205,7 @@ function Home(props) {
                     )}
                   </div>
                   <div style={{ flexGrow: 1 }}>
-                    {selectedDocument ? (
+                    {selectedDocument!=null ? (
                       <CardDocument
                         document={selectedDocument}
                         locationType={locationsArea[selectedDocument?.IdLocation] ? "Area" : "Point"}
