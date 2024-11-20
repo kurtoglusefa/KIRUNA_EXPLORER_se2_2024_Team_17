@@ -71,7 +71,7 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
             <Card.Text style={{ fontSize: '16px' }}><strong>Date:</strong> {document?.Issuance_Date}</Card.Text>
             <Card.Text style={{ fontSize: '16px' }}><strong>Scale:</strong> {document?.Scale}</Card.Text>
             {document?.Language && <Card.Text style={{ fontSize: '16px' }}><strong>Language:</strong> {document?.Language}</Card.Text>}
-            {document?.IdStakeholder && stakeholders && <Card.Text style={{ fontSize: '16px' }}><strong>Stakeholder :</strong> {document?.IdStakeholder-1}</Card.Text>}
+            {document?.IdStakeholder && stakeholders && <Card.Text style={{ fontSize: '16px' }}><strong>Stakeholder :</strong> {stakeholders.find(s => s.id === document.IdStakeholder-1)?.name || 'Unknown'}</Card.Text>}
             {document?.Pages && <Card.Text style={{ fontSize: '16px' }}><strong>Pages:</strong> {document?.Pages}</Card.Text>}
             {/*<Card.Text style={{ fontSize: '16px' }}><strong>Type: </strong> {locationType}</Card.Text>*/}
             <Card.Text style={{ fontSize: '16px'}}><strong>Connections:</strong> {numberofconnections}</Card.Text>

@@ -49,11 +49,11 @@ export function MyNavbar({documents,setDocuments}) {
             title.toLowerCase().includes(searchTerm.toLowerCase())
           );
         });
-
+        console.log("Filtered results:", stakeholder); // for debugging
         //filter by stakeholder
         if(stakeholder){
           const filteredResultsStakeholder = filteredResults.filter((doc) => {
-            return doc.IdStakeholder == stakeholder;
+            return doc.IdStakeholder-1 == stakeholder;
           });
           filteredResults = filteredResultsStakeholder;
         }
