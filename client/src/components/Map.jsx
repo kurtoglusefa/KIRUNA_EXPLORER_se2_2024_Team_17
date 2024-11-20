@@ -25,6 +25,7 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
   const context = useContext(AppContext);
   const isLogged = context.loginState.loggedIn;
   const [documentTypes, setDocumentTypes] = useState([]);
+  const [stakeholders, setStakeholders] = useState([]);
   const [modifyMode, setModifyMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const offsetDistance = 0.0020; //offset distance between markers
@@ -37,16 +38,41 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
   const [selectedArea, setSelectedArea] = useState(null);
 
   const [newCoordinates, setNewCoordinates] = useState([]);
+  const [icons, setIcons] = useState({});
+/*
+  useEffect(() => {
+    const getIcon = async (document) => {
+      const res = await fetch(`src/icon/${documentTypes[document.IdType - 1]?.iconsrc}`);
+      const svg = await res.text();
+      svg.replace('fill="black"', 'fill="red"');
+      return new L.DivIcon({
+        iconUrl:`src/icon/${documentTypes[document.IdType - 1]?.iconsrc}`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32],
+        className: "",
+      });
+    };
+
+    const loadIcons = async () => {
+      const newIcons = {};
+      for (const document of documents) {
+        const icon = await getIcon(document);
+        newIcons[document.IdLocation] = icon;
+      }
+      setIcons(newIcons);
+    };
+
+    loadIcons();
+  }, [documents]);*/
+
 
   useEffect(() => {
     // Define an async function inside useEffect
     const updateArea = async () => {
 
       if (selectedArea && newCoordinates.length > 0) {
-        console.log("sono dentro la usefefft");
-        console.log("Selected Area:", selectedArea);
-        console.log("Selected Area Coordinates:", newCoordinates);
-
+    
         // Assuming getCenter is available and newCoordinates is a valid object
         const { lat, lng } = getCenter(newCoordinates);
         // Call the API function with the required parameters
@@ -107,9 +133,10 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
     setLoading(true);
     const fetchDocumentTypes = async () => {
       try {
-        const res = await API.getAllTypesDocument();
-
-        setDocumentTypes(res);
+        const types = await API.getAllTypesDocument();
+        setDocumentTypes(types);
+        const stakeholders = await API.getAllStakeholders();
+        setStakeholders(stakeholders);
       } catch (err) {
         console.error(err);
       }
@@ -126,7 +153,6 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
     let totalLat = 0;
     let totalLng = 0;
     const count = areaCoordinates[0].length;
-    console.log("Count:", count);
 
     areaCoordinates[0].forEach((point) => {
       totalLat += point.lat;
@@ -142,10 +168,7 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
 
   const handleAddArea = async () => {
     if (areaName) {
-      console.log("Adding area:", areaName);
-      console.log("Area coordinates:", areaCoordinates[0]);
-
-      console.log("Center:", getCenter(areaCoordinates));
+      
       API.addArea(
         areaName,
         JSON.stringify(areaCoordinates[0]),
@@ -208,7 +231,6 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
         ""
       )
         .then(() => {
-          console.log('Position updated successfully');
 
           // Update local state to reflect the new position
           const updatedLocations = { ...locations };
@@ -228,6 +250,17 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
 
   };
 
+  function MarkerFocus ({position}) {
+    const map = useMap();
+
+    useEffect(() => {
+      if(position) {
+        map.setView(position, map.getZoom());
+      }
+    }, [position, map]);
+
+    return null;
+  }
 
   function LocationMarker() {
     useMapEvents({
@@ -243,7 +276,6 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
 
   const handleModifyArea = (e) => {
     // update the new area coordinates and will case the useEffect to update the area
-    console.log(e.layers.getLayers()[0].getLatLngs()[0]);
     setNewCoordinates(e.layers.getLayers()[0].getLatLngs());
   };
 
@@ -254,7 +286,7 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
         <Spinner animation="border" variant="primary" />
       ) : (
         <div>
-          <MapContainer ref={mapRef} center={[67.8558, 20.2253]} zoom={12.4} maxBounds={[[67, 20], [68, 21]]} minZoom={12}>
+          <MapContainer ref={mapRef} center={[67.8558, 20.2253]} zoom={12} maxBounds={[[67.7, 19.6],[68, 20.8]]} minZoom={12}>
             {/* Location listener */}
             <LocationMarker />
 
@@ -290,14 +322,16 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                         position = [location.Latitude, location.Longitude];
                       }
 
+
+                      const iconPath = `src/icon/${stakeholders[document.IdStakeholder-1]?.color}/${documentTypes[document.IdType - 1]?.iconsrc}`;
+                      
                       return (
                         <Marker
                           key={index}
                           position={position}
                           icon={
                             new L.Icon({
-                              iconUrl: `src/icon/${documentTypes[document.IdType - 1]?.iconsrc
-                                }`,
+                              iconUrl: iconPath,
                               iconSize: [32, 32],
                               iconAnchor: [16, 32],
                               popupAnchor: [0, -32],
@@ -321,7 +355,7 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                   })}
                 </LayerGroup>
               </LayersControl.Overlay>
-              <LayersControl.Overlay name="Area">
+              <LayersControl.Overlay name="Area" checked>
                 <LayerGroup>
                   {locationsArea &&
                     Object.values(locationsArea).map((area, index) => {
@@ -421,11 +455,12 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                 }
               })}
             {/* Marker for selected location */}
-            {selectedLocation && modifyMode && <Marker position={selectedLocation} />}
-
-            {/* Markers */}
+            {selectedLocation && modifyMode && <Marker position={selectedLocation} /> }
+            
+            {/* setView on selected Marker*/}
+            {selectedMarker && <MarkerFocus position={locationsArea[selectedMarker?.IdLocation] ? {lat: locationsArea[selectedMarker?.IdLocation].Latitude, lng:locationsArea[selectedMarker?.IdLocation].Longitude} : {lat:locations[selectedMarker?.IdLocation]?.Latitude, lng: locations[selectedMarker?.IdLocation]?.Longitude}} />}
+            {/* Markers 
             {documents.map((document, index) => {
-
               //used to not overleap the documents
               const offsetIndex = index * offsetDistance;
               const location = locationsArea[document.IdLocation] ? locationsArea[document.IdLocation] : locations[document.IdLocation];
@@ -445,10 +480,9 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                 }
                 return (
                   <Marker
-                    ref={markerRef}
                     icon={
                       new L.Icon({
-                        iconUrl: `src/icon/${documentTypes[document.IdType - 1]?.iconsrc}`,
+                        iconUrl: `src/icon/${stakeholders[document.IdStakeholder-1]?.color}/${documentTypes[document.IdType - 1]?.iconsrc}`,
                         iconSize: [32, 32],
                         iconAnchor: [16, 32],
                         popupAnchor: [0, -32],
@@ -472,9 +506,9 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                   </Marker>
                 );
               }
-            })}
+            })*/}
             <CustomZoomHandler />
-          </MapContainer>
+          </MapContainer> 
 
           {/* Overlay components*/}
           {/* Document Card */}
@@ -524,18 +558,17 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                     ) : (
                       <Form.Group>
                         <Form.Label>
-                          <strong>Select Area</strong>
+                          <strong>Area</strong>
                         </Form.Label>
-                        <Form.Control
-                          as="select"
+                        <Form.Select
                           value={selectedArea ? selectedArea.IdLocation : ""}
                           onChange={(e) => {
                             const area = locationsArea[e.target.value];
                             setSelectedArea(area);
-                            console.log("Selected Area:", area);
                           }}
+                          required={true}
                         >
-                          <option value="">Select an Area</option>
+                          <option>Select an Area</option>
                           {Object.values(locationsArea).map((area) => (
                             <option
                               key={area.IdLocation}
@@ -544,7 +577,7 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                               {area.Area_Name || `Area ${area.IdLocation}`}
                             </option>
                           ))}
-                        </Form.Control>
+                        </Form.Select>
                       </Form.Group>
                     )
                     }
@@ -557,11 +590,14 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                     size="md"
                     onClick={() => {
                       if (!selectedLocation) {
-                        setSelectedLocation(selectedArea);
-                        navigate('documents/create-document', { state: { location: selectedArea } })
+                        if(!selectedArea) {
+                          alert('Select an area')
+                          return;
+                        }
+                        navigate(`../documents/create-document`, { state: { area: selectedArea }, relative: 'path' })
                       }
                       else {
-                        navigate('documents/create-document', { state: { location: selectedLocation } })
+                        navigate(`../documents/create-document`, { state: { location: {lat: selectedLocation.lat.toFixed(4), lng: selectedLocation.lng.toFixed(4) }}, relative: 'path' })
                       }
                     }}
                   >
@@ -607,6 +643,7 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                 placeholder="Enter Area name"
                 value={areaName}
                 onChange={(e) => setAreaName(e.target.value)}
+                required
               />
             </Form.Group>
           </Form>

@@ -14,7 +14,7 @@ import MyNavbar from './components/MyNavbar';
 import WelcomePage from './components/WelcomePage';
 
 function App() {
-  const [user, setUser] = useState(undefined);
+  const [user, setUser] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
   const [viewMode, setViewMode] = useState('map');
   const [selectedDocument, setSelectedDocument] = useState(null);
