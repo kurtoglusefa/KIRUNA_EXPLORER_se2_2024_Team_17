@@ -216,6 +216,7 @@ function Home(props) {
                         viewMode={viewMode}
                         numberofconnections={numberofconnections}
                         areaName={locationsArea[selectedDocument?.IdLocation]?.Area_Name}
+                        stakeholders={stakeholders}
                       />
                     ) : (
                       <div className="text-muted">Select a document to view its specifications.</div>

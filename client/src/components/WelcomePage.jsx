@@ -18,7 +18,7 @@ const WelcomePage = () => {
                         Explore the Move!
                         <div className="popup-message">Discover the journey of relocating Kiruna city.</div>
                     </Breadcrumb.Item>
-                    <Breadcrumb.Item linkAs={Link} linkProps={{ to: "/about-us" }}>
+                    {/*<Breadcrumb.Item linkAs={Link} linkProps={{ to: "/about-us" }}>
                         About Us
                         <div className="popup-message">Learn about the mission behind the Kiruna city relocation.</div>
                     </Breadcrumb.Item>
@@ -30,6 +30,7 @@ const WelcomePage = () => {
                         Contact Us
                         <div className="popup-message">Get in touch with us for any inquiries or assistance.</div>
                     </Breadcrumb.Item>
+                    */}
                     <Breadcrumb.Item linkAs={Link} linkProps={{ to: "/login" }}>
                         Login
                         <div className="popup-message">Access your account to manage your progress and data.</div>
