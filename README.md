@@ -54,7 +54,7 @@ cd server
 docker build .
 ```
 
-then return back in the root directory and type again
+then return back in the root directory and type
 
 ```sh
 docker-compose up --build
