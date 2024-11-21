@@ -39,18 +39,18 @@ sections:
 
 - Hours per task average, standard deviation (estimate and actual)
   - task average:
-    - estimated: 2.42 h
-    - actual: 2.32 h
+    - estimated: 2.63 h
+    - actual: 2.60 h
   - standard deviation:
-    - estimated: 2.33 h
-    - actual: 2.12 h
+    - estimated: 1.81 h
+    - actual: 2.23 h
 - Total estimation error ratio: sum of total hours spent / sum of total hours effort - 1
 
-  $$\frac{\sum_i spent_{task_i}}{\sum_i estimation_{task_i}} - 1 = -0.0406$$
+  $$\frac{\sum_i spent_{task_i}}{\sum_i estimation_{task_i}} - 1 = -0.01091$$
 
 - Absolute relative task estimation error: sum( abs( spent-task-i / estimation-task-i - 1))/n
 
-  $$\frac{1}{n}\sum_i^n \left| \frac{spent_{task_i}}{estimation_{task_i}}-1 \right| = 0.0392 $$
+  $$\frac{1}{n}\sum_i^n \left| \frac{spent_{task_i}}{estimation_{task_i}}-1 \right| = 0.21717$$
 
 ## QUALITY MEASURES
 
