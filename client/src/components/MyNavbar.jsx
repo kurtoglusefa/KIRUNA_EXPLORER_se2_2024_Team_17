@@ -25,7 +25,7 @@ export function MyNavbar({ documents, setDocuments }) {
     try {
       const res = await API.getAllStakeholders();
       setStakeholders(res);
-      setStakeholder(res[0].id);
+      //setStakeholder(res[0].id);
     } catch (err) {
       console.error(err);
     }
@@ -175,7 +175,7 @@ export function MyNavbar({ documents, setDocuments }) {
                       }}
                     />
                     <Form.Select
-                      value={stakeholder}
+                      value={stakeholder || ""}
                       onChange={(e) => setStakeholder(e.target.value)}
                       style={{
                         borderColor: '#A89559',

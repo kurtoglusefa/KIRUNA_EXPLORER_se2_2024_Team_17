@@ -39,6 +39,8 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
 
   const [newCoordinates, setNewCoordinates] = useState([]);
   const [icons, setIcons] = useState({});
+  //const offsetDistance = 0.0020; //offset distance between markers
+
 /*
   useEffect(() => {
     const getIcon = async (document) => {
@@ -330,13 +332,16 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                     const location =
                       locationsArea[document.IdLocation] ||
                       locations[document.IdLocation];
-
+                    const offsetIndex = index * offsetDistance;
                     if (location) {
                       let position = [];
                       if (location.Location_Type === "Point") {
                         position = [location.Latitude, location.Longitude];
                       } else {
-                        position = [location.Latitude, location.Longitude];
+                        position = [
+                          location.Latitude + (index % 2 === 0 ? offsetIndex : -offsetIndex),
+                          location.Longitude + (index % 2 === 0 ? -offsetIndex : offsetIndex),
+                        ];
                       }
 
 
@@ -416,13 +421,17 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                     const location =
                       locationsArea[document.IdLocation] ||
                       locations[document.IdLocation];
+                    const offsetIndex = index * offsetDistance;
 
                     if (location) {
                       let position = [];
                       if (location.Location_Type === "Point") {
                         position = [location.Latitude, location.Longitude];
                       } else {
-                        position = [location.Latitude, location.Longitude];
+                        position = [
+                          location.Latitude + (index % 2 === 0 ? offsetIndex : -offsetIndex),
+                          location.Longitude + (index % 2 === 0 ? -offsetIndex : offsetIndex),
+                        ];
                       }
 
 
