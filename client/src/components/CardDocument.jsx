@@ -77,11 +77,19 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
             <Card.Text style={{ fontSize: '16px'}}><strong>Connections:</strong> {numberofconnections}</Card.Text>
             <Card.Text style={{ fontSize: '16px' }}>
               <strong>Original Resource:</strong><br></br>
-              {resource.length > 0 ? (
-                <a href={`http://localhost:3001${resource[0].url}`} target="_blank" style={{fontSize:'13px'}} ><u>{resource[0].filename}</u></a>
-              ): (
-                <span style={{fontSize:'13px'}}>No original resource added</span>
-              )}
+              <div style={{ overflowY: "auto",maxHeight : "100px"}}>
+                {resource.length > 0 ? (
+                  resource.map((res, index) => (
+                    <>
+                      <a href={`http://localhost:3001${res.url}`} target="_blank" key={index} style={{fontSize:'13px'}} ><u>{res.filename}</u></a>
+                      <br></br>
+                    </>
+                  ))
+                
+                ): (
+                  <span style={{fontSize:'13px'}}>No original resource added</span>
+                )}
+              </div>
               </Card.Text>
             {isLogged &&
               <Badge bg='light' className="p-3 mt-4" style={{color:'black', fontWeight:'normal'}}>

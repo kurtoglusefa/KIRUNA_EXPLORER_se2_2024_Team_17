@@ -515,13 +515,15 @@ const getDocumentResources = async (id) => {
   });
 }
 
-const addResourcesToDocument = (idDocument, file) => {
+const addResourcesToDocument = (idDocument, files) => {
   return new Promise((resolve, reject) => {
     const formData = new FormData();
-
-    // Check if file
-    if (file) {
-        formData.append('file', file); // Append each file individually
+    console.log(files);
+    // Check if files is an array (handling multiple files)
+    if (files && files.length > 0) {
+      Array.from(files).forEach((file) => {
+        formData.append('files', file); // Append each file individually
+      });
     } else {
       console.error("No files provided for upload.");
       reject({ error: "No files provided for upload." });
@@ -557,6 +559,23 @@ const addResourcesToDocument = (idDocument, file) => {
   });
 };
 
+const deleteResource = (resource) => {
+  return new Promise((resolve, reject) => {
+    fetch(URL + `/documents/${resource.documentId}/resources/${resource.filename}`, {
+      method: "DELETE",
+      credentials: "include",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          return response.json().then((message) => reject(message));
+        }
+        resolve();
+      })
+      .catch(() => {
+        reject({ error: "Cannot communicate with the server." });
+      });
+  });
+};
 
 const addArea = (areaName, area_coordinates,center_lat,center_lng) => {
 
@@ -590,6 +609,6 @@ const addArea = (areaName, area_coordinates,center_lat,center_lng) => {
 };
 
 
-const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, createDocumentConnection, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea, getDocumentResources, addResourcesToDocument, addArea};
+const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, createDocumentConnection, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea, getDocumentResources, addResourcesToDocument, addArea,deleteResource};
 
 export default API;

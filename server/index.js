@@ -319,20 +319,48 @@ app.patch("/api/documents/:documentId/connection", async (req, res) => {
 // Endpoint to upload a file
 app.post(
   "/api/documents/:documentId/resources",
-  upload.single("file"),
+  upload.array("files", 20), // Handle up to 10 files,
   async (req, res) => {
     console.log(req.body);
     const documentId = parseInt(req.params.documentId);
     
     // Check if files were uploaded
-    if (req.file) {
+    if (req.files && req.files.length > 0) {
       res.json({
-        message: 'File uploaded successfully!',
-        documentId: documentId,
-        file: req.file,
+        message: "Files uploaded successfully!",
+        documentId,
+        files: req.files, // Contains metadata for uploaded files
       });
     } else {
-      res.status(400).json({ message: 'No file uploaded or upload failed.' });
+      res.status(400).json({ message: "No files uploaded or upload failed." });
+    }
+  }
+);
+
+app.delete(
+  "/api/documents/:documentId/resources/:filename",
+  async (req, res) => {
+    try {
+      const documentId = String(req.params.documentId);
+      const filename = req.params.filename;
+      const filePath = path.join(__dirname, "uploads", documentId, filename);
+      // Check if the file exists
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ message: "File not found." });
+      }
+
+      // Delete the file
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error("Error deleting file:", err);
+          return res.status(500).json({ message: "Failed to delete the file." });
+        }
+
+        return res.status(200).json({ message: "File deleted successfully." });
+      });
+    } catch (error) {
+      console.error("Error handling delete request:", error);
+      return res.status(500).json({ message: "An unexpected error occurred." });
     }
   }
 );

@@ -244,16 +244,16 @@ describe('File Upload API', () => {
 
     const loginResponse = await agent
       .post("/api/sessions")
-      .send({ username: "mario@test.it", password: process.env.TEST_USER_PASSWORD });
+      .send({ username: "mario@test.it", password: "pwd" });
     expect(loginResponse.status).toBe(200);
   });
   it('should upload a file successfully', async () => {
     // Mock the file upload process
-    const mockFile = { filename: 'testfile.txt' };
+    const mockFiles = { filename: 'testfile.txt', filename : 'test2file.txt' };
 
     // Mock the req.file object to simulate a successful file upload
     const mockRequest = {
-      file: mockFile,
+      files: mockFiles,
       params: { documentId: documentId }
     };
     const mockMiddleware = (req, res, next) => next();  
@@ -261,22 +261,17 @@ describe('File Upload API', () => {
     const mockUpload = {
       single: jest.fn().mockImplementation(() => (req, res, next) => next()) // Simulate file upload middleware
     };
-
-    console.log(path.resolve(__dirname, 'mock_file/testfile.txt')); // Add this for debugging
-
     const response = await agent
       .post('/api/documents/'+documentId+'/resources')
-      .attach('file', path.resolve(__dirname, 'mock_file/testfile.txt'))  // Attach a mock file
+      .attach('files', path.resolve(__dirname, 'mock_file/testfile.txt'))  // Attach mock file
+      .attach('files', path.resolve(__dirname, 'mock_file/test2file.txt')) // Attach another file
       .set('Content-Type', 'multipart/form-data');
-    console.log(response.body); // Add this for debugging
     expect(response.status).toBe(200);
-    expect(response.body.message).toBe('File uploaded successfully!');
+    expect(response.body.message).toBe('Files uploaded successfully!');
     expect(response.body.documentId).toBe(documentId);
-    expect(response.body.file.filename).toBe(mockFile.filename);
-
   });
   it('should return a list of resources for a document', async () => {
-    const mockFiles = ['testfile.txt'];
+    const mockFiles = ['testfile.txt', 'test2file.txt'];
 
     // Mock the file system behavior to simulate existing files
 
@@ -285,7 +280,9 @@ describe('File Upload API', () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveLength(mockFiles.length);
-    expect(response.body[0].filename).toBe(mockFiles[0]);
+    expect(response.body[0].filename).toBe(mockFiles[1]);
+    expect(response.body[1].filename).toBe(mockFiles[0]);
+
   });
   it('should return 404 if no resources are found for the document', async () => {
     const documentIdmock = '99999999';
@@ -298,4 +295,46 @@ describe('File Upload API', () => {
     expect(response.status).toBe(404);
     expect(response.body.message).toBe('Document not found');
   });  
+  it('should delete a file successfully', async () => {
+      const filename = 'testfile.txt';
+
+      // Mock the file system behavior to simulate existing file
+      //const filePath = path.join(__dirname, "uploads", documentId, filename);
+
+      const response = await agent
+        .delete(`/api/documents/${documentId}/resources/${filename}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe('File deleted successfully.');
+      //expect(fs.existsSync(filePath)).toBe(false); // Ensure file is deleted
+    });
+
+    it('should return 404 if the file does not exist', async () => {
+      const documentId = 'nonExistentDocumentId';
+      const filename = 'nonExistentFile.txt';
+
+      const response = await agent
+        .delete(`/api/documents/${documentId}/resources/${filename}`);
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe('File not found.');
+    });
+
+    it('should return 500 if there is an error deleting the file', async () => {
+      const filename = 'test2file.txt';
+
+      // Mock the file system behavior to simulate existing file
+
+
+      // Mock fs.unlink to simulate an error
+      jest.spyOn(fs, 'unlink').mockImplementation((path, callback) => {
+        callback(new Error('Simulated unlink error'));
+      });
+
+      const response = await agent
+        .delete(`/api/documents/${documentId}/resources/${filename}`);
+
+      expect(response.status).toBe(500);
+      expect(response.body.message).toBe('Failed to delete the file.');
+    });
 });
