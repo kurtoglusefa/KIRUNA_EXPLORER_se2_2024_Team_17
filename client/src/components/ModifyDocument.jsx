@@ -24,7 +24,7 @@ function ModifyDocument() {
     const [longitude, setLongitude] = useState(selectedLocation.lng ? selectedLocation.lng : '');
     const [area, setArea] = useState(location.state.area ? location.state.area : null);
     const [resources, setResources] = useState([]);
-    const [addResources, setAddResources] = useState(null);
+    const [addResources, setAddResources] = useState([]);
     const [selectedDocument, setSelectedDocument] = useState('');
     const [connectionType, setConnectionType] = useState('');
     const [connections, setConnections] = useState([]); // List of added connections
@@ -140,6 +140,35 @@ function ModifyDocument() {
           
     },[]);
 
+
+    const handleDeleteResource = async (resource) => {
+      try {
+        console.log(resource);
+        await API.deleteResource(resource);
+        const res = await API.getDocumentResources(documentId);
+        setResources(res);
+      } catch (err) {
+        setMessage('Error deleting resource');
+      }
+    };
+    const addResourcesDocument = async () => {
+      if (addResources.length > 0) {
+        try {
+          console.log("addResourcesDocument");
+          // Send FormData to your API function
+          await API.addResourcesToDocument(documentId, addResources);
+          // Optionally, fetch the updated resources list
+          const res = await API.getDocumentResources(documentId);
+          setAddResources([]);
+          setMessage('');
+        } catch (err) {
+          setMessage('Error uploading resources:' + err);
+        }
+      } else {
+        setMessage('No files selected');
+      }
+    };
+
     const handleUpdate = async() => {
       if(!title || !scale || !issuanceDate.year || !description  || !stakeholder || !type){
         setMessage("Please complete all fields to add a document.");
@@ -185,8 +214,7 @@ function ModifyDocument() {
 
         if(addResources) {
           try {
-            console.log(addResources);
-            await API.addResourcesToDocument(result, addResources);
+            addResourcesDocument();
           } catch (err) {
             console.error(err);
           } 
@@ -227,24 +255,6 @@ function ModifyDocument() {
         setSelectedDocument(doc);
         setFilteredDocuments([]); // Clear suggestions after selection
     };
-
-    /*const addResourcesDocument = async () => {
-      if (addResources.length > 0) {
-        try {
-    
-          // Send FormData to your API function
-          await API.addResourcesToDocument(documentId, addResources);
-          // Optionally, fetch the updated resources list
-          const res = await API.getDocumentResources(documentId);
-          setAddResources([]);
-          setMessage('');
-        } catch (err) {
-          setMessage('Error uploading resources:' + err);
-        }
-      } else {
-        setMessage('No files selected');
-      }
-    };*/
     
     /* ------------------------------------ FORM ------------------------------------------ */
     return (
@@ -381,35 +391,52 @@ function ModifyDocument() {
                             </div>
                           </div>
                         </div>}
-                        {/* Add resources */}
-                          <div className="mb-3">
+                        <div className="mb-3">
                           <Form.Group controlId="formFileMultiple" className="mb-3">
-                            <Form.Label as='strong'>Original Resource</Form.Label>
-                                {resources.length > 0 ? (
-                                  <ListGroup variant="flush" className="mb-2">
-                                        {resources.map((res, index) => (
-                                          <ListGroup.Item key={index}>
-                                                <a href={`http://localhost:3001${res.url}`} target="_blank"><u>{res.filename}</u></a>
-                                            </ListGroup.Item>
-                                        ))}
-                                    </ListGroup>
-                                ) : (
-                                  <>
-                                  <div className='d-flex mt-3 mx-3 justify-content-between'>
-                                    <div>
-                                      <p className="text-muted">No resource added yet.</p>
-                                    </div>
-                                    <div  className='col-6'>
-                                    <Form.Control type="file" onChange={(e) => setAddResources(e.target.files[0])} size='sm'/>
-                                    </div>
-                                    {/*<div className='text-end'>
-                                    <Button variant="secondary" size='sm' className='rounded-pill' onClick={addResourcesDocument}>
-                                      Add
-                                    </Button>
-                                    </div>*/}
-                                  </div>
-                                  </>
-                                )}
+                            <Form.Label as="strong">Original Resource</Form.Label>
+                            
+                            {/* List of resources */}
+                            {resources.length > 0 ? (
+                              <ListGroup variant="flush" className="mb-2">
+                                <div style={{ overflowY: "auto",maxHeight : "150px"}}>
+                                {resources.map((res, index) => (
+                                  <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
+                                  {/* Resource Link */}
+                                  <a
+                                    href={`http://localhost:3001${res.url}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{ textDecoration: 'underline' }}
+                                  >
+                                    {res.filename}
+                                  </a>
+                                
+                                  {/* Cancel/Delete Button */}
+                                  <button
+                                    type="button"
+                                    className="btn btn-link text-danger p-0"
+                                    onClick={() => handleDeleteResource(res)} // Replace with your delete handler
+                                    style={{ textDecoration: 'none' }}
+                                  >
+                                    ✖
+                                  </button>
+                                </ListGroup.Item>
+                                ))}
+                                </div>
+                              </ListGroup>
+                            ): (
+                              <p className="text-muted">No resources added yet.</p>
+                            )}
+                            
+                            {/* Form to upload new resources */}
+                            <div className="d-flex mt-3 justify-content-between">
+                              <Form.Control
+                                type="file"
+                                onChange={(e) => setAddResources(e.target.files)}
+                                size="sm"
+                                multiple
+                              />
+                            </div>
                           </Form.Group>
                         </div>
                 </Col>
