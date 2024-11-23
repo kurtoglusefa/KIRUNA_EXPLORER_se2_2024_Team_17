@@ -20,7 +20,8 @@ CREATE TABLE Location (
     Location_Type  VARCHAR(255) NOT NULL,
     Latitude DECIMAL(10, 7),  -- for point locations
     Longitude DECIMAL(10, 7), -- for point locations
-    Area_Coordinates TEXT  -- for area type locations (array of coordinate pairs)
+    Area_Coordinates TEXT,  -- for area type locations (array of coordinate pairs)
+    Area_Name VARCHAR(255)  -- for area type locations
 );
 
 CREATE TABLE TypeDocument (
@@ -33,7 +34,7 @@ CREATE TABLE Document (
     IdDocument INTEGER PRIMARY KEY AUTOINCREMENT,
     Title VARCHAR(255) NOT NULL,
     IdStakeholder INT REFERENCES Stakeholder(IdStakeholder),
-    Scale VARCHAR(50),
+    IdScale INT,
     Issuance_Date VARCHAR(255),
     Language VARCHAR(50),
     Pages INTEGER,
@@ -54,4 +55,10 @@ CREATE TABLE DocumentConnection (
     FOREIGN KEY (IdDocument1) REFERENCES Document(IdDocument),
     FOREIGN KEY (IdDocument2) REFERENCES Document(IdDocument),
     FOREIGN KEY (IdConnection) REFERENCES Connection(IdConnection)
+);
+
+CREATE TABLE Scale (
+    IdScale INTEGER PRIMARY KEY AUTOINCREMENT, -- Unique identifier for the scale
+    scale_text VARCHAR(50) NOT NULL,          -- Text representation of the scale (e.g., "1:")
+    scale_number VARCHAR(50)      -- The numerical part of the scale (e.g., "1000")
 );

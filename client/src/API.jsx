@@ -76,6 +76,7 @@ async function getUserInfo() {
 
 const addDocument = (title, idStakeholder, scale, issuance_Date, language, pages, description, idtype, locationType, latitude, longitude, area_coordinates) => {
   console.log("ADD DOCUMENT");
+  console.log(scale);
   return new Promise((resolve, reject) => {
     fetch(URL + "/documents", {
       method: "POST",
@@ -101,6 +102,8 @@ const addDocument = (title, idStakeholder, scale, issuance_Date, language, pages
 
 };
 const addDocumentArea = (title, idStakeholder, scale, issuance_Date, language, pages, description, idtype, idLocation) => {
+  console.log("ADD DOCUMENT");
+  console.log(scale);
   return new Promise((resolve, reject) => {
     fetch(URL + "/documents", {
       method: "POST",
@@ -608,7 +611,85 @@ const addArea = (areaName, area_coordinates,center_lat,center_lng) => {
   });
 };
 
+const getScales = () => {
+  return new Promise((resolve, reject) => {
+    fetch(URL + "/scales", {
+      credentials: "include",
+    })
+      .then((response) => {
+        if (response.ok) {
+          response.json().then((scales) => {
+            resolve(scales);
+          });
+        } else {
+          response
+            .json()
+            .then((message) => {
+              reject(message);
+            })
+            .catch(() => {
+              reject({ error: "Cannot parse server response." });
+            });
+        }
+      })
+      .catch(() => {
+        reject({ error: "Cannot communicate with the server." });
+      }
+      );
+  });
+};
+const addScale = (scale_text, scale_number) => {
+  return new Promise((resolve, reject) => {
+    fetch(URL + "/scales", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ scale_text, scale_number }),
+      credentials: "include",
+    })
+      .then((response) => {
+        if (response.ok) {
+          resolve(response.json());
+        } else {
+          response.json().then((message) => {
+            reject(message);
+          });
+        }
+      }
+      )
+      .catch(() => {
+        reject({ error: "Cannot communicate with the server." });
+      });
+  });
+};
 
-const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, createDocumentConnection, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea, getDocumentResources, addResourcesToDocument, addArea,deleteResource};
+const updateScale = (id, scale_number) => {
+  return new Promise((resolve, reject) => {
+    fetch(URL + "/scales/" + id, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ scale_number }),
+      credentials: "include",
+    })
+      .then((response) => {
+        if (response.ok) {
+          resolve();
+        } else {
+          response.json().then((message) => {
+            reject(message);
+          });
+        }
+      }
+      )
+      .catch(() => {
+        reject({ error: "Cannot communicate with the server." });
+      });
+  });
+};
+
+const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, createDocumentConnection, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea, getDocumentResources, addResourcesToDocument, addArea,deleteResource,getScales,addScale,updateScale};
 
 export default API;

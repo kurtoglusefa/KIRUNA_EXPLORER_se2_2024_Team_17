@@ -52,11 +52,18 @@ like the various deformation forecasts.');
     insertion of documents
 */
 
-INSERT INTO Location (Location_Type, Latitude, Longitude, Area_Coordinates)
+INSERT INTO Location (Location_Type, Latitude, Longitude, Area_Coordinates, Area_Name)
 VALUES (
     'Area', 
     (67.8780 + 67.8372 + 67.8282 + 67.8479 + 67.8631) / 5, 
     (20.1944 + 20.2436 + 20.2895 + 20.3539 + 20.2598) / 5, 
-    '[ [67.8780, 20.1944], [67.8372, 20.2436], [67.8282, 20.2895], [67.8479, 20.3539], [67.8631, 20.2598] ]'
+    '[ [67.8780, 20.1944], [67.8372, 20.2436], [67.8282, 20.2895], [67.8479, 20.3539], [67.8631, 20.2598] ]',
+    'Kiruna'
 );
+
+
+INSERT INTO Scale (scale_text, scale_number) VALUES 
+('Text', ''),
+('Concept', ''),
+('Blueprints/effects', '');
 

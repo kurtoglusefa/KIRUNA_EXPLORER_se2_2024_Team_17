@@ -15,6 +15,7 @@ const stakeholderDao = require("./dao/stakeholder-dao.js");
 const typeDocumentDao = require("./dao/typeDocument-dao.js");
 const DocumentConnectionDao = require("./dao/document-connection-dao.js");
 const locationDao = require("./dao/location-dao.js");
+const scaleDao = require("./dao/scale-dao.js");
 const { fileURLToPath } = require("url");
 const net = require('net');  // Import the 'net' module
 const { dirname } = require('path'); // Import the 'path' module
@@ -429,6 +430,67 @@ app.get("/api/stakeholders/:stakeholderid", (req, res) => {
     })
     .catch(() => res.status(500).end());
 });
+
+//API SCALES
+app.get("/api/scales", (req, res) => {
+  scaleDao
+    .getScales()
+    .then((scales) => res.json(scales))
+    .catch(() => res.status(500).end());
+});
+
+app.get("/api/scales/:scaleid", (req, res) => {
+  scaleDao
+    .getScale(req.params.scaleid)
+    .then((scale) => {
+      if (scale) res.json(scale);
+      else res.status(404).json({ error: "Scale not found" });
+    })
+    .catch(() => res.status(500).end());
+}
+);
+app.post("/api/scales", isUrbanPlanner, async (req, res) => {
+  const { scale_text, scale_number } = req.body;
+  if (!scale_text || !scale_number) {
+    return res.status(400).json({ error: "scale_text and scale_number are required." });
+  }
+  try {
+    const result = await scaleDao.addScale(scale_text, scale_number);
+    if (result) {
+      res.status(201).json({ scaleId: result, message: "Scale added successfully." });
+    } else {
+      res.status(500).json({ error: "Failed to add scale." });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.patch("/api/scales/:scaleId", isUrbanPlanner, async (req, res) => {
+  const scaleId = parseInt(req.params.scaleId);
+
+  console.log(req.body);
+  console.log(scaleId);
+  const {  scale_number } = req.body;
+  if (!scale_number) {
+    return res.status(400).json({ error: "scale_text and scale_number are required." });
+  }
+  try {
+    const scale = await scaleDao.getScale(scaleId);
+    if (!scale) {
+      return res.status(404).json({ error: "Scale not found." });
+    }
+    const result = await scaleDao.updateScale(scaleId,scale_number);
+    if (result) {
+      res.status(200).json({ message: "Scale updated successfully." });
+    } else {
+      res.status(500).json({ error: "Failed to update scale." });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 // API CONNECTIONS
 

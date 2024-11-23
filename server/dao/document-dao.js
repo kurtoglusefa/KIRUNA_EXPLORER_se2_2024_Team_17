@@ -24,7 +24,7 @@ const locationDao = require("./location-dao");
 exports.addDocument = async (title,idStakeholder,scale,issuance_Date,language,pages,description,idtype,idlocation) => {
   return new Promise((resolve, reject) => {
     const sql =
-      "INSERT INTO Document (Title, IdStakeholder, Scale, Issuance_Date, Language, Pages, Description, IdType, IdLocation) VALUES (?,?,?,?,?,?,?,?,?)";
+      "INSERT INTO Document (Title, IdStakeholder, IdScale, Issuance_Date, Language, Pages, Description, IdType, IdLocation) VALUES (?,?,?,?,?,?,?,?,?)";
     db.run(
       sql,[title,idStakeholder,scale,issuance_Date,language,pages,description,idtype,idlocation],
       function (err) {
@@ -84,7 +84,7 @@ exports.getDocumentByTitle = (title) => {
  */
 exports.updateDocument = (documentId, title,idStakeholder,scale,issuance_Date,language,pages,description,idtype) => { 
     return new Promise((resolve, reject) => { 
-      const sql = "UPDATE Document SET Title = ?, IdStakeholder = ?, Scale = ?, Issuance_Date = ?, Language = ?, Pages = ?, Description = ?, IdType = ?  WHERE IdDocument = ?"; 
+      const sql = "UPDATE Document SET Title = ?, IdStakeholder = ?, IdScale = ?, Issuance_Date = ?, Language = ?, Pages = ?, Description = ?, IdType = ?  WHERE IdDocument = ?"; 
       db.run(sql, [title,idStakeholder,scale,issuance_Date,language,pages,description,idtype,documentId], function (err) { 
         if (err) { 
           reject(new Error("Failed to update document.")); 
@@ -93,3 +93,5 @@ exports.updateDocument = (documentId, title,idStakeholder,scale,issuance_Date,la
         resolve(true); 
       }); 
 })};
+
+
