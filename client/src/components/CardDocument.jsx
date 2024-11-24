@@ -8,6 +8,7 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
   
   const [resource, setResource] = useState([]);
   const [stakeholders, setStakeholders] = useState([]);
+  const [scales, setScales] = useState([]);
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -32,17 +33,32 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
         console.error(err);
       }
     };
+
+    const fetchScales = async () => {
+      try {
+        const res = await API.getScales();
+        res.map(scale => scales[scale.IdScale] = { scale_text: scale.scale_text, scale_number: scale.scale_number });
+        console.log(res);
+        setScales(res);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+  
       fetchResources();
       fetchStakeholders();
+      fetchScales();
   }, [document.IdDocument]);
 
+  
  
   const handleModifyDocument = () => {
     if (document) {
+      setShowCard(false);
       navigate(`/documents/modify-document/${document.IdDocument}`, { state: { document: document , location: (latitude && longitude) ? {lat: latitude, lng: longitude} : null, area: areaName ? areaName : null} });
     }
   };
-  
+  console.log(document);
   
   return (
     <Card>
@@ -69,7 +85,13 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
           <div className='col-6 m-1'>
 
             <Card.Text style={{ fontSize: '16px' }}><strong>Date:</strong> {document?.Issuance_Date}</Card.Text>
-            <Card.Text style={{ fontSize: '16px' }}><strong>Scale:</strong> {document?.Scale}</Card.Text>
+            <Card.Text style={{ fontSize: '16px' }}><strong>Scale Name:</strong> {scales[document?.IdScale] ? scales[document?.IdScale].scale_text : ""}</Card.Text>
+            {scales[document?.IdScale] && scales[document?.IdScale].scale_number !== '' ? (
+              <Card.Text style={{ fontSize: '16px' }}>
+                <strong>Scale Number: </strong>
+                {scales[document?.IdScale].scale_number}
+              </Card.Text>
+            ) : null}            
             {document?.Language && <Card.Text style={{ fontSize: '16px' }}><strong>Language:</strong> {document?.Language}</Card.Text>}
             {document?.IdStakeholder && stakeholders && <Card.Text style={{ fontSize: '16px' }}><strong>Stakeholder :</strong> {stakeholders.find(s => s.id === document.IdStakeholder)?.name || 'Unknown'}</Card.Text>}
             {document?.Pages && <Card.Text style={{ fontSize: '16px' }}><strong>Pages:</strong> {document?.Pages}</Card.Text>}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Button, Form, Card, Row, Col, Modal, ListGroup, FloatingLabel, FormGroup, Alert } from 'react-bootstrap';
+import { Button, Form, Card, Row, Col, Modal, ListGroup, FloatingLabel, FormGroup, Alert, InputGroup } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import API from '../API';
 function ModifyDocument() {
@@ -33,9 +33,20 @@ function ModifyDocument() {
     const [stakeholders, setStakeholders] = useState([]);
     const [types, setTypes] = useState([]);
     const [typeConnections, setTypeConnections] = useState([]);  
+    const [documentScale, setDocumentScale] = useState('');
 
     const [documents, setDocuments] = useState([]); // List of all documents
     const [filteredDocuments, setFilteredDocuments] = useState([]); // used to filter documents
+
+    const [showAddScale, setShowAddScale] = useState(false);
+    const [scales, setScales] = useState([]);
+
+    //adding new scale 
+    const [newScale_name, setNewScale_name] = useState('');
+    const [newScale_number, setNewScale_number] = useState('');
+
+    const [oldScale_number, setOldScale_number] = useState('');
+
 
 
     useEffect(() => {
@@ -83,7 +94,7 @@ function ModifyDocument() {
                 console.error(err);
             }
         };
-        fetchDocuments();
+      
         const fetchDocument = async () => {
             try {
                 const res = await API.getDocumentById(documentId);
@@ -98,6 +109,11 @@ function ModifyDocument() {
                   day: res.Issuance_Date.substring(8, 10) ? res.Issuance_Date.substring(8, 10) : null
                 });
                 setDescription(res.Description);
+                const scalesResponse = await API.getScales();
+                setScales(scalesResponse);
+                const scaleObj = scalesResponse.find((s) => s.id === res.IdScale);
+                setDocumentScale(scaleObj);
+                setOldScale_number(scaleObj.scale_number.split(":")[1]);
 
                 const stakeholder = await API.getStakeholder(res.IdStakeholder);
                 setStakeholder(stakeholder);
@@ -107,10 +123,11 @@ function ModifyDocument() {
                 console.error(err);
             }
         };
-
         const getAllTypeConnections = async () => {
             try {
+                console.log("get all type connections");
                 const res = await API.getAllTypeConnections();
+                console.log(res);
 
                 const typeConnectionId = res.reduce((acc, conn) => {
                     acc[conn.IdConnection] = conn;
@@ -129,11 +146,22 @@ function ModifyDocument() {
                 console.error(err);
             }
         };
-
+        const getAllScales = async () => {
+          try {
+              const res = await API.getScales();
+              console.log(res);
+              setScales(res);
+          } catch (err) {
+              console.error(err);
+          }
+        };
+        getAllScales();
+        fetchDocuments();
         getStakeholders();
         getTypes();
         getAllTypeConnections();
         getDocumentConnections();
+        
 
         if(documentId)
           fetchDocument();
@@ -151,10 +179,29 @@ function ModifyDocument() {
         setMessage('Error deleting resource');
       }
     };
+    const handleTypeScaleChange = (selectedId) => {
+      console.log("ho cambiato");
+      const selectedScale = scales.find((scale) => scale.id == selectedId);
+      console.log(selectedScale); // Now you have the full object
+      setDocumentScale(selectedScale); 
+      setOldScale_number(selectedScale.scale_number.split(":")[1]);
+    };
+    const handleScaleChange = (value) => {
+      setOldScale_number(value);
+    };
+
+    const handleAddScale = async() => {
+      //here call api to add a scale
+      await API.addScale(newScale_name, newScale_number);
+      const res = await API.getScales();
+      setScales(res);
+      setNewScale_name('');
+      setNewScale_number('');
+      setShowAddScale(false);
+    };
     const addResourcesDocument = async () => {
       if (addResources.length > 0) {
         try {
-          console.log("addResourcesDocument");
           // Send FormData to your API function
           await API.addResourcesToDocument(documentId, addResources);
           // Optionally, fetch the updated resources list
@@ -170,7 +217,7 @@ function ModifyDocument() {
     };
 
     const handleUpdate = async() => {
-      if(!title || !scale || !issuanceDate.year || !description  || !stakeholder || !type){
+      if(!title || !documentScale || !issuanceDate.year || !description  || !stakeholder || !type){
         setMessage("Please complete all fields to add a document.");
       } else {
         let date;
@@ -185,9 +232,15 @@ function ModifyDocument() {
           return;
         }
         let result;
+
+        // QUA DEVO VEDERE SE HO FATTO AGGIORNAMENTO DELLO SCALE DEVO MANDARE UPDATE SCALE ALTRIMENTI NO
+        if(documentScale && documentScale.id > 3){    
+          await API.updateScale(documentScale.id,`1:${oldScale_number}`);
+        }
+
         if (documentId) {
           result = documentId;
-          await API.updateDocument(documentId, title,stakeholder.id ? stakeholder.id: stakeholder, scale, date, language, pages,description,  type.id ? type.id: type);
+          await API.updateDocument(documentId, title,stakeholder.id ? stakeholder.id: stakeholder, documentScale.id, date, language, pages,description,  type.id ? type.id: type);
           if(!area)
             await API.updateLocationDocument(document.IdLocation, "Point", latitude, longitude, "");
         } else {
@@ -195,15 +248,17 @@ function ModifyDocument() {
             // insert the document which is a point 
             //console.log(selectedLocation);
             //console.log({ title, scale, issuanceDate, description, connections, language, pages, stakeholder: stakeholder, type: type, locationType : "Point", latitude : selectedLocation.lat , longitude: selectedLocation.lng, area_coordinates :"" });
-            result = await API.addDocument( title,stakeholder, scale, date, language, pages,description,  type,  "Point",  latitude , longitude, "" );
+            result = await API.addDocument( title,stakeholder, documentScale.id, date, language, pages,description,  type,  "Point",  latitude , longitude, "" );
             console.log(result);
             result = await result.idDocument;
+            documentId = result;
           }
           else if (area){
             //insert the document inside an area
-            result = await API.addDocumentArea( title,stakeholder, scale, date, language, pages,description,  type, area.IdLocation );
+            result = await API.addDocumentArea( title,stakeholder, documentScale.id, date, language, pages,description,  type, area.IdLocation );
             console.log(result);
             result = await result.idDocument;
+            documentId = result;
           }
           // insert the document
           /*const result= await API.addDocument({ title, scale, issuanceDate, description, connections, language, pages, stakeholder: stakeholder.id, type: type.id });
@@ -214,12 +269,14 @@ function ModifyDocument() {
 
         if(addResources) {
           try {
+            console.log("sto inserendo i file");
             addResourcesDocument();
           } catch (err) {
             console.error(err);
           } 
         }
-        navigate(-1);
+        setSelectedDocument(null);
+        navigate("/home");
       }
     };
 
@@ -255,7 +312,11 @@ function ModifyDocument() {
         setSelectedDocument(doc);
         setFilteredDocuments([]); // Clear suggestions after selection
     };
-    
+    const handleNewScaleChange = (value) => {
+      console.log("new scale");
+      console.log(value);
+      setNewScale_number(`1:${value}`);
+    };
     /* ------------------------------------ FORM ------------------------------------------ */
     return (
       <>
@@ -278,13 +339,53 @@ function ModifyDocument() {
                       </Form.Group>
                       
                       <Form.Group controlid="scale" className="mb-3">
-                        <FloatingLabel label="Scale*" className="mb-3">
-                          <Form.Control
-                              type="text"
-                              value={scale}
-                              onChange={(e) => setScale(e.target.value)}
-                          />
-                        </FloatingLabel>
+                        <InputGroup>
+                          <Form.Select
+                            required
+                            value={ documentScale ? documentScale.id: 0}
+                            style={{ width: "20%" }}
+                            onChange={(event) => handleTypeScaleChange(event.target.value)}
+                            className="font-size-20"
+                          >
+                            <option value="0">Select scale</option>
+                            {scales && scales.map((scale) => (
+                              <option key={scale.id} value={scale.id}>
+                                {scale.scale_text}
+                              </option>
+                            ))}
+                            
+                          </Form.Select>
+                          {documentScale && documentScale.id>3  && (
+                            <>
+                              <Form.Control
+                                type="text"
+                                placeholder="1:"
+                                value="1:"
+                                disabled
+                                style={{ width: "10%", textAlign: "right" }}
+                                className="mt-0 font-size-20"
+                              />
+
+                              <Form.Control
+                                required
+                                type="number"
+                                placeholder="XXXX"
+                                value={oldScale_number ? oldScale_number : ""}
+                                onChange={(event) => handleScaleChange(event.target.value)}
+                                className="mt-0 font-size-20"
+                                style={{ width: "25%", textAlign: "left" }}
+                              />
+                            </>
+                          )}
+                          <Button
+                          variant="outline-primary"
+                          onClick={()=> setShowAddScale(true)}
+                          style={{ width: "20%", textAlign: "left" }}
+                          className="mt-2"
+                        >
+                          Add Scale
+                        </Button>
+                        </InputGroup>
                       </Form.Group>
                       
                       <Form.Group controlid="language" className="mb-3">
@@ -564,8 +665,57 @@ function ModifyDocument() {
                 </Button>
             </Modal.Footer>
         </Modal>
+      {/* ----------------------- Modal for Adding a scale ----------------------------- */}
+      <Modal show={showAddScale} centered onHide={() => setShowAddScale(false)}>
+            <Modal.Header closeButton>
+                <Modal.Title>Add Scale</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+            <Form.Group controlid="scale" className="mb-3">
+                          <FloatingLabel label="scale*" className="mb-3">
+                            <Form.Control
+                                type="text"
+                                value={newScale_name}
+                                onChange={(e) => setNewScale_name(e.target.value)}
+                                />
+                        </FloatingLabel>
+                      </Form.Group>
+                      
+                      <Form.Group controlid="scale" className="mb-3">
+                        <InputGroup>
+                              <Form.Control
+                                type="text"
+                                placeholder="1:"
+                                value="1:"
+                                disabled
+                                style={{ width: "15%", textAlign: "right" }}
+                                className="mt-0 font-size-20"
+                              />
+                              <Form.Control
+                                required
+                                type="number"
+                                placeholder="XXXX"
+                                value={newScale_number ? newScale_number.split(":")[1] : ""}
+                                onChange={(event) => handleNewScaleChange(event.target.value)}
+                                className="mt-0 font-size-20"
+                                style={{ width: "30%", textAlign: "left" }}
+                              />
+                        </InputGroup>
+                      </Form.Group>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="outline-secondary" onClick={() => setShowAddScale(false)}>
+                    Cancel
+                </Button>
+                <Button variant="" className='btn-document' onClick={handleAddScale}>
+                    Add Scale
+                </Button>
+            </Modal.Footer>
+        </Modal>
           
-      </>
+      </>    
+
+      
     );
 }
 
