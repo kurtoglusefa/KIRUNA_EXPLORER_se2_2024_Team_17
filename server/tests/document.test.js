@@ -28,7 +28,7 @@ describe("Document API with Session Authentication", () => {
     const documentData = {
       title: "Sample Title",
       idStakeholder: 1,
-      scale: "National",
+      IdScale: 1,
       issuance_Date: "04/2019",
       language: "English",
       pages: 50,
@@ -51,7 +51,7 @@ describe("Document API with Session Authentication", () => {
     const invalidDocumentData = {
       title: "Sample Title",
       idStakeholder: 1,
-      scale: "National",
+      IdScale: 1,
       issuance_Date: "04/2019",
     };
     const response = await agent.post("/api/documents").send(invalidDocumentData);
@@ -62,7 +62,7 @@ describe("Document API with Session Authentication", () => {
     const invalidDocumentData = {
       title: "Sample Title",
       idStakeholder: 1,
-      scale: "National",
+      IdScale: 1,
       issuance_Date: "04/2019",
       language: "English",
       pages: 50,
@@ -82,7 +82,7 @@ describe("Document API with Session Authentication", () => {
     const updatedDocumentData = {
       title: "Updated Sample Title",
       idStakeholder: 2,
-      scale: "Regional",
+      IdScale: 1,
       issuance_Date: "05/2020",
       language: "Spanish",
       pages: 100,
@@ -97,11 +97,13 @@ describe("Document API with Session Authentication", () => {
 
     const retrieveResponse = await agent.get(`/api/documents/${documentId}`);
     expect(retrieveResponse.status).toBe(200);
+
+    console.log(retrieveResponse.body);
     expect(retrieveResponse.body).toMatchObject({
       IdDocument: documentId,
       Title: "Updated Sample Title",
       IdStakeholder: 2,
-      Scale: "Regional",
+      IdScale: 1,
       Issuance_Date: "05/2020",
       Language: "Spanish",
       Pages: 100,
@@ -130,7 +132,7 @@ describe("Document API with Session Authentication", () => {
 
   it("should return 400 for not insert all data", async () => {
     const updatedDocumentData = {
-      scale: "Regional",
+      IdScale: 1,
       issuance_Date: "05/2020",
       language: "Spanish",
       pages: 100,

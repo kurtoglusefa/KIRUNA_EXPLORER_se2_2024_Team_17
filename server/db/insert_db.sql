@@ -13,12 +13,12 @@ VALUES ('marco@test.it', '15d3c4fca80fa608dcedeb65ac10eff78d20c88800d016369a3d29
 /*
     insertion of stakeholders and their colors
 */
-INSERT INTO Stakeholder (Name, Color) VALUES ('LKAB', '#000000');
-INSERT INTO Stakeholder (Name, Color) VALUES ('Municipality', '#8C6760');
-INSERT INTO Stakeholder (Name, Color) VALUES ('Norrbotten Country', '#702F36');
-INSERT INTO Stakeholder (Name, Color) VALUES ('Architecture firms', '#B6AD9D');
-INSERT INTO Stakeholder (Name, Color) VALUES ('Citizens', '#B3D0D3');
-INSERT INTO Stakeholder (Name, Color) VALUES ('Others', '#8A9FA4');
+INSERT INTO Stakeholder (Name, Color) VALUES ('LKAB', '000000');
+INSERT INTO Stakeholder (Name, Color) VALUES ('Municipality', '8C6760');
+INSERT INTO Stakeholder (Name, Color) VALUES ('Norrbotten Country', '702F36');
+INSERT INTO Stakeholder (Name, Color) VALUES ('Architecture firms', 'B6AD9D');
+INSERT INTO Stakeholder (Name, Color) VALUES ('Citizens', 'B3D0D3');
+INSERT INTO Stakeholder (Name, Color) VALUES ('Others', '8A9FA4');
 
 /*
     insertion of types of document

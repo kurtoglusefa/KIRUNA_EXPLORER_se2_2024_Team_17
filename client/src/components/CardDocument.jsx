@@ -54,6 +54,7 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
  
   const handleModifyDocument = () => {
     if (document) {
+      setShowCard(false);
       navigate(`/documents/modify-document/${document.IdDocument}`, { state: { document: document , location: (latitude && longitude) ? {lat: latitude, lng: longitude} : null, area: areaName ? areaName : null} });
     }
   };

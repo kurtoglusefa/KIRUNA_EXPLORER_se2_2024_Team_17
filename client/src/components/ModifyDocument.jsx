@@ -251,12 +251,14 @@ function ModifyDocument() {
             result = await API.addDocument( title,stakeholder, documentScale.id, date, language, pages,description,  type,  "Point",  latitude , longitude, "" );
             console.log(result);
             result = await result.idDocument;
+            documentId = result;
           }
           else if (area){
             //insert the document inside an area
             result = await API.addDocumentArea( title,stakeholder, documentScale.id, date, language, pages,description,  type, area.IdLocation );
             console.log(result);
             result = await result.idDocument;
+            documentId = result;
           }
           // insert the document
           /*const result= await API.addDocument({ title, scale, issuanceDate, description, connections, language, pages, stakeholder: stakeholder.id, type: type.id });
@@ -267,12 +269,14 @@ function ModifyDocument() {
 
         if(addResources) {
           try {
+            console.log("sto inserendo i file");
             addResourcesDocument();
           } catch (err) {
             console.error(err);
           } 
         }
-        navigate(-1);
+        setSelectedDocument(null);
+        navigate("/home");
       }
     };
 

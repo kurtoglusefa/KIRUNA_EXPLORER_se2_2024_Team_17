@@ -97,7 +97,7 @@ export function MyNavbar({ documents, setDocuments }) {
     <>
       <Navbar sticky='top' bg="light" variant="dark" style={{ marginTop: 0 }}>
         <Container fluid>
-          <Navbar.Brand href='/'>
+          <Navbar.Brand href='/home'>
             <span
               style={{
                 display: 'inline-flex',

@@ -261,6 +261,8 @@ app.get("/api/documents/title/:title", (req, res) => {
 app.patch("/api/documents/:documentid", isUrbanPlanner, (req, res) => {
   const documentId = parseInt(req.params.documentid);
   const document = req.body;
+  console.log("quello che mi arriva", document);  
+  console.log(document);
   if (!document.title || !document.idStakeholder) {
     res
       .status(400)
@@ -273,7 +275,7 @@ app.patch("/api/documents/:documentid", isUrbanPlanner, (req, res) => {
         documentId,
         document.title,
         parseInt(document.idStakeholder),
-        document.scale,
+        document.IdScale,
         document.issuance_Date,
         document.language,
         parseInt(document.pages),
