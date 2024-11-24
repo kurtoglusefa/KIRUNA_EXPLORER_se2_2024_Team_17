@@ -82,7 +82,7 @@ describe("Document API with Session Authentication", () => {
     const updatedDocumentData = {
       title: "Updated Sample Title",
       idStakeholder: 2,
-      IdScale: 1,
+      scale: 1,
       issuance_Date: "05/2020",
       language: "Spanish",
       pages: 100,
@@ -103,7 +103,7 @@ describe("Document API with Session Authentication", () => {
       IdDocument: documentId,
       Title: "Updated Sample Title",
       IdStakeholder: 2,
-      IdScale: 1,
+      scale: 1,
       Issuance_Date: "05/2020",
       Language: "Spanish",
       Pages: 100,

@@ -239,6 +239,8 @@ function ModifyDocument() {
         }
 
         if (documentId) {
+          console.log("sto facendo update");
+          console.log(documentScale);
           result = documentId;
           await API.updateDocument(documentId, title,stakeholder.id ? stakeholder.id: stakeholder, documentScale.id, date, language, pages,description,  type.id ? type.id: type);
           if(!area)
