@@ -235,20 +235,27 @@ const fetchLocationsArea = async () => {
         return minX + totalRatio * (maxX - minX);
       };
       const mapScaleToY = (Idscale) => {
-        const scale= scales[Idscale]?.scale_text;
+
+        const scale= scales[Idscale-1]?.scale_text;
+        console.log(scale);
         if(scale === "Text"){
           return scaleRanges.Text.min;
         }
         else if(scale === "Concept"){
           return scaleRanges.Concept.min;
         }
-        else if(scale === "Blueprints/Effects"){
+        else if(scale === "Blueprints/effects"){
           return scaleRanges["Blueprints/Effects"].min;
         }
         else{
           // this is scale type plan
+          const maxScaleNumber = 100000; // The max scale number we need to handle
           const scale_number= scales[Idscale]?.scale_number.split(":")[1];
-          return scaleRanges.Plan.min + (scale_number-1)*50;
+          const normalizedValue = (scale_number - 1) / (maxScaleNumber - 1); // Normalize scale_number to [0, 1]
+
+          const scaledValue = scaleRanges.Plan.min + normalizedValue * (scaleRanges.Plan.max - scaleRanges.Plan.min);
+
+          return scaledValue;
         }
       };
       // Convert documents into nodes
@@ -256,6 +263,7 @@ const fetchLocationsArea = async () => {
         const iconSrc = documentTypes[doc.IdType-1]?.iconsrc || 'default-icon.svg'; // Fallback to a default icon
         const x= mapDateToX(doc.Issuance_Date);
         const y = mapScaleToY(doc.IdScale);
+        console.log(y);
         return {
           id: doc.IdDocument.toString(), // Ensure `id` is a string
           position: { x: x, y: y }, // Stagger nodes horizontally
