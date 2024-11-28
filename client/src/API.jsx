@@ -211,6 +211,7 @@ const getAllTypesDocument = () => {
       });
   });
 };
+
 const getTypeDocument = async (id) => {
   const response = await fetch(URL + "/types/" + id, {
     credentials: "include",
@@ -220,6 +221,42 @@ const getTypeDocument = async (id) => {
   } else {
     return await response.json().error;
   }
+};
+
+// Create a new document type
+const createTypeDocument = (typeName, iconUrl) => {
+  return new Promise((resolve, reject) => {
+    fetch(URL + "/document-type", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include", // send cookies if necessary
+      body: JSON.stringify({
+        type: typeName,
+        iconSrc: iconUrl,
+      }),
+    })
+      .then((response) => {
+        if (response.ok) {
+          response.json().then((newType) => {
+            resolve(newType); // Return the newly created type
+          });
+        } else {
+          response
+            .json()
+            .then((message) => {
+              reject(message); // Handle error message from the server
+            })
+            .catch(() => {
+              reject({ error: "Cannot parse server response." });
+            });
+        }
+      })
+      .catch(() => {
+        reject({ error: "Cannot communicate with the server." });
+      });
+  });
 };
 
 
