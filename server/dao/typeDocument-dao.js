@@ -60,7 +60,7 @@ exports.addType = (type, iconSrc) => {
         return;
       }
       // Return the newly created type with its generated IdType
-      resolve({ IdType: this.lastID, IconSrc: iconSrc, Type: type });
+      resolve({ IdType: this.lastID, Type: type, IconSrc: iconSrc });
     });
   });
 };

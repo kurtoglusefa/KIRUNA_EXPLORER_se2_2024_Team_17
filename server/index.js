@@ -239,8 +239,7 @@ app.post("/api/documents", isUrbanPlanner, async (req, res) => {
           );
         }
         res.status(201).json(document_new);
-      }
-      else {
+      } else {
         res.status(500).json({ error: "Failed to add document." });
       }
     })
@@ -425,6 +424,7 @@ app.get("/api/types", (req, res) => {
     .then((types) => res.json(types))
     .catch(() => res.status(500).end());
 });
+
 app.get("/api/types/:typeid", (req, res) => {
   typeDocumentDao
     .getType(req.params.typeid)
@@ -433,6 +433,24 @@ app.get("/api/types/:typeid", (req, res) => {
       else res.status(404).json({ error: "Type not found" });
     })
     .catch(() => res.status(500).end());
+});
+
+// POST /api/types - Create a new document type
+app.post("/api/types", isUrbanPlanner, (req, res) => {
+  const { type, iconSrc } = req.body;
+  if (!type || !iconSrc) {
+    return res.status(400).json({ error: "Type and IconSrc are required." });
+  }
+  typeDocumentDao
+    .addType(type, iconSrc)
+    .then((newType) => {
+      res.status(201).json(newType);
+    })
+    .catch((err) => {
+      res
+        .status(500)
+        .json({ error: "Failed to add document type", details: err.message });
+    });
 });
 
 // API STAKEHOLDERS
@@ -745,9 +763,10 @@ app.post("/api/stakeholders", isUrbanPlanner, async (req, res) => {
   try {
     const result = await stakeholderDao.addStakeholder(StakeholderName);
     if (result) {
-      res
-        .status(201)
-        .json({ stakeholderId: result, message: "Stakeholder added successfully." });
+      res.status(201).json({
+        stakeholderId: result,
+        message: "Stakeholder added successfully.",
+      });
     } else {
       res.status(500).json({ error: "Failed to add stakeholder." });
     }
