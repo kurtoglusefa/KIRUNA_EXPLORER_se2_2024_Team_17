@@ -14,6 +14,7 @@ const documentDao = require("./dao/document-dao.js");
 const stakeholderDao = require("./dao/stakeholder-dao.js");
 const typeDocumentDao = require("./dao/typeDocument-dao.js");
 const DocumentConnectionDao = require("./dao/document-connection-dao.js");
+const DocumentStakeholderDao = require("./dao/document-stakeholder-dao.js");
 const locationDao = require("./dao/location-dao.js");
 const scaleDao = require("./dao/scale-dao.js");
 const { fileURLToPath } = require("url");
@@ -194,7 +195,7 @@ app.get("/api/sessions/current", (req, res) => {
 // POST /api/documents, only possible for authenticated users and if he/she is a urban planner
 app.post("/api/documents", isUrbanPlanner, async (req, res) => {
   const document = req.body;
-  if (!document.title || !document.idStakeholder || !document.idtype) {
+  if (!document.title || !document.idtype) {
     res
       .status(400)
       .json({ error: "The request body must contain all the fields" });
@@ -216,7 +217,6 @@ app.post("/api/documents", isUrbanPlanner, async (req, res) => {
   documentDao
     .addDocument(
       document.title,
-      parseInt(document.idStakeholder),
       document.scale,
       document.issuance_Date,
       document.language,
@@ -265,7 +265,7 @@ app.patch("/api/documents/:documentid", isUrbanPlanner, (req, res) => {
   const document = req.body;
   console.log("quello che mi arriva", document);
   console.log(document);
-  if (!document.title || !document.idStakeholder) {
+  if (!document.title) {
     res
       .status(400)
       .json({ error: "The request body must contain all the fields" });
@@ -276,7 +276,6 @@ app.patch("/api/documents/:documentid", isUrbanPlanner, (req, res) => {
       .updateDocument(
         documentId,
         document.title,
-        parseInt(document.idStakeholder),
         document.IdScale,
         document.issuance_Date,
         document.language,
@@ -408,7 +407,6 @@ app.get("/api/types", (req, res) => {
     .then((types) => res.json(types))
     .catch(() => res.status(500).end());
 });
-
 app.get("/api/types/:typeid", (req, res) => {
   typeDocumentDao
     .getType(req.params.typeid)
@@ -417,26 +415,6 @@ app.get("/api/types/:typeid", (req, res) => {
       else res.status(404).json({ error: "Type not found" });
     })
     .catch(() => res.status(500).end());
-});
-
-// POST /api/types - Create a new document type
-app.post("/api/types", isUrbanPlanner, (req, res) => {
-  const { type, iconSrc } = req.body;
-
-  if (!type || !iconSrc) {
-    return res.status(400).json({ error: "Type and IconSrc are required." });
-  }
-
-  typeDocumentDao
-    .addType(type, iconSrc)
-    .then((newType) => {
-      res.status(201).json(newType);
-    })
-    .catch((err) => {
-      res
-        .status(500)
-        .json({ error: "Failed to add document type", details: err.message });
-    });
 });
 
 // API STAKEHOLDERS
@@ -549,7 +527,7 @@ app.get("/api/document-connections/:documentId", (req, res) => {
     .catch((err) => res.status(500).json({ error: "Internal server error" }));
 });
 
-// POST /api/document-connections
+// POST /api/document-connections;
 //  Creates a new connection between two documents
 app.post("/api/document-connections", isUrbanPlanner, (req, res) => {
   const connection = req.body;
@@ -709,6 +687,39 @@ app.patch("/api/locations/:locationId", isUrbanPlanner, async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+///// Document Stakeholder APIS//////
+
+// Add a stakeholder to a document
+app.post(
+  "/api/documents/:documentId/stakeholders/:stakeholderId",
+  (req, res) => {
+    DocumentStakeholderDao.addStakeholderToDocument(
+      req.params.documentId,
+      req.params.stakeholderId
+    )
+      .then((result) => {
+        if (result)
+          res.status(201).json({ message: "Stakeholder added successfully." });
+        else res.status(400).json({ error: "Failed to add stakeholder." });
+      })
+      .catch(() => res.status(500).end());
+  }
+);
+
+// Get all stakeholders for a document
+app.get("/api/documents/:documentId/stakeholders", (req, res) => {
+  DocumentStakeholderDao.getStakeholdersByDocument(req.params.documentId)
+    .then((stakeholders) => res.json(stakeholders))
+    .catch(() => res.status(500).end());
+});
+
+// Get all documents for a stakeholder
+app.get("/api/stakeholders/:stakeholderId/documents", (req, res) => {
+  DocumentStakeholderDao.getDocumentsByStakeholder(req.params.stakeholderId)
+    .then((documents) => res.json(documents))
+    .catch(() => res.status(500).end());
 });
 
 //check server using a port
