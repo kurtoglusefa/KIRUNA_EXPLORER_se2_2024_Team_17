@@ -17,11 +17,8 @@ const DocumentConnectionDao = require("./dao/document-connection-dao.js");
 const locationDao = require("./dao/location-dao.js");
 const scaleDao = require("./dao/scale-dao.js");
 const { fileURLToPath } = require("url");
-const net = require('net');  // Import the 'net' module
-const { dirname } = require('path'); // Import the 'path' module
-
-
-
+const net = require("net"); // Import the 'net' module
+const { dirname } = require("path"); // Import the 'path' module
 
 /*** Set up Passport ***/
 // set up the "username and password" login strategy
@@ -101,12 +98,10 @@ const storage = multer.diskStorage({
     const fileExtension = path.extname(file.originalname).toLowerCase();
     const newFilename = `${file.originalname}`;
     cb(null, newFilename);
-  }
+  },
 });
 
 const upload = multer({ storage });
-
-
 
 // init express
 const app = new express();
@@ -116,8 +111,7 @@ const port = 3001;
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.static("public"));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // CORS configuration
 const corsOptions = {
@@ -206,7 +200,15 @@ app.post("/api/documents", isUrbanPlanner, async (req, res) => {
       .json({ error: "The request body must contain all the fields" });
     return;
   }
-  const idLocation= document.idLocation ? document.idLocation : await locationDao.addLocation(document.locationType, document.latitude, document.longitude, document.area_coordinates,'');
+  const idLocation = document.idLocation
+    ? document.idLocation
+    : await locationDao.addLocation(
+        document.locationType,
+        document.latitude,
+        document.longitude,
+        document.area_coordinates,
+        ""
+      );
   if (!idLocation) {
     res.status(500).json({ error: "Failed to add location." });
     return;
@@ -249,19 +251,19 @@ app.get("/api/documents/:documentid", (req, res) => {
 // GET /api/documents/title/:title
 app.get("/api/documents/title/:title", (req, res) => {
   documentDao
-      .getDocumentByTitle(req.params.title)
-      .then((document) => {
-          if (document) res.json(document);
-          else res.status(404).json({ error: "Document not found" });
-      })
-      .catch(() => res.status(500).end());
+    .getDocumentByTitle(req.params.title)
+    .then((document) => {
+      if (document) res.json(document);
+      else res.status(404).json({ error: "Document not found" });
+    })
+    .catch(() => res.status(500).end());
 });
 
 // PATCH /api/documents/:documentid
 app.patch("/api/documents/:documentid", isUrbanPlanner, (req, res) => {
   const documentId = parseInt(req.params.documentid);
   const document = req.body;
-  console.log("quello che mi arriva", document);  
+  console.log("quello che mi arriva", document);
   console.log(document);
   if (!document.title || !document.idStakeholder) {
     res
@@ -326,7 +328,7 @@ app.post(
   async (req, res) => {
     console.log(req.body);
     const documentId = parseInt(req.params.documentId);
-    
+
     // Check if files were uploaded
     if (req.files && req.files.length > 0) {
       res.json({
@@ -356,7 +358,9 @@ app.delete(
       fs.unlink(filePath, (err) => {
         if (err) {
           console.error("Error deleting file:", err);
-          return res.status(500).json({ message: "Failed to delete the file." });
+          return res
+            .status(500)
+            .json({ message: "Failed to delete the file." });
         }
 
         return res.status(200).json({ message: "File deleted successfully." });
@@ -404,6 +408,7 @@ app.get("/api/types", (req, res) => {
     .then((types) => res.json(types))
     .catch(() => res.status(500).end());
 });
+
 app.get("/api/types/:typeid", (req, res) => {
   typeDocumentDao
     .getType(req.params.typeid)
@@ -412,6 +417,26 @@ app.get("/api/types/:typeid", (req, res) => {
       else res.status(404).json({ error: "Type not found" });
     })
     .catch(() => res.status(500).end());
+});
+
+// POST /api/document-type - Create a new document type
+app.post("/api/document-type", isUrbanPlanner, (req, res) => {
+  const { type, iconSrc } = req.body;
+
+  if (!type || !iconSrc) {
+    return res.status(400).json({ error: "Type and IconSrc are required." });
+  }
+
+  typeDocumentDao
+    .addType(type, iconSrc)
+    .then((newType) => {
+      res.status(201).json(newType);
+    })
+    .catch((err) => {
+      res
+        .status(500)
+        .json({ error: "Failed to add document type", details: err.message });
+    });
 });
 
 // API STAKEHOLDERS
@@ -449,17 +474,20 @@ app.get("/api/scales/:scaleid", (req, res) => {
       else res.status(404).json({ error: "Scale not found" });
     })
     .catch(() => res.status(500).end());
-}
-);
+});
 app.post("/api/scales", isUrbanPlanner, async (req, res) => {
   const { scale_text, scale_number } = req.body;
   if (!scale_text || !scale_number) {
-    return res.status(400).json({ error: "scale_text and scale_number are required." });
+    return res
+      .status(400)
+      .json({ error: "scale_text and scale_number are required." });
   }
   try {
     const result = await scaleDao.addScale(scale_text, scale_number);
     if (result) {
-      res.status(201).json({ scaleId: result, message: "Scale added successfully." });
+      res
+        .status(201)
+        .json({ scaleId: result, message: "Scale added successfully." });
     } else {
       res.status(500).json({ error: "Failed to add scale." });
     }
@@ -473,16 +501,18 @@ app.patch("/api/scales/:scaleId", isUrbanPlanner, async (req, res) => {
 
   console.log(req.body);
   console.log(scaleId);
-  const {  scale_number } = req.body;
+  const { scale_number } = req.body;
   if (!scale_number) {
-    return res.status(400).json({ error: "scale_text and scale_number are required." });
+    return res
+      .status(400)
+      .json({ error: "scale_text and scale_number are required." });
   }
   try {
     const scale = await scaleDao.getScale(scaleId);
     if (!scale) {
       return res.status(404).json({ error: "Scale not found." });
     }
-    const result = await scaleDao.updateScale(scaleId,scale_number);
+    const result = await scaleDao.updateScale(scaleId, scale_number);
     if (result) {
       res.status(200).json({ message: "Scale updated successfully." });
     } else {
@@ -492,7 +522,6 @@ app.patch("/api/scales/:scaleId", isUrbanPlanner, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
 
 // API CONNECTIONS
 
@@ -576,8 +605,13 @@ app.get("/api/locations/:locationId", (req, res) => {
 });
 
 app.post("/api/locations", isUrbanPlanner, async (req, res) => {
-  
-  const { location_type: locationType, center_lat: latitude, center_lng: longitude, area_coordinates: areaCoordinates,areaName: area_name } = req.body;
+  const {
+    location_type: locationType,
+    center_lat: latitude,
+    center_lng: longitude,
+    area_coordinates: areaCoordinates,
+    areaName: area_name,
+  } = req.body;
 
   if (!locationType) {
     return res.status(400).json({ error: "locationType is required." });
@@ -601,9 +635,12 @@ app.post("/api/locations", isUrbanPlanner, async (req, res) => {
     }
   }
   try {
-    let  transformedCoordinates;
-    if(locationType == "Area"){
-      transformedCoordinates= JSON.parse(areaCoordinates).map(point => [point.lat, point.lng]);
+    let transformedCoordinates;
+    if (locationType == "Area") {
+      transformedCoordinates = JSON.parse(areaCoordinates).map((point) => [
+        point.lat,
+        point.lng,
+      ]);
     }
     const result = await locationDao.addLocation(
       locationType,
@@ -613,7 +650,9 @@ app.post("/api/locations", isUrbanPlanner, async (req, res) => {
       area_name
     );
     if (result) {
-      res.status(201).json({ locationId: result,message: "Location added successfully." });
+      res
+        .status(201)
+        .json({ locationId: result, message: "Location added successfully." });
     } else {
       res.status(500).json({ error: "Failed to add location." });
     }
@@ -677,15 +716,14 @@ const isPortInUse = (port) => {
   return new Promise((resolve, reject) => {
     const server = net.createServer();
     server.unref();
-    server.on('error', () => resolve(true));  // Port is in use
-    server.on('listening', () => {
+    server.on("error", () => resolve(true)); // Port is in use
+    server.on("listening", () => {
       server.close();
       resolve(false); // Port is free
     });
     server.listen(port);
   });
 };
-
 
 const server = async () => {
   const isInUse = await isPortInUse(port);
@@ -698,6 +736,6 @@ const server = async () => {
     return server;
   }
 };
-server().catch(err => console.error(err));
+server().catch((err) => console.error(err));
 // Export the app and server
 module.exports = { app, server };
