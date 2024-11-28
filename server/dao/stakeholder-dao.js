@@ -44,3 +44,15 @@ exports.getStakeholderById = (id) => {
         });
     });
 }
+exports.addStakeholder = (stakeholderName) => {
+    return new Promise((resolve, reject) => {
+        const sql = 'INSERT INTO Stakeholder (Name, Color) VALUES (?, ?)';
+        db.run(sql, [stakeholderName, ''], function (err) {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve(this.lastID);
+        });
+    });
+}

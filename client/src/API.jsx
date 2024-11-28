@@ -1,3 +1,4 @@
+
 const URL = "http://localhost:3001/api";
 
 // API USERS CALL
@@ -76,7 +77,6 @@ async function getUserInfo() {
 
 const addDocument = (title, idStakeholder, scale, issuance_Date, language, pages, description, idtype, locationType, latitude, longitude, area_coordinates) => {
   console.log("ADD DOCUMENT");
-  console.log(scale);
   return new Promise((resolve, reject) => {
     fetch(URL + "/documents", {
       method: "POST",
@@ -389,6 +389,32 @@ const getAllStakeholders = () => {
       });
   });
 };
+
+const addStakeholder = (StakeholderName) => {
+  return new Promise((resolve, reject) => {
+    fetch(URL + "/stakeholders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ StakeholderName }),
+      credentials: "include",
+    })
+      .then((response) => {
+        if (response.ok) {
+          resolve(response.json());
+        } else {
+          response.json().then((message) => {
+            reject(message);
+          });
+        }
+      }
+      )
+      .catch(() => {
+        reject({ error: "Cannot communicate with the server." });
+      });
+  });
+}
 
 const getStakeholder = (id) => {
   return new Promise((resolve, reject) => {
@@ -727,6 +753,6 @@ const updateScale = (id, scale_number) => {
   });
 };
 
-const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, createDocumentConnection, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea, getDocumentResources, addResourcesToDocument, addArea,deleteResource,getScales,addScale,updateScale};
+const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, createDocumentConnection, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea, getDocumentResources, addResourcesToDocument, addArea,deleteResource,getScales,addScale,updateScale,addStakeholder};
 
 export default API;

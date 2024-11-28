@@ -195,7 +195,9 @@ app.get("/api/sessions/current", (req, res) => {
 // POST /api/documents, only possible for authenticated users and if he/she is a urban planner
 app.post("/api/documents", isUrbanPlanner, async (req, res) => {
   const document = req.body;
-  if (!document.title || !document.idtype) {
+  console.log(req.body);
+  console.log("PAPAPAPA");
+  if (!document.title) {
     res
       .status(400)
       .json({ error: "The request body must contain all the fields" });
@@ -225,7 +227,23 @@ app.post("/api/documents", isUrbanPlanner, async (req, res) => {
       parseInt(document.idtype),
       idLocation
     )
-    .then((document) => res.status(201).json(document))
+    .then(async (document_new) => {
+      //here add the stakeholde to document after insert it
+      console.log(document_new);
+      if (document_new) {
+        for (let i = 0; i < document.idStakeholder.length; i++) {
+          console.log("prova");
+          await DocumentStakeholderDao.addStakeholderToDocument(
+            document_new.idDocument,
+            document.idStakeholder[i]
+          );
+        }
+        res.status(201).json(document_new);
+      }
+      else {
+        res.status(500).json({ error: "Failed to add document." });
+      }
+    })
     .catch(() => res.status(500).end());
 });
 
@@ -720,6 +738,22 @@ app.get("/api/stakeholders/:stakeholderId/documents", (req, res) => {
   DocumentStakeholderDao.getDocumentsByStakeholder(req.params.stakeholderId)
     .then((documents) => res.json(documents))
     .catch(() => res.status(500).end());
+});
+
+app.post("/api/stakeholders", isUrbanPlanner, async (req, res) => {
+  const { StakeholderName } = req.body;
+  try {
+    const result = await stakeholderDao.addStakeholder(StakeholderName);
+    if (result) {
+      res
+        .status(201)
+        .json({ stakeholderId: result, message: "Stakeholder added successfully." });
+    } else {
+      res.status(500).json({ error: "Failed to add stakeholder." });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 //check server using a port

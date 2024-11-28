@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Button, Form, Card, Row, Col, Modal, ListGroup, FloatingLabel, FormGroup, Alert, InputGroup } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
+import Select from 'react-select';
+
 import API from '../API';
 function ModifyDocument() {
     let { documentId } = useParams();
@@ -40,12 +42,15 @@ function ModifyDocument() {
 
     const [showAddScale, setShowAddScale] = useState(false);
     const [scales, setScales] = useState([]);
+    const [showAddStakeholder, setShowAddStakeholder] = useState(false);
 
     //adding new scale 
     const [newScale_name, setNewScale_name] = useState('');
     const [newScale_number, setNewScale_number] = useState('');
-
+    const [newStakeholder_name, setNewStakeholder_name] = useState('');
     const [oldScale_number, setOldScale_number] = useState('');
+
+    const [selectedStakeholders, setSelectedStakeholders] = useState([]);
 
 
 
@@ -115,8 +120,8 @@ function ModifyDocument() {
                 setDocumentScale(scaleObj);
                 setOldScale_number(scaleObj.scale_number.split(":")[1]);
 
-                const stakeholder = await API.getStakeholder(res.IdStakeholder);
-                setStakeholder(stakeholder);
+                /*const stakeholder = await API.getStakeholder(res.IdStakeholder);
+                setStakeholder(stakeholder);*/ //multiple stakeholders
                 const type = await API.getTypeDocument(res.IdType);
                 setType(type);
             } catch (err) {
@@ -161,11 +166,8 @@ function ModifyDocument() {
         getTypes();
         getAllTypeConnections();
         getDocumentConnections();
-        
-
         if(documentId)
           fetchDocument();
-          
     },[]);
 
 
@@ -217,7 +219,10 @@ function ModifyDocument() {
     };
 
     const handleUpdate = async() => {
-      if(!title || !documentScale || !issuanceDate.year || !description  || !stakeholder || !type){
+
+
+      console.log("sto aggiornando");
+      if(!title || !documentScale || !issuanceDate.year || !description  || !selectedStakeholders || !type){
         setMessage("Please complete all fields to add a document.");
       } else {
         let date;
@@ -231,15 +236,10 @@ function ModifyDocument() {
           setMessage("Please provide a valid date format.");
           return;
         }
-        let result;
-
-        // QUA DEVO VEDERE SE HO FATTO AGGIORNAMENTO DELLO SCALE DEVO MANDARE UPDATE SCALE ALTRIMENTI NO
         if(documentScale && documentScale.id > 3){    
           await API.updateScale(documentScale.id,`1:${oldScale_number}`);
         }
-
         if (documentId) {
-          result = documentId;
           await API.updateDocument(documentId, title,stakeholder.id ? stakeholder.id: stakeholder, documentScale.id, date, language, pages,description,  type.id ? type.id: type);
           if(!area)
             await API.updateLocationDocument(document.IdLocation, "Point", latitude, longitude, "");
@@ -248,22 +248,23 @@ function ModifyDocument() {
             // insert the document which is a point 
             //console.log(selectedLocation);
             //console.log({ title, scale, issuanceDate, description, connections, language, pages, stakeholder: stakeholder, type: type, locationType : "Point", latitude : selectedLocation.lat , longitude: selectedLocation.lng, area_coordinates :"" });
-            result = await API.addDocument( title,stakeholder, documentScale.id, date, language, pages,description,  type,  "Point",  latitude , longitude, "" );
+            //check to be here the type of the document BEACYSE MUST BE NOT NULL
+            let result = await API.addDocument( title,selectedStakeholders.map((stk) => stk.value), documentScale.id, date, language, pages,description,  type,  "Point",  latitude , longitude, "" );
             console.log(result);
             result = await result.idDocument;
             documentId = result;
           }
           else if (area){
             //insert the document inside an area
-            result = await API.addDocumentArea( title,stakeholder, documentScale.id, date, language, pages,description,  type, area.IdLocation );
+            let result = await API.addDocumentArea( title,selectedStakeholders.map((stk) => stk.value), documentScale.id, date, language, pages,description, type, area.IdLocation );
             console.log(result);
             result = await result.idDocument;
             documentId = result;
           }
           // insert the document
-          /*const result= await API.addDocument({ title, scale, issuanceDate, description, connections, language, pages, stakeholder: stakeholder.id, type: type.id });
+          let result= await API.addDocument({ title, scale, issuanceDate, description, connections, language, pages, stakeholders: selectedStakeholders.map((stk) => stk.value), type: type.id });
           console.log(result);
-          navigate('/');*/
+          navigate('/');
         }
         
 
@@ -317,6 +318,16 @@ function ModifyDocument() {
       console.log(value);
       setNewScale_number(`1:${value}`);
     };
+    const handleAddStakeholder = async() => {
+      //here call api to add a scale
+      console.log(newStakeholder_name);
+      await API.addStakeholder(newStakeholder_name);
+      // after we insert the stakeholder we have to update the list of stakeholders
+      const res = await API.getAllStakeholders();
+      setStakeholders(res);
+      setNewStakeholder_name('');
+      setShowAddStakeholder(false);
+    };
     /* ------------------------------------ FORM ------------------------------------------ */
     return (
       <>
@@ -329,13 +340,12 @@ function ModifyDocument() {
                 {/* ---------------------- Left Column --------------------------- */}
                 <Col md={6}>
                       <Form.Group controlid="title" className="mb-3">
-                          <FloatingLabel label="Title*" className="mb-3">
+                          <label> Title* </label>
                             <Form.Control
                                 type="text"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                                 />
-                        </FloatingLabel>
                       </Form.Group>
                       
                       <Form.Group controlid="scale" className="mb-3">
@@ -544,31 +554,40 @@ function ModifyDocument() {
 
                 {/* ---------------------- Right Column --------------------------- */}
                 <Col md={6}>
-                    <FormGroup controlid="stakeholder" className="mb-3">
-                          <FloatingLabel  label="Stakeholder*" className="mb-3">
-                            <Form.Select value={stakeholder.id} onChange={(e) => setStakeholder(e.target.value)}>
-                              <option>Select Stakeholder</option>
-                              {stakeholders.map((stk) => 
-                                <option key={stk.id} value={stk.id}>{stk.name}</option>
-                              )
-                            }
-                            </Form.Select>
-                          </FloatingLabel>  
-                        </FormGroup>
+                <FormGroup controlId="stakeholder" className="mb-3" style={{ display: 'flex', alignItems: 'center' }}>
+                  <div style={{ flexGrow: 1 }}>
+                    <label>Stakeholder*</label>
+                    <Select 
+                      options={stakeholders.map((stk) => ({ value: stk.id, label: stk.name }))} 
+                      isMulti 
+                      placeholder="Select Stakeholder"
+                      value={selectedStakeholders}
+                      onChange={(selected) => setSelectedStakeholders(selected)}  
+                    />
+                  </div>
+
+                  <Button
+                    variant="outline-primary"
+                    onClick={() => setShowAddStakeholder(true)}
+                    style={{ width: "30%", textAlign: "left" }}
+                    className="mt-2"
+                  >
+                    Add Stakeholder
+                  </Button>
+              </FormGroup>
                         
                         <FormGroup controlid="type" className="mb-3">
-                          <FloatingLabel label="Document Type*" className="mb-3">
+                          <label>Document Type*</label>
                             <Form.Select value={type.id} onChange={(e) => setType(e.target.value)} >
                               <option>Select Document Type</option>
                               {types.map((tp) => 
                                 <option key={tp.id} value={tp.id}>{tp.type}</option>
                               )
                             }
-                            </Form.Select>
-                          </FloatingLabel>  
+                            </Form.Select> 
                     </FormGroup>
                     <Form.Group controlid="description" className="mb-3">
-                      <FloatingLabel label="Description*" className="mb-3">
+                    <label>Description*</label>
                         <Form.Control
                             className='mt-auto'
                             as="textarea"
@@ -576,7 +595,6 @@ function ModifyDocument() {
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             />
-                      </FloatingLabel>
                     </Form.Group>{(latitude && longitude) ? (
                             <div className='mb-4 d-flex'>
                               <p className='mx-4 d-flex align-items-center'>
@@ -712,7 +730,31 @@ function ModifyDocument() {
                 </Button>
             </Modal.Footer>
         </Modal>
-          
+      {/* ----------------------- Modal for Adding a stakeholder ----------------------------- */}
+      <Modal show={showAddStakeholder} centered onHide={() => setShowAddStakeholder(false)}>
+            <Modal.Header closeButton>
+                <Modal.Title>Add Stakeholder</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+            <Form.Group controlid="stakeholder" className="mb-3">
+                          <FloatingLabel label="Stakeholder name*" className="mb-3">
+                            <Form.Control
+                                type="text"
+                                value={newStakeholder_name}
+                                onChange={(e) => setNewStakeholder_name(e.target.value)}
+                                />
+                        </FloatingLabel>
+                      </Form.Group>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="outline-secondary" onClick={() => setShowAddStakeholder(false)}>
+                    Cancel
+                </Button>
+                <Button variant="" className='btn-document' onClick={handleAddStakeholder}>
+                    Add StakeHolder
+                </Button>
+            </Modal.Footer>
+        </Modal>   
       </>    
 
       
