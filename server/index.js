@@ -419,8 +419,8 @@ app.get("/api/types/:typeid", (req, res) => {
     .catch(() => res.status(500).end());
 });
 
-// POST /api/document-type - Create a new document type
-app.post("/api/document-type", isUrbanPlanner, (req, res) => {
+// POST /api/types - Create a new document type
+app.post("/api/types", isUrbanPlanner, (req, res) => {
   const { type, iconSrc } = req.body;
 
   if (!type || !iconSrc) {
