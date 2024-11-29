@@ -226,7 +226,7 @@ const getTypeDocument = async (id) => {
 // Create a new document type
 const createTypeDocument = (typeName, iconUrl) => {
   return new Promise((resolve, reject) => {
-    fetch(URL + "/document-type", {
+    fetch(URL + "/types", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -340,7 +340,7 @@ const updateDocument = (Id_document,title,idStakeholder, scale, issuance_Date,la
       headers: { 
         "Content-Type": "application/json", 
       }, 
-      body: JSON.stringify({ title,idStakeholder, scale, issuance_Date,language,pages,description, idtype}), 
+      body: JSON.stringify({ title,idStakeholder, IdScale: scale, issuance_Date,language,pages,description, idtype}), 
       credentials: "include", 
     }) 
       .then((response) => { 
@@ -442,7 +442,24 @@ const getStakeholder = (id) => {
       });
   });
 };
-
+function getStakeholderByDocumentId(documentId) {
+  return new Promise((resolve, reject) => {
+    fetch(URL + "/documents/" + documentId + "/stakeholders", {
+      credentials: "include",
+    })
+      .then((response) => {
+        if (response.ok) {
+          response.json().then((stakeholders) => {
+            resolve(stakeholders);
+          });
+        } else {
+          response.json().then((message) => {
+            reject(message);
+          });
+        }
+      });
+  });
+}
 // API LOCATIONS CALL
 const getAllLocations = () => {
   return new Promise((resolve, reject) => {
@@ -753,6 +770,6 @@ const updateScale = (id, scale_number) => {
   });
 };
 
-const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, createDocumentConnection, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea, getDocumentResources, addResourcesToDocument, addArea,deleteResource,getScales,addScale,updateScale,addStakeholder};
+const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, createDocumentConnection, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea, getDocumentResources, addResourcesToDocument, addArea,deleteResource,getScales,addScale,updateScale,addStakeholder,getStakeholderByDocumentId,createTypeDocument};
 
 export default API;

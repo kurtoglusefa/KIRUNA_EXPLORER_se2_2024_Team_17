@@ -36,8 +36,16 @@ function Home(props) {
   const isLogged = context.loginState.loggedIn;
   const fetchDocuments = async () => {
     try {
-      const res = await API.getAllDocuments();
-      props.setDocuments(res);
+      const documents  = await API.getAllDocuments();
+      const updatedDocuments = await Promise.all(
+        documents.map(async (doc) => {
+          const stakeholders = await API.getStakeholderByDocumentId(doc.IdDocument);
+          return { ...doc, IdStakeholder: stakeholders };
+        })
+      );
+      // Update state with documents containing stakeholders
+      props.setDocuments(updatedDocuments);
+
     } catch (err) {
       console.error(err);
     }

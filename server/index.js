@@ -197,7 +197,7 @@ app.post("/api/documents", isUrbanPlanner, async (req, res) => {
   const document = req.body;
   console.log(req.body);
   console.log("PAPAPAPA");
-  if (!document.title) {
+  if (!document.title || !document.idtype) {
     res
       .status(400)
       .json({ error: "The request body must contain all the fields" });
@@ -278,35 +278,57 @@ app.get("/api/documents/title/:title", (req, res) => {
 });
 
 // PATCH /api/documents/:documentid
-app.patch("/api/documents/:documentid", isUrbanPlanner, (req, res) => {
+app.patch("/api/documents/:documentid", isUrbanPlanner, async (req, res) => {
   const documentId = parseInt(req.params.documentid);
   const document = req.body;
-  console.log("quello che mi arriva", document);
-  console.log(document);
+
+  // Check if the required fields are present
   if (!document.title) {
-    res
-      .status(400)
-      .json({ error: "The request body must contain all the fields" });
-    return;
+    return res.status(400).json({
+      error: "The request body must contain all the required fields",
+    });
   }
+
   try {
-    documentDao
-      .updateDocument(
-        documentId,
-        document.title,
-        document.IdScale,
-        document.issuance_Date,
-        document.language,
-        parseInt(document.pages),
-        document.description,
-        parseInt(document.idtype)
-      )
-      .then((document) => res.status(200).json(document))
-      .catch(() => res.status(500).end());
+    // Update the document using the DAO
+    const updatedDocument = await documentDao.updateDocument(
+      documentId,
+      document.title,
+      document.IdScale,
+      document.issuance_Date,
+      document.language,
+      parseInt(document.pages),
+      document.description,
+      parseInt(document.idtype)
+    );
+
+    if (!updatedDocument) {
+      return res.status(404).json({ error: "Document not found" });
+    }
+
+    // Clear existing stakeholders for the document
+    await DocumentStakeholderDao.clearStakeholdersFromDocument(documentId);
+
+    // Ensure `idStakeholder` exists and is an array
+    if (Array.isArray(document.idStakeholder)) {
+      for (const stakeholderId of document.idStakeholder) {
+        // Add each stakeholder to the document
+        await DocumentStakeholderDao.addStakeholderToDocument(
+          documentId,
+          stakeholderId
+        );
+      }
+    }
+
+    // Send the updated document as a response
+    return res.status(200).json(updatedDocument);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    // Handle errors
+    console.error("Error updating document:", error.message);
+    return res.status(500).json({ error: error.message });
   }
 });
+
 
 // PATCH /api/documents/:documentId/connection
 app.patch("/api/documents/:documentId/connection", async (req, res) => {
@@ -434,7 +456,23 @@ app.get("/api/types/:typeid", (req, res) => {
     })
     .catch(() => res.status(500).end());
 });
-
+app.post("/api/types", isUrbanPlanner, async (req, res) => {
+  console.log(req.body);
+  const { type,iconSrc } = req.body;
+  console.log(type);
+  try {
+    const result = await typeDocumentDao.addType(type,iconSrc);
+    if (result) {
+      res
+        .status(201)
+        .json({ typeId: result, message: "Type added successfully." });
+    } else {
+      res.status(500).json({ error: "Failed to add type." });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 // API STAKEHOLDERS
 
 app.get("/api/stakeholders", (req, res) => {

@@ -38,7 +38,7 @@ describe('Document Type API', () => {
     });
 
     it('should return 404 for a non-existent document type ID', async () => {
-        const nonExistentTypeId = 10; 
+        const nonExistentTypeId = 99999999; 
         
         const response = await agent.get(`/api/types/${nonExistentTypeId}`);
         

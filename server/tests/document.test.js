@@ -27,7 +27,7 @@ describe("Document API with Session Authentication", () => {
   it("should create a new document with valid data", async () => {
     const documentData = {
       title: "Sample Title",
-      idStakeholder: 1,
+      idStakeholder: [1,2],
       IdScale: 1,
       issuance_Date: "04/2019",
       language: "English",
