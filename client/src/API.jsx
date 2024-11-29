@@ -223,41 +223,69 @@ const getTypeDocument = async (id) => {
   }
 };
 
-// Create a new document type
-const createTypeDocument = (typeName, iconUrl) => {
+// // Create a new document type
+// const createTypeDocument = (typeName, iconUrl) => {
+//   return new Promise((resolve, reject) => {
+//     fetch(URL + "/document-type", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       credentials: "include", // send cookies if necessary
+//       body: JSON.stringify({
+//         type: typeName,
+//         iconSrc: iconUrl,
+//       }),
+//     })
+//       .then((response) => {
+//         if (response.ok) {
+//           response.json().then((newType) => {
+//             resolve(newType); // returns the newly created type
+//           });
+//         } else {
+//           response
+//             .json()
+//             .then((message) => {
+//               reject(message); 
+//             })
+//             .catch(() => {
+//               reject({ error: "Cannot parse server response." });
+//             });
+//         }
+//       })
+//       .catch(() => {
+//         reject({ error: "Cannot communicate with the server." });
+//       });
+//   });
+// };
+
+
+// Create a new document type -- without considering the icon
+const createTypeDocument = (typeName) => {
   return new Promise((resolve, reject) => {
     fetch(URL + "/types", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: "include", // send cookies if necessary
+      credentials: "include",
       body: JSON.stringify({
         type: typeName,
-        iconSrc: iconUrl,
       }),
     })
       .then((response) => {
         if (response.ok) {
-          response.json().then((newType) => {
-            resolve(newType); // Return the newly created type
-          });
+          response.json().then((newType) => resolve(newType));
         } else {
-          response
-            .json()
-            .then((message) => {
-              reject(message); // Handle error message from the server
-            })
-            .catch(() => {
-              reject({ error: "Cannot parse server response." });
-            });
+          response.json().then((message) => reject(message)).catch(() => {
+            reject({ error: "Cannot parse server response." });
+          });
         }
       })
-      .catch(() => {
-        reject({ error: "Cannot communicate with the server." });
-      });
+      .catch(() => reject({ error: "Cannot communicate with the server." }));
   });
 };
+
 
 
 // API DOCUMENT CONNECTIONS CALL

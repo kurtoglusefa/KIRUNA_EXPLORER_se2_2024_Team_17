@@ -239,8 +239,7 @@ app.post("/api/documents", isUrbanPlanner, async (req, res) => {
           );
         }
         res.status(201).json(document_new);
-      }
-      else {
+      } else {
         res.status(500).json({ error: "Failed to add document." });
       }
     })
@@ -447,6 +446,7 @@ app.get("/api/types", (req, res) => {
     .then((types) => res.json(types))
     .catch(() => res.status(500).end());
 });
+
 app.get("/api/types/:typeid", (req, res) => {
   typeDocumentDao
     .getType(req.params.typeid)
@@ -783,9 +783,10 @@ app.post("/api/stakeholders", isUrbanPlanner, async (req, res) => {
   try {
     const result = await stakeholderDao.addStakeholder(StakeholderName);
     if (result) {
-      res
-        .status(201)
-        .json({ stakeholderId: result, message: "Stakeholder added successfully." });
+      res.status(201).json({
+        stakeholderId: result,
+        message: "Stakeholder added successfully.",
+      });
     } else {
       res.status(500).json({ error: "Failed to add stakeholder." });
     }

@@ -183,15 +183,15 @@ GET http://localhost:3001/api/documents/100
 GET http://localhost:3001/api/types
 
 ### Test to get a type by id
-GET http://localhost:3001/api/types/5
+GET http://localhost:3001/api/types/11
 
 ### Test to add a new document type
 POST http://localhost:3001/api/types
 Content-Type: application/json
 
 {
-  "iconSrc": "test_doc.svg",
-  "type": "Test doc"
+  "iconSrc": "debug_doc.svg",
+  "type": "Debug doc"
 }
 
 ### test to get all stakeholder
