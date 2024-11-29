@@ -261,7 +261,7 @@ const getTypeDocument = async (id) => {
 
 
 // Create a new document type -- without considering the icon
-const createTypeDocument = (typeName) => {
+const createTypeDocument = (typeName,iconsrc) => {
   return new Promise((resolve, reject) => {
     fetch(URL + "/types", {
       method: "POST",
@@ -271,6 +271,7 @@ const createTypeDocument = (typeName) => {
       credentials: "include",
       body: JSON.stringify({
         type: typeName,
+        iconSrc: iconsrc,
       }),
     })
       .then((response) => {
