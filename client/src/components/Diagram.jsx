@@ -4,6 +4,8 @@ import 'reactflow/dist/style.css';
 import CardDocument from './CardDocument';
 import AppContext from '../AppContext';
 import API from '../API'; // Import API module
+import '../App.css'
+import '../WelcomePage.css';
 
 function Diagram() {
   const [documents, setDocuments] = useState([]);
@@ -360,7 +362,7 @@ function Diagram() {
               width: '60px',
               height: '60px',
               borderRadius: '50%',
-              border: '2px solid blue',
+              border: selectedDocument ? '2px solid blue' : null,
               zIndex: -1, // Keep the circle behind the icon
             }}
           />
@@ -427,7 +429,7 @@ function Diagram() {
     {selectedDocument && (
             <div
               className='document-card overlay col-lg-3 col-md-6 col-sm-9'
-              style={{ marginLeft: '1%', bottom: '18%', width: '28%' }}
+              style={{ marginLeft: '1%', bottom: '12%', width: '30%' }}
             >
               <CardDocument
                 document={selectedDocument}
@@ -445,8 +447,8 @@ function Diagram() {
     )}
     {selectedEdge && (
       <div
-        className='connection-info-card overlay col-lg-3 col-md-6 col-sm-9'
-        style={{ marginLeft: '1%', bottom: '18%', width: '28%' }}
+        className='overlay col-lg-3 col-md-6 col-sm-9 p-3'
+        style={{ marginLeft: '1%', bottom: '18%', width: '28%', backgroundColor: 'white', borderRadius: '20px' }}
       >
         <div>
           <h5>Connection Details</h5>
