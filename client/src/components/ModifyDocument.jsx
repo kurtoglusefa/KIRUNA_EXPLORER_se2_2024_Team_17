@@ -345,7 +345,7 @@ function ModifyDocument() {
                           <Form.Select
                             required
                             value={ documentScale ? documentScale.id: 0}
-                            style={{ width: "20%" }}
+                            style={{}}
                             onChange={(event) => handleTypeScaleChange(event.target.value)}
                             className="font-size-20"
                           >
@@ -357,14 +357,14 @@ function ModifyDocument() {
                             ))}
                             
                           </Form.Select>
-                          {documentScale && documentScale.id>3  && (
+                          {documentScale && documentScale.id > 3  && (
                             <>
                               <Form.Control
                                 type="text"
                                 placeholder="1:"
                                 value="1:"
                                 disabled
-                                style={{ width: "10%", textAlign: "right" }}
+                                style={{ textAlign: "right" }}
                                 className="mt-0 font-size-20"
                               />
 
@@ -375,17 +375,17 @@ function ModifyDocument() {
                                 value={oldScale_number ? oldScale_number : ""}
                                 onChange={(event) => handleScaleChange(event.target.value)}
                                 className="mt-0 font-size-20"
-                                style={{ width: "25%", textAlign: "left" }}
+                                style={{ textAlign: "left" }}
                               />
                             </>
                           )}
                           <Button
-                          variant="outline-primary"
+                          variant="outline-secondary"
                           onClick={()=> setShowAddScale(true)}
-                          style={{ width: "20%", textAlign: "left" }}
-                          className="mt-2"
+                          style={{ textAlign: "left" }}
+                          
                         >
-                          Add Scale
+                          Add New Scale
                         </Button>
                         </InputGroup>
                       </Form.Group>

@@ -116,7 +116,7 @@
     font-size: 1.5em;
     margin-top: 20px;
     opacity: 0;
-    animation: fadeIn 2s ease-out forwards 1s;
+    animation: fadeIn 2s ease-out forwards 0.5s;
     /* Delayed fade-in for the paragraph */
 }
 
@@ -124,7 +124,7 @@
   font-size: 1.5em;
   margin-top: 20px;
   opacity: 0;
-  animation: fadeIn 1s ease-out forwards 3s;
+  animation: fadeIn 1s ease-out forwards 2s;
   /* Delayed fade-in for the button */
 }
 
