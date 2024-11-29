@@ -1,6 +1,6 @@
 select * from users
 
-select * from Document;
+delete from Document where IdScale = 2;
 
 select * from DocumentStakeholder
 
@@ -16,4 +16,6 @@ SELECT * FROM DocumentConnection
 ALTER TABLE LOCATION
 ADD COLUMN Area_Name VARCHAR(255);
 
-SELECT * FROM Document
+update Document set IdScale = 1
+
+delete from DocumentConnection

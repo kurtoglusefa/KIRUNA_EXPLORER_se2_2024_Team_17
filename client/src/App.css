@@ -12,9 +12,9 @@
 }
 
 .leaflet-container {
-  height: 80vh;
-  border-radius: 1rem;
-  margin-top: 18px;
+  margin-top: 5px;
+  height:88vh;
+  z-index: 0;
   /* Increase margin for more space below navbar */
 
 }
@@ -85,4 +85,11 @@
   bottom: 30px;
   z-index: 1000;
   box-shadow: #000000 0px 10px 20px 0px;
+}
+
+.info-button {
+  position:absolute;
+  right:1.5%;
+  top:110px;
+  z-index:100;
 }

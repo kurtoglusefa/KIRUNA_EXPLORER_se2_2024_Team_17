@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import Map from './Map';
 import { Button, ToggleButtonGroup, ToggleButton, ListGroup, Spinner, Card, Row, Col, Container } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { FaFileAlt } from 'react-icons/fa'; // Import document icon
 import API from '../API'; // Import API module
 import { Form } from 'react-bootstrap';
@@ -10,6 +10,8 @@ import AppContext from '../AppContext';
 import '../App.css';
 import { Modal } from 'react-bootstrap';
 import CardDocument from './CardDocument';
+import Diagram from './Diagram';
+
 
 
 function Home(props) {
@@ -176,21 +178,21 @@ function Home(props) {
 
   return (
     <>
-      <Container fluid className='justify-content-center mt-3' style={{ paddingTop: '50px' }} >
-        {viewMode === 'map' ? (
+      <div className='justify-content-center' style={{ paddingTop: '80px' }} >
+        {viewMode === 'map' && (
           loading ? (
             <Spinner animation="border" variant="primary" />
           ) : (
             <Map locations={locations} setLocations={setLocations} locationsArea={locationsArea} documents={props.documents} setSelectedLocation={setSelectedLocation} setSelectedDocument={setSelectedDocument} selectedLocation={selectedLocation} handleDocumentClick={handleDocumentClick} numberofconnections={numberofconnections} fetchLocationsArea={fetchLocationsArea} />
           )
 
-        ) : (
-
+        )}
+        {viewMode === 'list' && (
           loading ? (
             <Spinner animation="border" variant="primary" />
           ) : (
             <>
-              <Card className="mt-3" style={{ minHeight: '400px' }}>
+              <Card className="mt-5 mx-5" style={{ minHeight: '400px' }}>
                 <div className='d-flex p-3'>
                   <div className='me-3 col-md-4 col-sm-3' style={{ maxHeight: '600px' }}>
                     {loading ? (
@@ -234,9 +236,18 @@ function Home(props) {
               </Card>
             </>
           )
-        )
+        )}
+        {viewMode === 'diagram' ? ( 
+          loading ? (
+              <Spinner animation="border" variant="primary" />
+            ) : (
+              <div>
+                <Diagram />
+              </div>
+            )
+          ) : null
         }
-      </Container>
+      </div>
 
       <Modal show={showAddConnection} centered onHide={() => setShowAddConnection(false)}>
         <Modal.Header closeButton>

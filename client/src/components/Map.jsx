@@ -149,6 +149,9 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
 
   const handleAreaClick = (area) => {
     setSelectedArea(area);
+    setSelectedMarker(null);
+    setSelectedDocument(null);
+    setSelectedLocation(null);
   };
 
   const getCenter = (areaCoordinates) => {
@@ -254,15 +257,13 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
 
   function MarkerFocus ({position}) {
     const map = useMap();
-
+    console.log(position);
     useEffect(() => {
-      if(selectedMarker && position != [undefined,undefined]) {
         try {
-          map.setView(position ? position : {lat: 67.8558, lng: 20.2253}, map.getZoom());
+          map.setView(position ? position : map.getLatLng(), map.getZoom());
         } catch (e) {
           console.log(e);
         }
-      }
     }, [position, map]);
 
     return null;
@@ -275,6 +276,9 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
           const { lat, lng } = e.latlng;
           setSelectedLocation({ lat, lng });
         }
+        setSelectedDocument(null);
+        setSelectedMarker(null);
+        setSelectedArea(null);
       },
       mouseover: () => {
         if (modifyMode) {
@@ -299,7 +303,7 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
         <Spinner animation="border" variant="primary" />
       ) : (
         <div>
-          <MapContainer ref={mapRef} center={[67.8558, 20.2253]} zoomControl={false} zoom={12} maxBounds={[[67.7, 19.6],[68, 20.8]]} minZoom={12}>
+          <MapContainer ref={mapRef} center={[67.8400, 20.2253]} zoomControl={false} zoom={12} maxBounds={[[67.7, 19.6],[68, 20.8]]} minZoom={12}>
             {/* Location listener */}
             <LocationMarker />
 
@@ -540,10 +544,29 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                 }
               })}
             {/* Marker for selected location */}
-            {modifyMode && selectedLocation && <Marker position={selectedLocation} /> }
+            {modifyMode ? (
+              selectedLocation && !selectedArea ? (
+              <>
+                <Marker position={selectedLocation} />
+                {/* setView on selected Marker*/}
+                <MarkerFocus position={selectedLocation} />
+              </>
+              ) : (
+
+                selectedMarker ? (
+                  
+                  <MarkerFocus position={locationsArea[selectedMarker?.IdLocation] ? {lat: locationsArea[selectedMarker?.IdLocation].Latitude, lng:locationsArea[selectedMarker?.IdLocation].Longitude} : {lat:locations[selectedMarker?.IdLocation]?.Latitude, lng: locations[selectedMarker?.IdLocation]?.Longitude}} />
+                ) : (
+                  selectedArea && <MarkerFocus position={{lat: locationsArea[selectedArea?.IdLocation].Latitude, lng:locationsArea[selectedArea?.IdLocation].Longitude}} />
+                )
+              ) 
+            ) : (
+              selectedDocument && <MarkerFocus position={locationsArea[selectedDocument?.IdLocation] ? {lat: locationsArea[selectedDocument?.IdLocation].Latitude, lng:locationsArea[selectedDocument?.IdLocation].Longitude} : {lat:locations[selectedDocument?.IdLocation]?.Latitude, lng: locations[selectedDocument?.IdLocation]?.Longitude}} />
+            )}
             
             {/* setView on selected Marker*/}
-            {(!loading && locations && locationsArea && selectedMarker && selectedDocument) ? <MarkerFocus position={locationsArea[selectedMarker?.IdLocation] ? {lat: locationsArea[selectedMarker?.IdLocation].Latitude, lng:locationsArea[selectedMarker?.IdLocation].Longitude} : {lat:locations[selectedMarker?.IdLocation]?.Latitude, lng: locations[selectedMarker?.IdLocation]?.Longitude}} /> : <MarkerFocus position={{lat:67.8558,lng: 20.2253}}/>}
+            
+            {/*(!loading && locations && locationsArea && selectedMarker && selectedDocument) ? <MarkerFocus position={locationsArea[selectedMarker?.IdLocation] ? {lat: locationsArea[selectedMarker?.IdLocation].Latitude, lng:locationsArea[selectedMarker?.IdLocation].Longitude} : {lat:locations[selectedMarker?.IdLocation]?.Latitude, lng: locations[selectedMarker?.IdLocation]?.Longitude}} /> : <MarkerFocus position={{lat:67.8400,lng: 20.2253}}/>*/}
             {/* Markers 
             {documents.map((document, index) => {
               //used to not overleap the documents
@@ -600,7 +623,7 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
           {selectedDocument && (
             <div
               className='document-card overlay col-lg-3 col-md-6 col-sm-9'
-              style={{ marginLeft: '1%', bottom: '18%', width: '28%' }}
+              style={{ marginLeft: '1%', bottom: '14.5%', width: '30%' }}
             >
               <CardDocument
                 document={selectedMarker}
@@ -619,16 +642,16 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
           {/* Card location for creating new document */}
           {modifyMode &&
             <div className='d-flex justify-content-end me-4'>
-              <Card className='text-start form overlay' style={{ bottom: '8%' }}>
+              <Card className='text-start form overlay' style={{ bottom: '6%' }}>
                 <Card.Header>
                   <Card.Title className='text.center mx-4 mt-1'>
                     <strong>Add New Document</strong>
                   </Card.Title>
                   <Button
-                    hidden={!selectedLocation}
+                    hidden={!selectedLocation && !selectedDocument}
                     variant="link"
                     style={{ color: 'darkred', position: 'absolute', right: '0px', bottom: '50%' }}
-                    onClick={() => setSelectedLocation(null)}>
+                    onClick={() => {setSelectedLocation(null);setSelectedDocument(null)}}>
                     <i className="bi bi-x h2"></i>
                   </Button>
                 </Card.Header>
@@ -641,6 +664,13 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                           <strong>Longitude:</strong> {selectedLocation?.lng.toFixed(4)}</h6>
                       </>
                     ) : (
+                      selectedDocument ? (
+                        <>
+                          <h6><strong>Latitude:</strong> {locations[selectedDocument.IdLocation]?.Latitude.toFixed(4)}<br></br>
+                            <strong>Longitude:</strong> {locations[selectedDocument.IdLocation]?.Longitude.toFixed(4)}</h6>
+                        </>
+
+                      ) : (
                       <Form.Group>
                         <Form.Label>
                           <strong>Area</strong>
@@ -664,7 +694,7 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                           ))}
                         </Form.Select>
                       </Form.Group>
-                    )
+                    ))
                     }
                   </div>
                 </Card.Body>
@@ -674,7 +704,7 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                     className='px-4 py-2 mb-2 rounded-pill btn-document'
                     size="md"
                     onClick={() => {
-                      if (!selectedLocation) {
+                      if (!selectedLocation && !selectedDocument) {
                         if(!selectedArea) {
                           alert('Select an area')
                           return;
@@ -682,6 +712,10 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                         navigate(`../documents/create-document`, { state: { area: selectedArea }, relative: 'path' })
                       }
                       else {
+                        if(selectedDocument) {
+                          navigate(`../documents/create-document`, { state: { location: {lat: locations[selectedDocument.IdLocation]?.Latitude.toFixed(4), lng: locations[selectedDocument.IdLocation]?.Longitude.toFixed(4) }}, relative: 'path' })
+                        }
+
                         navigate(`../documents/create-document`, { state: { location: {lat: selectedLocation.lat.toFixed(4), lng: selectedLocation.lng.toFixed(4) }}, relative: 'path' })
                       }
                     }}
@@ -697,12 +731,17 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
             <>
               <div className='d-flex mt-2 align-items-center justify-content-between ms-3'>
                 <div className='d-flex align-items-center'>
-                  <Button variant='dark' className='rounded-pill mt-2 overlay px-4 mx-2 btn-document' style={{ bottom: '7%' }} onClick={() => setModifyMode((mode) => !mode)}>
+                  <Button variant='dark' className='rounded-pill mt-2 overlay px-4 mx-2 btn-document' style={{ bottom: '5%' }} onClick={() => {
+                    if(modifyMode)
+                      setSelectedArea(null);
+                    setSelectedLocation(null);
+                    setModifyMode((mode) => !mode)
+                  }}>
                     <span className='h6' style={{ fontSize: '16px' }}>{modifyMode ? 'Disable' : 'Enable'} drag / add new location for a document</span>
                   </Button>
 
                   <div>
-                    {modifyMode && <span className='col text-end mx-5 mb-1' style={{ position: 'absolute', zIndex: 1000, textShadow: '#000000 0px 0px 20px', left: '5%', bottom: '11%', color: 'white' }}>Drag / Add new document enabled</span>}
+                    {modifyMode && <span className='col text-end mx-5 mb-1' style={{ position: 'absolute', zIndex: 1000, textShadow: '#000000 0px 0px 20px', left: '3%', bottom: '9.5%', color: 'white' }}>Drag / Add new document enabled</span>}
                   </div>
                 </div>
               </div>

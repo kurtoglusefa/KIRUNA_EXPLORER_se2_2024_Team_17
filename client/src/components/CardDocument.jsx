@@ -48,13 +48,13 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
       fetchResources();
       fetchStakeholders();
       fetchScales();
-  }, [document.IdDocument]);
+  }, [document?.IdDocument]);
 
   
  
   const handleModifyDocument = () => {
     if (document) {
-      setShowCard(false);
+      //setShowCard(false);
       navigate(`/documents/modify-document/${document.IdDocument}`, { state: { document: document , location: (latitude && longitude) ? {lat: latitude, lng: longitude} : null, area: areaName ? areaName : null} });
     }
   };
@@ -85,11 +85,11 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
           <div className='col-6 m-1'>
 
             <Card.Text style={{ fontSize: '16px' }}><strong>Date:</strong> {document?.Issuance_Date}</Card.Text>
-            <Card.Text style={{ fontSize: '16px' }}><strong>Scale Name:</strong> {scales[document?.IdScale] ? scales[document?.IdScale].scale_text : ""}</Card.Text>
+            <Card.Text style={{ fontSize: '16px' }}><strong>Scale Name:</strong> {scales[document?.IdScale-1] ? scales[document?.IdScale-1].scale_text : ""}</Card.Text>
             {scales[document?.IdScale] && scales[document?.IdScale].scale_number !== '' ? (
               <Card.Text style={{ fontSize: '16px' }}>
                 <strong>Scale Number: </strong>
-                {scales[document?.IdScale].scale_number}
+                {scales[document?.IdScale-1].scale_number}
               </Card.Text>
             ) : null}            
             {document?.Language && <Card.Text style={{ fontSize: '16px' }}><strong>Language:</strong> {document?.Language}</Card.Text>}
