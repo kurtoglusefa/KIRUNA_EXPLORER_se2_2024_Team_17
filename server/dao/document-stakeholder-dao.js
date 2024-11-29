@@ -25,26 +25,6 @@ exports.addStakeholderToDocument = (documentId, stakeholderId) => {
 };
 
 /**
- * Removes a stakeholder from a document.
- * @param {Number} documentId - ID of the document
- * @param {Number} stakeholderId - ID of the stakeholder
- * @returns {Promise<Boolean>} Resolves to true if the stakeholder was removed successfully, false otherwise
- */
-exports.removeStakeholderFromDocument = (documentId, stakeholderId) => {
-  return new Promise((resolve, reject) => {
-    const sql =
-      "DELETE FROM DocumentStakeholder WHERE IdDocument = ? AND IdStakeholder = ?";
-    db.run(sql, [documentId, stakeholderId], function (err) {
-      if (err) {
-        reject(err);
-        return;
-      }
-      resolve(this.changes > 0);
-    });
-  });
-};
-
-/**
  * Retrieves all stakeholders for a specific document.
  * @param {Number} documentId - ID of the document
  * @returns {Promise<Array>} Resolves to an array of stakeholder objects
@@ -78,26 +58,6 @@ exports.getDocumentsByStakeholder = (stakeholderId) => {
         return;
       }
       resolve(rows); // Returns array of documents associated with the stakeholder
-    });
-  });
-};
-
-/**
- * Checks if a specific stakeholder is assigned to a document.
- * @param {Number} documentId - ID of the document
- * @param {Number} stakeholderId - ID of the stakeholder
- * @returns {Promise<Boolean>} Resolves to true if the stakeholder is assigned, false otherwise
- */
-exports.isStakeholderAssignedToDocument = (documentId, stakeholderId) => {
-  return new Promise((resolve, reject) => {
-    const sql =
-      "SELECT COUNT(*) AS count FROM DocumentStakeholder WHERE IdDocument = ? AND IdStakeholder = ?";
-    db.get(sql, [documentId, stakeholderId], (err, row) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      resolve(row.count > 0); // Returns true if the stakeholder is assigned to the document
     });
   });
 };
