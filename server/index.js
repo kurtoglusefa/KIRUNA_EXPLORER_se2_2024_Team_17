@@ -14,14 +14,12 @@ const documentDao = require("./dao/document-dao.js");
 const stakeholderDao = require("./dao/stakeholder-dao.js");
 const typeDocumentDao = require("./dao/typeDocument-dao.js");
 const DocumentConnectionDao = require("./dao/document-connection-dao.js");
+const DocumentStakeholderDao = require("./dao/document-stakeholder-dao.js");
 const locationDao = require("./dao/location-dao.js");
 const scaleDao = require("./dao/scale-dao.js");
 const { fileURLToPath } = require("url");
-const net = require('net');  // Import the 'net' module
-const { dirname } = require('path'); // Import the 'path' module
-
-
-
+const net = require("net"); // Import the 'net' module
+const { dirname } = require("path"); // Import the 'path' module
 
 /*** Set up Passport ***/
 // set up the "username and password" login strategy
@@ -101,12 +99,10 @@ const storage = multer.diskStorage({
     const fileExtension = path.extname(file.originalname).toLowerCase();
     const newFilename = `${file.originalname}`;
     cb(null, newFilename);
-  }
+  },
 });
 
 const upload = multer({ storage });
-
-
 
 // init express
 const app = new express();
@@ -116,8 +112,7 @@ const port = 3001;
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.static("public"));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // CORS configuration
 const corsOptions = {
@@ -200,13 +195,23 @@ app.get("/api/sessions/current", (req, res) => {
 // POST /api/documents, only possible for authenticated users and if he/she is a urban planner
 app.post("/api/documents", isUrbanPlanner, async (req, res) => {
   const document = req.body;
-  if (!document.title || !document.idStakeholder || !document.idtype) {
+  console.log(req.body);
+  console.log("PAPAPAPA");
+  if (!document.title || !document.idtype) {
     res
       .status(400)
       .json({ error: "The request body must contain all the fields" });
     return;
   }
-  const idLocation= document.idLocation ? document.idLocation : await locationDao.addLocation(document.locationType, document.latitude, document.longitude, document.area_coordinates,'');
+  const idLocation = document.idLocation
+    ? document.idLocation
+    : await locationDao.addLocation(
+        document.locationType,
+        document.latitude,
+        document.longitude,
+        document.area_coordinates,
+        ""
+      );
   if (!idLocation) {
     res.status(500).json({ error: "Failed to add location." });
     return;
@@ -214,7 +219,6 @@ app.post("/api/documents", isUrbanPlanner, async (req, res) => {
   documentDao
     .addDocument(
       document.title,
-      parseInt(document.idStakeholder),
       document.scale,
       document.issuance_Date,
       document.language,
@@ -223,7 +227,22 @@ app.post("/api/documents", isUrbanPlanner, async (req, res) => {
       parseInt(document.idtype),
       idLocation
     )
-    .then((document) => res.status(201).json(document))
+    .then(async (document_new) => {
+      //here add the stakeholde to document after insert it
+      console.log(document_new);
+      if (document_new) {
+        for (let i = 0; i < document.idStakeholder.length; i++) {
+          console.log("prova");
+          await DocumentStakeholderDao.addStakeholderToDocument(
+            document_new.idDocument,
+            document.idStakeholder[i]
+          );
+        }
+        res.status(201).json(document_new);
+      } else {
+        res.status(500).json({ error: "Failed to add document." });
+      }
+    })
     .catch(() => res.status(500).end());
 });
 
@@ -249,43 +268,63 @@ app.get("/api/documents/:documentid", (req, res) => {
 // GET /api/documents/title/:title
 app.get("/api/documents/title/:title", (req, res) => {
   documentDao
-      .getDocumentByTitle(req.params.title)
-      .then((document) => {
-          if (document) res.json(document);
-          else res.status(404).json({ error: "Document not found" });
-      })
-      .catch(() => res.status(500).end());
+    .getDocumentByTitle(req.params.title)
+    .then((document) => {
+      if (document) res.json(document);
+      else res.status(404).json({ error: "Document not found" });
+    })
+    .catch(() => res.status(500).end());
 });
 
 // PATCH /api/documents/:documentid
-app.patch("/api/documents/:documentid", isUrbanPlanner, (req, res) => {
+app.patch("/api/documents/:documentid", isUrbanPlanner, async (req, res) => {
   const documentId = parseInt(req.params.documentid);
   const document = req.body;
-  console.log("quello che mi arriva", document);  
-  console.log(document);
-  if (!document.title || !document.idStakeholder) {
-    res
-      .status(400)
-      .json({ error: "The request body must contain all the fields" });
-    return;
+
+  // Check if the required fields are present
+  if (!document.title) {
+    return res.status(400).json({
+      error: "The request body must contain all the required fields",
+    });
   }
+
   try {
-    documentDao
-      .updateDocument(
-        documentId,
-        document.title,
-        parseInt(document.idStakeholder),
-        document.IdScale,
-        document.issuance_Date,
-        document.language,
-        parseInt(document.pages),
-        document.description,
-        parseInt(document.idtype)
-      )
-      .then((document) => res.status(200).json(document))
-      .catch(() => res.status(500).end());
+    // Update the document using the DAO
+    const updatedDocument = await documentDao.updateDocument(
+      documentId,
+      document.title,
+      document.IdScale,
+      document.issuance_Date,
+      document.language,
+      parseInt(document.pages),
+      document.description,
+      parseInt(document.idtype)
+    );
+
+    if (!updatedDocument) {
+      return res.status(404).json({ error: "Document not found" });
+    }
+
+    // Clear existing stakeholders for the document
+    await DocumentStakeholderDao.clearStakeholdersFromDocument(documentId);
+
+    // Ensure `idStakeholder` exists and is an array
+    if (Array.isArray(document.idStakeholder)) {
+      for (const stakeholderId of document.idStakeholder) {
+        // Add each stakeholder to the document
+        await DocumentStakeholderDao.addStakeholderToDocument(
+          documentId,
+          stakeholderId
+        );
+      }
+    }
+
+    // Send the updated document as a response
+    return res.status(200).json(updatedDocument);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    // Handle errors
+    console.error("Error updating document:", error.message);
+    return res.status(500).json({ error: error.message });
   }
 });
 
@@ -326,7 +365,7 @@ app.post(
   async (req, res) => {
     console.log(req.body);
     const documentId = parseInt(req.params.documentId);
-    
+
     // Check if files were uploaded
     if (req.files && req.files.length > 0) {
       res.json({
@@ -356,7 +395,9 @@ app.delete(
       fs.unlink(filePath, (err) => {
         if (err) {
           console.error("Error deleting file:", err);
-          return res.status(500).json({ message: "Failed to delete the file." });
+          return res
+            .status(500)
+            .json({ message: "Failed to delete the file." });
         }
 
         return res.status(200).json({ message: "File deleted successfully." });
@@ -404,6 +445,7 @@ app.get("/api/types", (req, res) => {
     .then((types) => res.json(types))
     .catch(() => res.status(500).end());
 });
+
 app.get("/api/types/:typeid", (req, res) => {
   typeDocumentDao
     .getType(req.params.typeid)
@@ -413,7 +455,25 @@ app.get("/api/types/:typeid", (req, res) => {
     })
     .catch(() => res.status(500).end());
 });
-
+app.post("/api/types", isUrbanPlanner, async (req, res) => {
+  console.log(req.body);
+  const { type, iconSrc } = req.body;
+  if(!type || !iconSrc) {
+    return res.status(400).json({ error: "type and iconSrc are required." });
+  }
+  try {
+    const result = await typeDocumentDao.addType(type, iconSrc);
+    if (result) {
+      res
+        .status(201)
+        .json({ typeId: result, message: "Type added successfully." });
+    } else {
+      res.status(500).json({ error: "Failed to add type." });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 // API STAKEHOLDERS
 
 app.get("/api/stakeholders", (req, res) => {
@@ -449,17 +509,20 @@ app.get("/api/scales/:scaleid", (req, res) => {
       else res.status(404).json({ error: "Scale not found" });
     })
     .catch(() => res.status(500).end());
-}
-);
+});
 app.post("/api/scales", isUrbanPlanner, async (req, res) => {
   const { scale_text, scale_number } = req.body;
   if (!scale_text || !scale_number) {
-    return res.status(400).json({ error: "scale_text and scale_number are required." });
+    return res
+      .status(400)
+      .json({ error: "scale_text and scale_number are required." });
   }
   try {
     const result = await scaleDao.addScale(scale_text, scale_number);
     if (result) {
-      res.status(201).json({ scaleId: result, message: "Scale added successfully." });
+      res
+        .status(201)
+        .json({ scaleId: result, message: "Scale added successfully." });
     } else {
       res.status(500).json({ error: "Failed to add scale." });
     }
@@ -473,16 +536,18 @@ app.patch("/api/scales/:scaleId", isUrbanPlanner, async (req, res) => {
 
   console.log(req.body);
   console.log(scaleId);
-  const {  scale_number } = req.body;
+  const { scale_number } = req.body;
   if (!scale_number) {
-    return res.status(400).json({ error: "scale_text and scale_number are required." });
+    return res
+      .status(400)
+      .json({ error: "scale_text and scale_number are required." });
   }
   try {
     const scale = await scaleDao.getScale(scaleId);
     if (!scale) {
       return res.status(404).json({ error: "Scale not found." });
     }
-    const result = await scaleDao.updateScale(scaleId,scale_number);
+    const result = await scaleDao.updateScale(scaleId, scale_number);
     if (result) {
       res.status(200).json({ message: "Scale updated successfully." });
     } else {
@@ -492,7 +557,6 @@ app.patch("/api/scales/:scaleId", isUrbanPlanner, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
 
 // API CONNECTIONS
 
@@ -520,7 +584,7 @@ app.get("/api/document-connections/:documentId", (req, res) => {
     .catch((err) => res.status(500).json({ error: "Internal server error" }));
 });
 
-// POST /api/document-connections
+// POST /api/document-connections;
 //  Creates a new connection between two documents
 app.post("/api/document-connections", isUrbanPlanner, (req, res) => {
   const connection = req.body;
@@ -576,8 +640,13 @@ app.get("/api/locations/:locationId", (req, res) => {
 });
 
 app.post("/api/locations", isUrbanPlanner, async (req, res) => {
-  
-  const { location_type: locationType, center_lat: latitude, center_lng: longitude, area_coordinates: areaCoordinates,areaName: area_name } = req.body;
+  const {
+    location_type: locationType,
+    center_lat: latitude,
+    center_lng: longitude,
+    area_coordinates: areaCoordinates,
+    areaName: area_name,
+  } = req.body;
 
   if (!locationType) {
     return res.status(400).json({ error: "locationType is required." });
@@ -601,9 +670,12 @@ app.post("/api/locations", isUrbanPlanner, async (req, res) => {
     }
   }
   try {
-    let  transformedCoordinates;
-    if(locationType == "Area"){
-      transformedCoordinates= JSON.parse(areaCoordinates).map(point => [point.lat, point.lng]);
+    let transformedCoordinates;
+    if (locationType == "Area") {
+      transformedCoordinates = JSON.parse(areaCoordinates).map((point) => [
+        point.lat,
+        point.lng,
+      ]);
     }
     const result = await locationDao.addLocation(
       locationType,
@@ -613,7 +685,9 @@ app.post("/api/locations", isUrbanPlanner, async (req, res) => {
       area_name
     );
     if (result) {
-      res.status(201).json({ locationId: result,message: "Location added successfully." });
+      res
+        .status(201)
+        .json({ locationId: result, message: "Location added successfully." });
     } else {
       res.status(500).json({ error: "Failed to add location." });
     }
@@ -672,20 +746,80 @@ app.patch("/api/locations/:locationId", isUrbanPlanner, async (req, res) => {
   }
 });
 
+///// Document Stakeholder APIS//////
+
+// Add a stakeholder to a document
+app.post(
+  "/api/documents/:documentId/stakeholders/:stakeholderId",
+  (req, res) => {
+    DocumentStakeholderDao.addStakeholderToDocument(
+      req.params.documentId,
+      req.params.stakeholderId
+    )
+      .then((result) => {
+        if (result)
+          res.status(201).json({ message: "Stakeholder added successfully." });
+        else res.status(400).json({ error: "Failed to add stakeholder." });
+      })
+      .catch(() => res.status(500).end());
+  }
+);
+
+// Get all stakeholders for a document
+app.get("/api/documents/:documentId/stakeholders", (req, res) => {
+  DocumentStakeholderDao.getStakeholdersByDocument(req.params.documentId)
+    .then((stakeholders) => res.json(stakeholders))
+    .catch(() => res.status(500).end());
+});
+
+// Get all documents for a stakeholder
+app.get("/api/stakeholders/:stakeholderId/documents", (req, res) => {
+  DocumentStakeholderDao.getDocumentsByStakeholder(req.params.stakeholderId)
+    .then((documents) => res.json(documents))
+    .catch(() => res.status(500).end());
+});
+
+// Clear stakeholders from a document
+app.delete("/api/documents/:documentId/stakeholders", (req, res) => {
+  DocumentStakeholderDao.clearStakeholdersFromDocument(req.params.documentId)
+    .then((result) => {
+      if (result)
+        res.status(200).json({ message: "Stakeholders removed successfully." });
+      else res.status(404).json({ error: "No stakeholders found to remove." });
+    })
+    .catch(() => res.status(500).end());
+});
+
+app.post("/api/stakeholders", isUrbanPlanner, async (req, res) => {
+  const { StakeholderName } = req.body;
+  try {
+    const result = await stakeholderDao.addStakeholder(StakeholderName);
+    if (result) {
+      res.status(201).json({
+        stakeholderId: result,
+        message: "Stakeholder added successfully.",
+      });
+    } else {
+      res.status(500).json({ error: "Failed to add stakeholder." });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 //check server using a port
 const isPortInUse = (port) => {
   return new Promise((resolve, reject) => {
     const server = net.createServer();
     server.unref();
-    server.on('error', () => resolve(true));  // Port is in use
-    server.on('listening', () => {
+    server.on("error", () => resolve(true)); // Port is in use
+    server.on("listening", () => {
       server.close();
       resolve(false); // Port is free
     });
     server.listen(port);
   });
 };
-
 
 const server = async () => {
   const isInUse = await isPortInUse(port);
@@ -698,6 +832,6 @@ const server = async () => {
     return server;
   }
 };
-server().catch(err => console.error(err));
+server().catch((err) => console.error(err));
 // Export the app and server
 module.exports = { app, server };

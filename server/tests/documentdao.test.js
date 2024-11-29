@@ -118,7 +118,6 @@ describe("documentDao", () => {
     });
   });
   describe("addDocument", () => {
-
     it("should return an error when adding a document fails", async () => {
       db.run.mockImplementation((sql, params, callback) => {
         callback(new Error("Failed to add document"));
@@ -138,8 +137,6 @@ describe("documentDao", () => {
       await expect(documentDao.getDocumentByTitle("Title")).rejects.toThrow(
         "Failed to retrieve document"
       );
-
     });
   });
-
 });

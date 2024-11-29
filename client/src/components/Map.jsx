@@ -343,10 +343,13 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                           location.Longitude + (index % 2 === 0 ? -offsetIndex : offsetIndex),
                         ];
                       }
-
-
-                      const iconPath = `src/icon/${stakeholders[document.IdStakeholder-1]?.color}/${documentTypes[document.IdType - 1]?.iconsrc}`;
-                      
+                      let iconPath;
+                      if (Array.isArray(document.IdStakeholder) && document.IdStakeholder.length > 0) {
+                         iconPath = `src/icon/${document.IdStakeholder[0].Color}/${documentTypes[document.IdType - 1]?.iconsrc}`;
+                         console.log(iconPath);
+                      } else {
+                         iconPath = `src/icon/${stakeholders[document.IdStakeholder-1]?.color}/${documentTypes[document.IdType - 1]?.iconsrc}`;
+                      }
                       return (
                         <Marker
                           key={index}
@@ -435,7 +438,13 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                       }
 
 
-                      const iconPath = `src/icon/${stakeholders[document.IdStakeholder-1]?.color}/${documentTypes[document.IdType - 1]?.iconsrc}`;
+                      let iconPath;
+                      if (Array.isArray(document.IdStakeholder) && document.IdStakeholder.length > 0) {
+                         iconPath = `src/icon/${document.IdStakeholder[0].Color}/${documentTypes[document.IdType - 1]?.iconsrc}`;
+                         console.log(iconPath);
+                      } else {
+                         iconPath = `src/icon/${stakeholders[document.IdStakeholder-1]?.color}/${documentTypes[document.IdType - 1]?.iconsrc}`;
+                      }
                       
                       return (
                         <Marker

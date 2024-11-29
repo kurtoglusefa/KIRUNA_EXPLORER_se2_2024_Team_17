@@ -2,6 +2,8 @@ select * from users
 
 select * from Document;
 
+select * from DocumentStakeholder
+
 select * from Stakeholder
 
 SELECT * FROM TypeDocument

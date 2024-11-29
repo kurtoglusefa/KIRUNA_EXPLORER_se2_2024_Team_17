@@ -33,7 +33,6 @@ CREATE TABLE TypeDocument (
 CREATE TABLE Document (
     IdDocument INTEGER PRIMARY KEY AUTOINCREMENT,
     Title VARCHAR(255) NOT NULL,
-    IdStakeholder INT REFERENCES Stakeholder(IdStakeholder),
     IdScale INT,
     Issuance_Date VARCHAR(255),
     Language VARCHAR(50),
@@ -42,6 +41,15 @@ CREATE TABLE Document (
     IdType INT REFERENCES TypeDocument(IdType),
     IdLocation INT REFERENCES Location(IdLocation)
 );
+
+CREATE TABLE DocumentStakeholder (
+    IdDocumentStakeholder INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdDocument INTEGER NOT NULL,
+    IdStakeholder INTEGER NOT NULL,
+    FOREIGN KEY (IdDocument) REFERENCES Document(IdDocument),
+    FOREIGN KEY (IdStakeholder) REFERENCES Stakeholder(IdStakeholder)
+);
+
 CREATE TABLE Connection (
     IdConnection INTEGER PRIMARY KEY AUTOINCREMENT,
     Type VARCHAR(255) NOT NULL,

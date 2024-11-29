@@ -93,7 +93,13 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
               </Card.Text>
             ) : null}            
             {document?.Language && <Card.Text style={{ fontSize: '16px' }}><strong>Language:</strong> {document?.Language}</Card.Text>}
-            {document?.IdStakeholder && stakeholders && <Card.Text style={{ fontSize: '16px' }}><strong>Stakeholder :</strong> {stakeholders.find(s => s.id === document.IdStakeholder)?.name || 'Unknown'}</Card.Text>}
+            {document?.IdStakeholder && stakeholders && <Card.Text style={{ fontSize: '16px' }}><strong>Stakeholder :</strong> {
+              document.IdStakeholder && Array.isArray(document.IdStakeholder)
+              ? document.IdStakeholder
+                  .map((stakeholder) => stakeholder.Name || "Unknown")
+                  .join(", ") // Join the names into a comma-separated string
+              : "Unknown"
+            }</Card.Text>}
             {document?.Pages && <Card.Text style={{ fontSize: '16px' }}><strong>Pages:</strong> {document?.Pages}</Card.Text>}
             {/*<Card.Text style={{ fontSize: '16px' }}><strong>Type: </strong> {locationType}</Card.Text>*/}
             <Card.Text style={{ fontSize: '16px'}}><strong>Connections:</strong> {numberofconnections}</Card.Text>
