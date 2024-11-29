@@ -458,7 +458,9 @@ app.get("/api/types/:typeid", (req, res) => {
 app.post("/api/types", isUrbanPlanner, async (req, res) => {
   console.log(req.body);
   const { type, iconSrc } = req.body;
-  console.log(type);
+  if(!type || !iconSrc) {
+    return res.status(400).json({ error: "type and iconSrc are required." });
+  }
   try {
     const result = await typeDocumentDao.addType(type, iconSrc);
     if (result) {

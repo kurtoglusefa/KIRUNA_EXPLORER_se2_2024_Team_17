@@ -150,8 +150,4 @@ describe("Document Stakeholders API", () => {
       expect(response.status).toBe(500);
     });
   });
-
-  afterAll(() => {
-    server.close();
-  });
 });

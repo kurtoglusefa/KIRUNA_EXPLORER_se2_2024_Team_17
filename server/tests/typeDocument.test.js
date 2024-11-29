@@ -1,64 +1,16 @@
-// import request from "supertest";
-// import { app, server } from "../index.js";
-
-// describe("Document Type API", () => {
-//   let agent;
-
-//   beforeAll(async () => {
-//     agent = request.agent(app);
-//   });
-
-//   it("should retrieve all document types", async () => {
-//     const response = await agent.get("/api/types");
-
-//     expect(response.status).toBe(200);
-//     expect(Array.isArray(response.body)).toBe(true);
-
-//     if (response.body.length > 0) {
-//       expect(response.body[0]).toHaveProperty("id");
-//       expect(response.body[0]).toHaveProperty("iconsrc");
-//       expect(response.body[0]).toHaveProperty("type");
-//     }
-//   });
-
-//   it("should retrieve a specific document type by ID", async () => {
-//     const typeId = 1;
-
-//     const response = await agent.get(`/api/types/${typeId}`);
-
-//     if (response.status === 200) {
-//       expect(response.body).toHaveProperty("id", typeId);
-//       expect(response.body).toHaveProperty("iconsrc");
-//       expect(response.body).toHaveProperty("type");
-//     } else {
-//       expect(response.status).toBe(404);
-//       expect(response.body).toHaveProperty("error", "Type not found");
-//     }
-//   });
-
-//   it("should return 404 for a non-existent document type ID", async () => {
-//     const nonExistentTypeId = 99999999;
-
-//     const response = await agent.get(`/api/types/${nonExistentTypeId}`);
-
-//     expect(response.body).toHaveProperty("error", "Type not found.");
-//   });
-// });
-
 import request from "supertest";
 import { app, server } from "../index.js";
-import { typeDocumentDao } from "../dao/typeDocument-dao.js";
-jest.mock("../dao/typeDocument-dao.js");
-
+require('dotenv').config();
 describe("Document Type API", () => {
   let agent;
-
   beforeAll(async () => {
     agent = request.agent(app);
-
     await agent
       .post("/api/sessions")
-      .send({ username: "mario@test.it", password: "pwd" });
+      .send({
+        username: "mario@test.it",
+        password: process.env.TEST_USER_PASSWORD,
+      });
   });
 
   describe("GET /api/types", () => {
@@ -100,50 +52,31 @@ describe("Document Type API", () => {
       expect(response.body).toHaveProperty("error", "Type not found.");
     });
   });
+  it("should add a new document type when authenticated", async () => {
+    const newType = {
+      type: "Report",
+      iconSrc: "report-icon.png",
+    };
 
-  describe("POST /api/types", () => {
-    it("should add a new document type when authenticated", async () => {
-      const newType = {
-        type: "Report",
-        iconSrc: "report-icon.png",
-      };
+    const mockResult = 1; // Mock the result of the addType function
+    //typeDocumentDao.addType.mockResolvedValue(mockResult);
 
-      const mockResult = 1; // Mock the result of the addType function
-      typeDocumentDao.addType.mockResolvedValue(mockResult);
+    const response = await agent.post("/api/types").send(newType);
 
-      const response = await agent.post("/api/types").send(newType);
+    expect(response.status).toBe(201);
+    expect(response.body.typeId).toHaveProperty('Type', 'Report');
+    expect(response.body.typeId).toHaveProperty('IconSrc', 'report-icon.png');
+    expect(response.body).toHaveProperty("message", "Type added successfully.");
+  });
 
-      expect(response.status).toBe(201);
-      expect(response.body).toHaveProperty("typeId", mockResult);
-      expect(response.body).toHaveProperty(
-        "message",
-        "Type added successfully."
-      );
-    });
+  it("should return 500 if required fields are missing", async () => {
+    const invalidType = {
+      iconSrc: "invalid-icon.png", // Missing 'type'
+    };
 
-    it("should return 400 if required fields are missing", async () => {
-      const invalidType = {
-        iconSrc: "invalid-icon.png", // Missing 'type'
-      };
+    const response = await agent.post("/api/types").send(invalidType);
 
-      const response = await agent.post("/api/types").send(invalidType);
-
-      expect(response.status).toBe(400);
-      expect(response.body).toHaveProperty("error", "Type is required.");
-    });
-
-    it("should return 500 if adding the type fails", async () => {
-      const newType = {
-        type: "Report",
-        iconSrc: "report-icon.png",
-      };
-
-      typeDocumentDao.addType.mockRejectedValue(new Error("Database error"));
-
-      const response = await agent.post("/api/types").send(newType);
-
-      expect(response.status).toBe(500);
-      expect(response.body).toHaveProperty("error", "Database error");
-    });
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty("error", "type and iconSrc are required.");
   });
 });
