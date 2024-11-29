@@ -10,7 +10,6 @@ describe("Document Stakeholders API", () => {
   beforeAll(async () => {
     agent = request.agent(app);
 
-    // Simulate login to maintain session state for future requests
     await agent
       .post("/api/sessions")
       .send({ username: "mario@test.it", password: "pwd" });
@@ -58,7 +57,7 @@ describe("Document Stakeholders API", () => {
         mockStakeholders
       );
 
-      const response = await request(app).get("/api/documents/1/stakeholders");
+      const response = await agent.get("/api/documents/1/stakeholders");
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(mockStakeholders);
@@ -69,7 +68,7 @@ describe("Document Stakeholders API", () => {
         new Error("Database error")
       );
 
-      const response = await request(app).get("/api/documents/1/stakeholders");
+      const response = await agent.get("/api/documents/1/stakeholders");
 
       expect(response.status).toBe(500);
     });
@@ -78,14 +77,26 @@ describe("Document Stakeholders API", () => {
   describe("GET /api/stakeholders/:stakeholderId/documents", () => {
     it("should retrieve all documents for a stakeholder", async () => {
       const mockDocuments = [
-        { IdDocument: 1, Title: "Document 1" },
-        { IdDocument: 2, Title: "Document 2" },
+        {
+          IdDocument: 1,
+          Title: "Document 1",
+          Description: "Desc 1",
+          Issuance_Date: "2023-01-01",
+          Language: "EN",
+        },
+        {
+          IdDocument: 2,
+          Title: "Document 2",
+          Description: "Desc 2",
+          Issuance_Date: "2023-02-01",
+          Language: "ES",
+        },
       ];
       DocumentStakeholderDao.getDocumentsByStakeholder.mockResolvedValue(
         mockDocuments
       );
 
-      const response = await request(app).get("/api/stakeholders/1/documents");
+      const response = await agent.get("/api/stakeholders/1/documents");
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(mockDocuments);
@@ -96,13 +107,51 @@ describe("Document Stakeholders API", () => {
         new Error("Database error")
       );
 
-      const response = await request(app).get("/api/stakeholders/1/documents");
+      const response = await agent.get("/api/stakeholders/1/documents");
+
+      expect(response.status).toBe(500);
+    });
+  });
+
+  describe("DELETE /api/documents/:documentId/stakeholders", () => {
+    it("should clear stakeholders from a document successfully", async () => {
+      DocumentStakeholderDao.clearStakeholdersFromDocument.mockResolvedValue(
+        true
+      );
+
+      const response = await agent.delete("/api/documents/1/stakeholders");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({
+        message: "Stakeholders removed successfully.",
+      });
+    });
+
+    it("should return 404 if no stakeholders were removed", async () => {
+      DocumentStakeholderDao.clearStakeholdersFromDocument.mockResolvedValue(
+        false
+      );
+
+      const response = await agent.delete("/api/documents/1/stakeholders");
+
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({
+        error: "No stakeholders found to remove.",
+      });
+    });
+
+    it("should return 500 for database errors", async () => {
+      DocumentStakeholderDao.clearStakeholdersFromDocument.mockRejectedValue(
+        new Error("Database error")
+      );
+
+      const response = await agent.delete("/api/documents/1/stakeholders");
 
       expect(response.status).toBe(500);
     });
   });
 
   afterAll(() => {
-    server.close(); // Close the server after tests
+    server.close();
   });
 });
