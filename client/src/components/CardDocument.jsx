@@ -48,13 +48,13 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
       fetchResources();
       fetchStakeholders();
       fetchScales();
-  }, [document.IdDocument]);
+  }, [document?.IdDocument]);
 
   
  
   const handleModifyDocument = () => {
     if (document) {
-      setShowCard(false);
+      //setShowCard(false);
       navigate(`/documents/modify-document/${document.IdDocument}`, { state: { document: document , location: (latitude && longitude) ? {lat: latitude, lng: longitude} : null, area: areaName ? areaName : null} });
     }
   };

@@ -18,8 +18,10 @@ export function MyNavbar({ documents, setDocuments }) {
   const selectedDocument = useContext(AppContext).selectedDocument;
   const setSelectedDocument = useContext(AppContext).setSelectedDocument;
   const [stakeholders, setStakeholders] = useState([]);
+  const [typeDocuments, setTypeDocuments] = useState([]);
   const [stakeholder, setStakeholder] = useState();
   const [issuanceYear, setIssuanceYear] = useState('');
+  const [typeDocument, setTypeDocument] = useState('');
 
 
   const getStakeholders = async () => {
@@ -31,14 +33,25 @@ export function MyNavbar({ documents, setDocuments }) {
       console.error(err);
     }
   };
+  const getAllTypeConnections = async () => {
+    try {
+      const res = await API.getAllTypesDocument();
+      setTypeDocuments(res);
+      //setStakeholder(res[0].id);
+    } catch (err) {
+      console.error(err);
+    }
+  };
   useEffect(() => {
     getStakeholders();
+    getAllTypeConnections();
   }, []);
+  
 
   const handleSearch = async (e) => {
     e.preventDefault();
     console.log("Search term:", searchTerm); // for debugging
-    if (searchTerm.trim() !== "" || stakeholder || issuanceYear) {
+    if (searchTerm.trim() !== "" || stakeholder || issuanceYear || typeDocument) {
       const allDocuments = await API.getAllDocuments(); // fetch all documents
       console.log("Fetched documents:", allDocuments); // for debugging
 
@@ -54,7 +67,7 @@ export function MyNavbar({ documents, setDocuments }) {
       //filter by stakeholder
       if (stakeholder) {
         const filteredResultsStakeholder = filteredResults.filter((doc) => {
-          return doc.IdStakeholder - 1 == stakeholder;
+          return doc.IdStakeholder  == stakeholder;
         });
         filteredResults = filteredResultsStakeholder;
       }
@@ -66,6 +79,16 @@ export function MyNavbar({ documents, setDocuments }) {
           return docYear === parseInt(issuanceYear); // Compare with the input year
         });
         filteredResults = filteredResultsYear; // Update filtered results
+      }
+      console.log("Filtering by type of document:", typeDocument); // for debugging
+      console.log("Filtered results:", typeDocument); // for debugging
+      if(typeDocument) {
+        console.log("Filtering by type of document:", typeDocument); // for debugging
+        console.log("Filtered results:", filteredResults); // for debugging
+        const filteredResultsType = filteredResults.filter((doc) => {
+          return doc.IdType == typeDocument;
+        });
+        filteredResults = filteredResultsType;
       }
 
       setDocuments(filteredResults); // store the filtered results
@@ -194,6 +217,22 @@ export function MyNavbar({ documents, setDocuments }) {
                       {stakeholders.map((stk) => (
                         <option key={stk.id} value={stk.id}>
                           {stk.name}
+                        </option>
+                      ))}
+                    </Form.Select>
+                    <Form.Select
+                      value={typeDocument || ""}
+                      onChange={(e) => setTypeDocument(e.target.value)}
+                      style={{
+                        borderColor: '#A89559',
+                        width: '11ch',
+                      }}
+                      className="me-3"
+                    >
+                      <option value="">Select Type of document</option>
+                      {typeDocuments.map((typo) => (
+                        <option key={typo.id} value={typo.id}>
+                          {typo.type}
                         </option>
                       ))}
                     </Form.Select>

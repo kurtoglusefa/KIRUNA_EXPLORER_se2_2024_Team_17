@@ -123,28 +123,28 @@ function Diagram() {
         let edgeStyle = {}; // Define a default edge style
         if(connection.IdConnection === 1){
           edgeStyle = {
-            stroke: 'white',
+            stroke: 'black',
             strokeWidth: 2,
             strokeDasharray: '0', // Normal solid line
           };
         }
         else if(connection.IdConnection === 2){
           edgeStyle = {
-            stroke: 'white',
+            stroke: 'black',
             strokeWidth: 2,
             strokeDasharray: '5,5', // Dashed line
           };
         }
         else if(connection.IdConnection === 3){
           edgeStyle = {
-            stroke: 'white',
+            stroke: 'black',
             strokeWidth: 2,
             strokeDasharray: '1,3', // Smaller dashed line
           };
         }
         else if(connection.IdConnection === 4){
           edgeStyle = {
-            stroke: 'white',
+            stroke: 'black',
             strokeWidth: 3,
             strokeDasharray: '1,5', // "Dotted" line 
           };
@@ -285,6 +285,7 @@ function Diagram() {
             stakeholder: doc.IdStakeholder,
             id: doc.IdDocument,
           },
+
         };
       });
 
@@ -370,8 +371,9 @@ function Diagram() {
         {/* Source handle inside the icon */}
         <Handle
           type="source" // Outgoing edge
-          position="top" // Position at the top of the node
+          position="right" // Position at the top of the node
           id="source" // Unique ID for the source handle
+          style={{ opacity: 0 }} // Make it invisible
         />
   
         <img
@@ -380,14 +382,16 @@ function Diagram() {
           style={{
             width: '40px', // Width of the icon
             height: '40px', // Height of the icon
+            
           }}
         />
   
         {/* Target handle inside the icon */}
         <Handle
           type="target" // Incoming edge
-          position="bottom" // Position at the bottom of the node
+          position="left" // Position at the bottom of the node
           id="target" // Unique ID for the target handle
+          style={{ opacity: 0 }} // Make it invisible
         />
       </div>
     );
@@ -397,13 +401,13 @@ function Diagram() {
   return (
     <>
         {/* Info Button */}
-        <i className="bi bi-info-circle-fill h1 info-button" onClick={() => setInfoOpened(!infoOpened)} style={{color:'white'}} onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'} onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}></i>
+        <i className="bi bi-info-circle-fill h1 info-button" onClick={() => setInfoOpened(!infoOpened)} style={{color:'FDFDFD'}} onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'} onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}></i>
         {infoOpened && 
           <img className='info-button me-5' style={{borderRadius:'20px'}} src="/info-connections.png" /> 
         }
 
         {/* React Flow Diagram*/}
-        <div style={{padding: '15px',height: '89vh', backgroundColor:'#111111'}}>
+        <div style={{padding: '15px',height: '89vh', backgroundColor:'#FDFDFD'}}>
         <ReactFlowProvider>
           <ReactFlow
           nodes={nodes}
@@ -420,7 +424,7 @@ function Diagram() {
           onEdgeClick={handleEdgeClick}
           onNodeMouseEnter={(e) => e.target.style.cursor = 'pointer'}
           onNodeMouseLeave={(e) => e.target.style.cursor = 'drag'}
-          style={{ background: "#111111" }}>
+          style={{ background: "#FDFDFD" }}>
           <Background color="lightgray" gap={gapx} variant={BackgroundVariant.Lines} />
           <Controls  showZoom={false} showInteractive={false} showFitView={true}/>
         </ReactFlow>
