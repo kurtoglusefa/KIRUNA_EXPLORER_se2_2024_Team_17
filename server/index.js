@@ -328,7 +328,6 @@ app.patch("/api/documents/:documentid", isUrbanPlanner, async (req, res) => {
   }
 });
 
-
 // PATCH /api/documents/:documentId/connection
 app.patch("/api/documents/:documentId/connection", async (req, res) => {
   const documentId = parseInt(req.params.documentId);
@@ -458,10 +457,10 @@ app.get("/api/types/:typeid", (req, res) => {
 });
 app.post("/api/types", isUrbanPlanner, async (req, res) => {
   console.log(req.body);
-  const { type,iconSrc } = req.body;
+  const { type, iconSrc } = req.body;
   console.log(type);
   try {
-    const result = await typeDocumentDao.addType(type,iconSrc);
+    const result = await typeDocumentDao.addType(type, iconSrc);
     if (result) {
       res
         .status(201)
@@ -775,6 +774,17 @@ app.get("/api/documents/:documentId/stakeholders", (req, res) => {
 app.get("/api/stakeholders/:stakeholderId/documents", (req, res) => {
   DocumentStakeholderDao.getDocumentsByStakeholder(req.params.stakeholderId)
     .then((documents) => res.json(documents))
+    .catch(() => res.status(500).end());
+});
+
+// Clear stakeholders from a document
+app.delete("/api/documents/:documentId/stakeholders", (req, res) => {
+  DocumentStakeholderDao.clearStakeholdersFromDocument(req.params.documentId)
+    .then((result) => {
+      if (result)
+        res.status(200).json({ message: "Stakeholders removed successfully." });
+      else res.status(404).json({ error: "No stakeholders found to remove." });
+    })
     .catch(() => res.status(500).end());
 });
 

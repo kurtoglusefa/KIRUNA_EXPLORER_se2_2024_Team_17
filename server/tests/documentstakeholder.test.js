@@ -82,14 +82,14 @@ describe("Document Stakeholders API", () => {
           Title: "Document 1",
           Description: "Desc 1",
           Issuance_Date: "2023-01-01",
-          Language: "EN",
+          Language: "English",
         },
         {
           IdDocument: 2,
           Title: "Document 2",
           Description: "Desc 2",
           Issuance_Date: "2023-02-01",
-          Language: "ES",
+          Language: "English",
         },
       ];
       DocumentStakeholderDao.getDocumentsByStakeholder.mockResolvedValue(
