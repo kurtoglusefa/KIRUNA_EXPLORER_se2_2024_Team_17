@@ -384,7 +384,7 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                   })}
                 </LayerGroup>
               </LayersControl.Overlay>
-              <LayersControl.Overlay name="Area" checked>
+              <LayersControl.Overlay name="Area" checked={modifyMode}>
                 <LayerGroup>
                   {locationsArea &&
                     Object.values(locationsArea).map((area, index) => {

@@ -497,136 +497,107 @@ function ModifyDocument() {
                         className="mt-0 font-size-20"
                       />
 
-                      <Form.Control
-                        required
-                        type="number"
-                        placeholder="XXXX"
-                        value={oldScale_number ? oldScale_number : ""}
-                        onChange={(event) =>
-                          handleScaleChange(event.target.value)
-                        }
-                        className="mt-0 font-size-20"
-                        style={{ width: "25%", textAlign: "left" }}
-                      />
-                    </>
-                  )}
-                  <Button
-                    variant="outline-primary"
-                    onClick={() => setShowAddScale(true)}
-                    style={{ width: "20%", textAlign: "left" }}
-                    className="mt-2"
-                  >
-                    Add Scale
-                  </Button>
-                </InputGroup>
-              </Form.Group>
+                              <Form.Control
+                                required
+                                type="number"
+                                placeholder="XXXX"
+                                value={oldScale_number ? oldScale_number : ""}
+                                onChange={(event) => handleScaleChange(event.target.value)}
+                                className="mt-0 font-size-20"
+                                style={{ textAlign: "left" }}
+                              />
+                            </>
+                          )}
+                          <Button
+                          variant="outline-secondary"
+                          onClick={()=> setShowAddScale(true)}
+                          style={{ textAlign: "left" }}
+                          
+                        >
+                          Add New Scale
+                        </Button>
+                        </InputGroup>
+                      </Form.Group>
+                      
+                      <Form.Group controlid="language" className="mb-3">
+                        <FloatingLabel label="Language" className="mb-3">
+                          <Form.Select
+                              placeholder='language'
+                              value={language}
+                              onChange={(e) => setLanguage(e.target.value)}
+                            >
+                              <option>Select Language</option>
+                              <option value="English">English</option>
+                              <option value="Swedish">Swedish</option>
+                          </Form.Select>
+                        </FloatingLabel>
+                      </Form.Group>
+                      
+                      <div className='d-flex justify-content-between'>
+                      <Form.Group controlid="pages" className='col-2'>
+                        <FloatingLabel label="Pages" className="mb-3">
+                          <Form.Control
+                              defaultValue={0}
+                              size="sm"
+                              type="number"
+                              value={pages}
+                              onChange={(e) => setPages(e.target.value)}
+                              min={0}
+                              />
+                        </FloatingLabel>
+                      </Form.Group>
+                      
+                      <Form.Group controlid="issuanceDate" className="ms-1 mb-3 d-flex align-items-center">
+                        <label className='me-2'> Issuance Date:</label>
+                        <FloatingLabel label='year*'>
 
-              <Form.Group controlid="language" className="mb-3">
-                <FloatingLabel label="Language" className="mb-3">
-                  <Form.Select
-                    placeholder="language"
-                    value={language}
-                    onChange={(e) => setLanguage(e.target.value)}
-                  >
-                    <option>Select Language</option>
-                    <option value="English">English</option>
-                    <option value="Swedish">Swedish</option>
-                  </Form.Select>
-                </FloatingLabel>
-              </Form.Group>
-
-              <div className="d-flex justify-content-between">
-                <Form.Group controlid="pages" className="col-2">
-                  <FloatingLabel label="Pages" className="mb-3">
-                    <Form.Control
-                      defaultValue={0}
-                      size="sm"
-                      type="number"
-                      value={pages}
-                      onChange={(e) => setPages(e.target.value)}
-                      min={0}
-                    />
-                  </FloatingLabel>
-                </Form.Group>
-
-                <Form.Group
-                  controlid="issuanceDate"
-                  className="ms-1 mb-3 d-flex align-items-center"
-                >
-                  <label className="me-2"> Issuance Date:</label>
-                  <FloatingLabel label="year*">
-                    <Form.Control
-                      size="sm"
-                      controlid="year"
-                      className="mx-1"
-                      type="number"
-                      style={{ width: "10ch" }}
-                      maxLength={4}
-                      min={2000}
-                      max={2024}
-                      value={issuanceDate.year}
-                      onChange={(e) =>
-                        setIssuanceDate({
-                          year: e.target.value,
-                          month: issuanceDate.month,
-                          day: issuanceDate.day,
-                        })
-                      }
-                      required
-                    />
-                  </FloatingLabel>
-                  /
-                  <FloatingLabel label="month">
-                    <Form.Control
-                      size="sm"
-                      controlid="month"
-                      className="mx-1"
-                      type="number"
-                      maxLength={2}
-                      style={{ width: "8ch" }}
-                      min={1}
-                      max={12}
-                      value={issuanceDate.month}
-                      onInput={(e) => {
-                        if (e.target.value < 10)
-                          e.target.value = "0" + e.target.value;
-                      }}
-                      onChange={(e) =>
-                        setIssuanceDate({
-                          year: issuanceDate.year,
-                          month: e.target.value,
-                          day: issuanceDate.day,
-                        })
-                      }
-                    />
-                  </FloatingLabel>
-                  /
-                  <FloatingLabel label="day">
-                    <Form.Control
-                      size="sm"
-                      controlid="day"
-                      className="mx-1"
-                      type="number"
-                      maxLength={2}
-                      style={{ width: "8ch" }}
-                      min={1}
-                      max={31}
-                      value={issuanceDate.day}
-                      onInput={(e) => {
-                        if (e.target.value < 10)
-                          e.target.value = "0" + e.target.value;
-                      }}
-                      onChange={(e) =>
-                        setIssuanceDate({
-                          year: issuanceDate.year,
-                          month: issuanceDate.month,
-                          day: e.target.value,
-                        })
-                      }
-                    />
-                  </FloatingLabel>
-                </Form.Group>
-              </div>
+                          <Form.Control 
+                            size='sm'
+                            controlid='year' 
+                            className='mx-1' 
+                            type='number' 
+                            style={{width:'10ch'}}
+                            maxLength={4} 
+                            min={2000} 
+                            max={2024} 
+                            value={issuanceDate.year}
+                            onChange={(e)=>setIssuanceDate({year: e.target.value, month: issuanceDate.month, day: issuanceDate.day})} required
+                          />
+                        </FloatingLabel>
+                        /
+                        <FloatingLabel label='month'>
+                          <Form.Control 
+                            size='sm'
+                            controlid='month' 
+                            className='mx-1' 
+                            type='number' 
+                            maxLength={2} 
+                            style={{width:'8ch'}} 
+                            min={1} 
+                            max={12} 
+                            value={issuanceDate.month} 
+                            onInput={(e) => {if(e.target.value < 10) e.target.value = '0' + e.target.value}} 
+                            onChange={(e)=>setIssuanceDate({year: issuanceDate.year, month: e.target.value, day: issuanceDate.day})}
+                          />
+                        </FloatingLabel>
+                        /
+                        <FloatingLabel label='day'>
+                        <Form.Control 
+                          size='sm'
+                          controlid='day' 
+                          className='mx-1' 
+                          type='number'
+                          maxLength={2} 
+                          style={{width:'8ch'}} 
+                          min={1} 
+                          max={31} 
+                          value={issuanceDate.day}
+                          onInput={(e) => {if(e.target.value < 10) e.target.value = '0' + e.target.value}} 
+                          onChange={(e)=>setIssuanceDate({year: issuanceDate.year, month: issuanceDate.month, day: e.target.value})}
+                          />
+                        </FloatingLabel>
+                      </Form.Group>
+                      </div>
 
               {documentId && (
                 <div className="mb-3">
