@@ -27,6 +27,9 @@ function Diagram() {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
 
+  const gapx=200;
+
+  const [selectedEdge, setSelectedEdge] = useState(null);
 
   const OffsetEdge = ({ id, sourceX, sourceY, targetX, targetY, style, data }) => {
     const offset = data?.offset || 50; // Use offset from data (default: 50)
@@ -39,18 +42,33 @@ function Diagram() {
     const path = `M${sourceX},${sourceY} C${controlX},${controlY} ${controlX},${controlY} ${targetX},${targetY}`;
   
     return (
-      <path
-        id={id}
-        d={path} // Set the edge path
-        style={{
-          fill: 'none',
-          stroke: 'white',
-          strokeWidth: 2,
-          ...style,
-        }}
-      />
+      <g>
+        {/* Invisible path for click interaction */}
+        <path
+          d={path}
+          style={{
+            fill: 'none',
+            stroke: 'transparent', // Invisible stroke
+            strokeWidth: 15, // Expanded clickable area
+            cursor: 'pointer', // Indicates interactivity
+          }}
+        />
+        
+        {/* Visible path */}
+        <path
+          id={id}
+          d={path}
+          style={{
+            fill: 'none',
+            stroke: 'black',
+            strokeWidth: 2, // Normal stroke width
+            ...style,
+          }}
+        />
+      </g>
     );
   };
+  
   const edgeTypes = {
     offsetEdge: OffsetEdge, // Register the custom edge type
   };
@@ -146,24 +164,6 @@ function Diagram() {
       console.error(err);
     }
   };
-
-const fetchLocationsArea = async () => {
-
-  API.getAllLocationsArea()
-    .then((res) => {
-
-      const locationsById = res.reduce((acc, location) => {
-        acc[location.IdLocation] = location;
-        return acc;
-      }, {});
-      // Set the transformed object to state
-      setLocationsArea(locationsById);
-    })
-    .catch((err) => {
-      console.error(err);
-    });
-};
-
   const fetchDocuments = async () => {
     try {
       const res = await API.getAllDocuments();
@@ -182,10 +182,10 @@ const fetchLocationsArea = async () => {
       const maxY= 500;
 
       const scaleRanges = {
-        Text: { min: 50, max: 150 },
-        Concept: { min: 150, max: 250 },
-        Plan: { min: 250, max: 350 },
-        "Blueprints/Effects": { min: 350, max: 450 },
+        Text: { min: -200, max: 0 },
+        Concept: { min: 0, max: 200 },
+        Plan: { min: 200, max: 600 },
+        "Blueprints/Effects": { min: 600, max: 800 },
       };
   
       // Helper to parse `DD/MM/YYYY` format
@@ -219,21 +219,27 @@ const fetchLocationsArea = async () => {
         return { year: null, month: null, day: null };
       };
 
-      // Map date to y-coordinate
       const mapDateToX = (dateStr) => {
         const { year, month, day } = parseDate(dateStr);
-        if (!year || isNaN(year)) return maxX; // Default to maxY if year is invalid
-  
-        // Clamp year to the valid range
-        const clampedYear = Math.min(Math.max(year, startYear), endYear);
-        const yearRatio = (clampedYear - startYear) / (endYear - startYear);
-  
-        // Add finer adjustments for month and day
-        const monthAdjustment = (month - 1) / 12; // Fraction of the year, -1 because months are 1-12
-        const dayAdjustment = day / 365;          // Fraction of the year, assuming 365 days
-        const totalRatio = yearRatio + monthAdjustment / (endYear - startYear) + dayAdjustment / (endYear - startYear);
-  
-        return minX + totalRatio * (maxX - minX);
+        if (!year || isNaN(year)) return minX; // Default to minX if year is invalid
+    
+        // Calculate the year offset from the start year
+        const yearDifference = year - startYear;
+    
+        // Compute x position with 200px gap per year
+        let x = minX + yearDifference * gapx;
+    
+        // Adjust further for month and day within the year
+        if (month) {
+            const monthRatio = (month - 1) / 12; // Fraction of a year for the month
+            x += monthRatio * gapx; // 200px for one year
+        }
+        if (day) {
+            const dayRatio = day / 365; // Fraction of a year for the day
+            x += dayRatio * gapx; // 200px for one year
+        }
+    
+        return x;
       };
       const mapScaleToY = (Idscale) => {
 
@@ -250,8 +256,10 @@ const fetchLocationsArea = async () => {
         }
         else{
           // this is scale type plan
+          console.log(scales[Idscale-1]);
+          console.log(scales[Idscale-1]?.scale_number);
           const maxScaleNumber = 100000; // The max scale number we need to handle
-          const scale_number= scales[Idscale]?.scale_number.split(":")[1];
+          const scale_number= scales[Idscale-1]?.scale_number.split(":")[1];
           const normalizedValue = (scale_number - 1) / (maxScaleNumber - 1); // Normalize scale_number to [0, 1]
 
           const scaledValue = scaleRanges.Plan.min + normalizedValue * (scaleRanges.Plan.max - scaleRanges.Plan.min);
@@ -300,23 +308,63 @@ const fetchLocationsArea = async () => {
 
 
   const handleNodeClick = async(event, node) => {
-    
+    setSelectedEdge(null);
     const res = await API.getDocumentConnection(parseInt(node.id));
     setNumberofconnections(res.length);
     setSelectedDocument(documents.find((doc) => doc.IdDocument === parseInt(node.id)));
   };
+  const handleEdgeClick = (event, edge) => {
+    event.stopPropagation();
+    setEdges((prevEdges) =>
+      prevEdges.map((e) =>
+        e.id === edge.id
+          ? { ...e, style: { ...e.style, stroke: 'blue', strokeWidth: 3 } }
+          : { ...e, style: { ...e.style, stroke: 'black', strokeWidth: 2 } }
+      )
+    );
+    const connection = connections.find((conn) => `e${conn.IdConnectionDocuments}` === edge.id);
+    setSelectedDocument(null);
+    setSelectedEdge(connection);
+  };
+  const CloseVisualizeEdge = () => {
+    setEdges((prevEdges) =>
+      prevEdges.map((e) =>
+        e.id === `e${selectedEdge.IdConnectionDocuments}`
+          ? { ...e, style: { ...e.style, stroke: 'black', strokeWidth: 2 } }
+          : e
+      )
+    );
+    setSelectedEdge(null);
+  };
 
 
-  const SvgNode = ({ data }) => {
+  const SvgNode = ({ data ,selected }) => {
     let path = `src/icon/${stakeholders[data.stakeholder - 1]?.color}/${data.iconSrc}`;
   
     return (
       <div
-        style={{
-          width: '40px', // Match the icon size
-          height: '40px', // Match the icon size
-        }}
+      style={{
+        position: 'relative',
+        width: '50px',
+        height: '50px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
       >
+        {/* Render a circle around the node if selected */}
+        {selected && (
+          <div
+            style={{
+              position: 'absolute',
+              width: '60px',
+              height: '60px',
+              borderRadius: '50%',
+              border: '2px solid blue',
+              zIndex: -1, // Keep the circle behind the icon
+            }}
+          />
+        )}
         {/* Source handle inside the icon */}
         <Handle
           type="source" // Outgoing edge
@@ -345,7 +393,14 @@ const fetchLocationsArea = async () => {
   
 
   return (
-    <>  
+    <>
+        {/* Info Button */}
+        <i className="bi bi-info-circle-fill h1 info-button" onClick={() => setInfoOpened(!infoOpened)} style={{color:'white'}} onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'} onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}></i>
+        {infoOpened && 
+          <img className='info-button me-5' style={{borderRadius:'20px'}} src="/info-connections.png" /> 
+        }
+
+        {/* React Flow Diagram*/}
         <div style={{padding: '15px',height: '89vh', backgroundColor:'#111111'}}>
         <ReactFlowProvider>
           <ReactFlow
@@ -353,17 +408,19 @@ const fetchLocationsArea = async () => {
           snapGrid={[10, 10]}
           snapToGrid={true}
           minZoom={0.3} 
-          maxZoom={2}
+          maxZoom={1.6}
           edges={edges}
           edgeTypes={edgeTypes} // Use custom edge types
           fitView={true}
+          
           nodeTypes={{ svgNode: SvgNode }}
           onNodeClick={handleNodeClick} 
+          onEdgeClick={handleEdgeClick}
           onNodeMouseEnter={(e) => e.target.style.cursor = 'pointer'}
           onNodeMouseLeave={(e) => e.target.style.cursor = 'drag'}
-        >
-          <Background />
-          <Controls />
+          style={{ background: "#111111" }}>
+          <Background color="lightgray" gap={gapx} variant={BackgroundVariant.Lines} />
+          <Controls  showZoom={false} showInteractive={false} showFitView={true}/>
         </ReactFlow>
         </ReactFlowProvider>
     </div>
@@ -386,11 +443,22 @@ const fetchLocationsArea = async () => {
               />
             </div>
     )}
-      {/* Info Button */}
-        <i className="bi bi-info-circle-fill h1 info-button" onClick={() => setInfoOpened(!infoOpened)} style={{color:'white'}} onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'} onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}></i>
-        {infoOpened && 
-            <img className='info-button me-5' style={{borderRadius:'20px'}} src="/info-connections.png" /> 
-        }
+    {selectedEdge && (
+      <div
+        className='connection-info-card overlay col-lg-3 col-md-6 col-sm-9'
+        style={{ marginLeft: '1%', bottom: '18%', width: '28%' }}
+      >
+        <div>
+          <h5>Connection Details</h5>
+          <p><strong>Type:</strong> {typeConnections[selectedEdge.IdConnection]?.Type}</p>
+          <p><strong>Documents:</strong> {documents.find((doc) => doc.IdDocument === parseInt(selectedEdge.IdDocument1)).Title} ↔ {documents.find((doc) => doc.IdDocument === parseInt(selectedEdge.IdDocument2)).Title}</p>
+          {/* Add more details as needed */}
+          <button onClick={() => {CloseVisualizeEdge()}} className="mx-2 rounded-pill btn-logout btn btn-sm">
+            Close
+          </button>
+        </div>
+      </div>
+    )}
     </>
   );
 }
