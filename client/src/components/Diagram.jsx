@@ -10,6 +10,7 @@ function Diagram() {
   const [numberofconnections, setNumberofconnections] = useState(0);
   const [typeConnections, setTypeConnections] = useState([]);
   const [connections, setConnections] = useState([]);
+  const [infoOpened, setInfoOpened] = useState(false);
 
   const [selectedDocument, setSelectedDocument] = useState(null); //when click on a node, it will be selected
 
@@ -43,7 +44,7 @@ function Diagram() {
         d={path} // Set the edge path
         style={{
           fill: 'none',
-          stroke: 'black',
+          stroke: 'white',
           strokeWidth: 2,
           ...style,
         }}
@@ -102,28 +103,28 @@ function Diagram() {
         let edgeStyle = {}; // Define a default edge style
         if(connection.IdConnection === 1){
           edgeStyle = {
-            stroke: 'black',
+            stroke: 'white',
             strokeWidth: 2,
             strokeDasharray: '0', // Normal solid line
           };
         }
         else if(connection.IdConnection === 2){
           edgeStyle = {
-            stroke: 'black',
+            stroke: 'white',
             strokeWidth: 2,
             strokeDasharray: '5,5', // Dashed line
           };
         }
         else if(connection.IdConnection === 3){
           edgeStyle = {
-            stroke: 'black',
+            stroke: 'white',
             strokeWidth: 2,
             strokeDasharray: '1,3', // Smaller dashed line
           };
         }
         else if(connection.IdConnection === 4){
           edgeStyle = {
-            stroke: 'black',
+            stroke: 'white',
             strokeWidth: 3,
             strokeDasharray: '1,5', // "Dotted" line 
           };
@@ -344,8 +345,8 @@ const fetchLocationsArea = async () => {
   
 
   return (
-    <>
-        <div style={{ width: '100vw', height: '100vh' }}>
+    <>  
+        <div style={{padding: '15px',height: '89vh', backgroundColor:'#111111'}}>
         <ReactFlowProvider>
           <ReactFlow
           nodes={nodes}
@@ -358,6 +359,8 @@ const fetchLocationsArea = async () => {
           fitView={true}
           nodeTypes={{ svgNode: SvgNode }}
           onNodeClick={handleNodeClick} 
+          onNodeMouseEnter={(e) => e.target.style.cursor = 'pointer'}
+          onNodeMouseLeave={(e) => e.target.style.cursor = 'drag'}
         >
           <Background />
           <Controls />
@@ -383,6 +386,11 @@ const fetchLocationsArea = async () => {
               />
             </div>
     )}
+      {/* Info Button */}
+        <i className="bi bi-info-circle-fill h1 info-button" onClick={() => setInfoOpened(!infoOpened)} style={{color:'white'}} onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'} onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}></i>
+        {infoOpened && 
+            <img className='info-button me-5' style={{borderRadius:'20px'}} src="/info-connections.png" /> 
+        }
     </>
   );
 }

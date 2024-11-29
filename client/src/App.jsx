@@ -12,7 +12,6 @@ import API from './API';
 import ModifyDocument from './components/ModifyDocument';
 import MyNavbar from './components/MyNavbar';
 import WelcomePage from './components/WelcomePage';
-import Diagram from './components/Diagram';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -64,12 +63,36 @@ function App() {
         setSelectedDocument: setSelectedDocument,
       }}>
         <Routes>
-          <Route path="/" element={<><MyNavbar documents={documents} setDocuments={setDocuments} /><Diagram /></>} />          <Route path="/login" element={<Login />} />
-          <Route path="/home" element={<><MyNavbar documents={documents} setDocuments={setDocuments} /><Home documents={documents} setDocuments={setDocuments} /></>} />
-          <Route path="/documents/modify-document/:documentId" element={<><MyNavbar documents={documents} setDocuments={setDocuments} /><ModifyDocument /></>} />
-          <Route path="documents/create-document" element={<><MyNavbar documents={documents} setDocuments={setDocuments} /><ModifyDocument /></>} />
-          <Route path="/" element={<><MyNavbar documents={documents} setDocuments={setDocuments} /><Diagram /></>} />
-          <Route path="/*" element={<><MyNavbar documents={documents} setDocuments={setDocuments} /><Default /></>} />
+          <Route path="/" element={
+            <WelcomePage />
+          } />
+          <Route path="/login" element={
+            <Login />
+          } />
+          <Route path="/home" element={
+            <>
+              <MyNavbar documents={documents} setDocuments={setDocuments} />
+              <Home documents={documents} setDocuments={setDocuments} />
+            </>
+          } />
+          <Route path="/documents/modify-document/:documentId" element={
+            <>
+              <MyNavbar documents={documents} setDocuments={setDocuments} />
+              <ModifyDocument />
+            </>
+          } />
+          <Route path="documents/create-document" element={
+            <>
+              <MyNavbar documents={documents} setDocuments={setDocuments} />
+              <ModifyDocument />
+            </>
+          } />
+          <Route path="/*" element={
+            <>
+              <MyNavbar documents={documents} setDocuments={setDocuments} />
+              <Default />
+            </>
+          } />
         </Routes>
       </AppContext.Provider>
     </BrowserRouter>

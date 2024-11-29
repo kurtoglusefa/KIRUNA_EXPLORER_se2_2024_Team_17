@@ -322,7 +322,7 @@ function ModifyDocument() {
     /* ------------------------------------ FORM ------------------------------------------ */
     return (
       <>
-        <Card className="container my-5 bg-light rounded form">
+        <Card className="container bg-light rounded form" style={{top:'120px'}}>
           <Card.Title>
             <h3 className="text-center my-5">{documentId ? 'Update' : 'Create'} Document</h3>
           </Card.Title>

@@ -1,8 +1,9 @@
 import { useContext, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Navbar, Container, Button, Nav, ToggleButtonGroup, ToggleButton, Form, InputGroup, Modal, Card, FormGroup, FloatingLabel, Badge } from 'react-bootstrap';
+import { Navbar, Container, Button, Nav, ToggleButtonGroup, ToggleButton, Form, InputGroup, Modal, Card, FormGroup, FloatingLabel, Badge, Breadcrumb } from 'react-bootstrap';
 import AppContext from '../AppContext';
 import '../App.css'
+import '../WelcomePage.css'
 import API from '../API';
 
 export function MyNavbar({ documents, setDocuments }) {
@@ -95,33 +96,26 @@ export function MyNavbar({ documents, setDocuments }) {
 
   return (
     <>
-      <Navbar sticky='top' bg="light" variant="dark" style={{ marginTop: 0 }}>
-        <Container fluid>
+      <Navbar sticky='top' bg="light" variant="dark" className='justify-content-between'>
           <Navbar.Brand href='/home'>
-            <span
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                //backgroundColor: '#A89559',
-                padding: '8px 16px',
-                borderRadius: '12px',
-                cursor: 'pointer',
-                transition: 'background-color 0.3s, transform 0.2s',
-              }}
-              onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'}
-              onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-            >
               <img
-                src="/ke.png"
+                src="/kiruna2.webp"
                 alt="Kiruna eXplorer"
                 style={{
-                  width: '110px',
+                  width: '70px',
                   height: 'auto',
-                  borderRadius: '10px',
+                  borderRadius: '100px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  //backgroundColor: '#A89559',
+                  
+                  cursor: 'pointer',
+                  transition: 'background-color 0.3s, transform 0.2s',
                 }}
+                onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'}
+                onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
               />
-            </span>
           </Navbar.Brand>
 
           <Nav>
@@ -159,8 +153,21 @@ export function MyNavbar({ documents, setDocuments }) {
                   >
                     List
                   </ToggleButton>
+                  <ToggleButton
+                    id="tbg-diagram"
+                    value="diagram"
+                    variant="outline-primary"
+                    className="px-4"
+                    style={{
+                      color: viewMode === "diagram" ? "white" : "#A89559",
+                      borderColor: "#A89559",
+                      backgroundColor: viewMode === "diagram" ? "#A89559" : "transparent",
+                    }}
+                  >
+                    Diagram
+                  </ToggleButton>
                 </ToggleButtonGroup>
-                {/* Search Bar */}
+                <div className='justify-content-end'>
                 <Form className="d-flex align-items-center ms-3" onSubmit={handleSearch}>
                   <InputGroup>
                     <Form.Control
@@ -217,6 +224,7 @@ export function MyNavbar({ documents, setDocuments }) {
                     </Button>
                   </InputGroup>
                 </Form>
+                </div>
               </div>
             }
           </Nav>
@@ -224,14 +232,14 @@ export function MyNavbar({ documents, setDocuments }) {
             {loginState.loggedIn ? (
               <>
                 <div className='d-flex align-items-center'>
-                  <Badge bg='light' style={{ color: 'black' }}>
+                  <Badge bg='light' className='mx-2' style={{ color: 'black', fontSize:'14px' }}>
                     <span>Signed in as: <strong>{loginState.user.name}</strong></span>
                     <br></br>
                     <span>Role: <strong>{loginState.user.role}</strong></span>
                   </Badge>
                 </div>
                 <div className='d-flex align-items-center'>
-                  <Button size='sm' className='mx-2 rounded-pill btn-logout' variant='' onClick={() => {
+                  <Button size='md' className='px-3 rounded-pill btn-logout' variant='' onClick={() => {
                     loginState.doLogout();
                     navigate('/');
                   }}>
@@ -242,18 +250,17 @@ export function MyNavbar({ documents, setDocuments }) {
               </>
             ) : (
               <div>
-                <Button size='sm' className='mx-2 rounded-pill btn-main' variant='' onClick={() => navigate('/login')}>
+                <Button size='md' className='px-3 rounded-pill btn-main' variant='' href='/login'>
                   {'Login '}
                   <i className="bi bi-person-fill" />
                 </Button>
               </div>
             )}
           </Nav>
-        </Container>
       </Navbar>
 
 
-      Modal for Search Results
+      {/* Modal for Search Results */}
       {/* <Modal show={showModal} onHide={handleCloseModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>Search Results</Modal.Title>
