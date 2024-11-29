@@ -7,8 +7,7 @@ import API from '../API'; // Import API module
 import '../App.css'
 import '../WelcomePage.css';
 
-function Diagram() {
-  const [documents, setDocuments] = useState([]);
+function Diagram({documents,setDocuments}) {
   const [numberofconnections, setNumberofconnections] = useState(0);
   const [typeConnections, setTypeConnections] = useState([]);
   const [connections, setConnections] = useState([]);
@@ -168,10 +167,7 @@ function Diagram() {
   };
   const fetchDocuments = async () => {
     try {
-      const res = await API.getAllDocuments();
-      console.log(res);
-      setDocuments(res);
-      console.log(res);
+  
       const startYear = 2000;
       const endYear = 2024;
   
@@ -270,11 +266,11 @@ function Diagram() {
         }
       };
       // Convert documents into nodes
-      const nodes = res.map((doc, index) => {
+      const nodes = documents.map((doc, index) => {
         const iconSrc = documentTypes[doc.IdType-1]?.iconsrc || 'default-icon.svg'; // Fallback to a default icon
         const x= mapDateToX(doc.Issuance_Date);
         const y = mapScaleToY(doc.IdScale);
-        console.log(y);
+        console.log("ciao"+doc.IdStakeholder);
         return {
           id: doc.IdDocument.toString(), // Ensure `id` is a string
           position: { x: x, y: y }, // Stagger nodes horizontally
@@ -342,8 +338,9 @@ function Diagram() {
 
 
   const SvgNode = ({ data ,selected }) => {
-    let path = `src/icon/${stakeholders[data.stakeholder - 1]?.color}/${data.iconSrc}`;
-  
+    console.log(data);
+    //let path = `src/icon/${stakeholders[data.stakeholder - 1]?.color}/${data.iconSrc}`;
+    let path = `src/icon/${data.stakeholder[0].Color}/${data.iconSrc}`;
     return (
       <div
       style={{

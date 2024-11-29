@@ -3,3 +3,5 @@ coverage/
 .DS_Store
 Desktop.ini
 Thumbs.db
+/uploads/*
+uploads/*

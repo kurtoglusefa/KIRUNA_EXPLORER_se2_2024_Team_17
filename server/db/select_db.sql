@@ -2,6 +2,8 @@ select * from users
 
 delete from Document where IdScale = 2;
 
+select * from DocumentStakeholder
+
 select * from Stakeholder
 
 SELECT * FROM TypeDocument
@@ -17,3 +19,4 @@ ADD COLUMN Area_Name VARCHAR(255);
 update Document set IdScale = 1
 
 delete from DocumentConnection
+delete from documents

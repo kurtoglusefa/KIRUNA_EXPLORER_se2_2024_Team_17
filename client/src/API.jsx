@@ -1,3 +1,4 @@
+
 const URL = "http://localhost:3001/api";
 
 // API USERS CALL
@@ -76,7 +77,6 @@ async function getUserInfo() {
 
 const addDocument = (title, idStakeholder, scale, issuance_Date, language, pages, description, idtype, locationType, latitude, longitude, area_coordinates) => {
   console.log("ADD DOCUMENT");
-  console.log(scale);
   return new Promise((resolve, reject) => {
     fetch(URL + "/documents", {
       method: "POST",
@@ -211,6 +211,7 @@ const getAllTypesDocument = () => {
       });
   });
 };
+
 const getTypeDocument = async (id) => {
   const response = await fetch(URL + "/types/" + id, {
     credentials: "include",
@@ -221,6 +222,71 @@ const getTypeDocument = async (id) => {
     return await response.json().error;
   }
 };
+
+// // Create a new document type
+// const createTypeDocument = (typeName, iconUrl) => {
+//   return new Promise((resolve, reject) => {
+//     fetch(URL + "/document-type", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       credentials: "include", // send cookies if necessary
+//       body: JSON.stringify({
+//         type: typeName,
+//         iconSrc: iconUrl,
+//       }),
+//     })
+//       .then((response) => {
+//         if (response.ok) {
+//           response.json().then((newType) => {
+//             resolve(newType); // returns the newly created type
+//           });
+//         } else {
+//           response
+//             .json()
+//             .then((message) => {
+//               reject(message); 
+//             })
+//             .catch(() => {
+//               reject({ error: "Cannot parse server response." });
+//             });
+//         }
+//       })
+//       .catch(() => {
+//         reject({ error: "Cannot communicate with the server." });
+//       });
+//   });
+// };
+
+
+// Create a new document type -- without considering the icon
+const createTypeDocument = (typeName,iconsrc) => {
+  return new Promise((resolve, reject) => {
+    fetch(URL + "/types", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        type: typeName,
+        iconSrc: iconsrc,
+      }),
+    })
+      .then((response) => {
+        if (response.ok) {
+          response.json().then((newType) => resolve(newType));
+        } else {
+          response.json().then((message) => reject(message)).catch(() => {
+            reject({ error: "Cannot parse server response." });
+          });
+        }
+      })
+      .catch(() => reject({ error: "Cannot communicate with the server." }));
+  });
+};
+
 
 
 // API DOCUMENT CONNECTIONS CALL
@@ -303,7 +369,7 @@ const updateDocument = (Id_document,title,idStakeholder, scale, issuance_Date,la
       headers: { 
         "Content-Type": "application/json", 
       }, 
-      body: JSON.stringify({ title,idStakeholder, scale, issuance_Date,language,pages,description, idtype}), 
+      body: JSON.stringify({ title,idStakeholder, IdScale: scale, issuance_Date,language,pages,description, idtype}), 
       credentials: "include", 
     }) 
       .then((response) => { 
@@ -353,6 +419,32 @@ const getAllStakeholders = () => {
   });
 };
 
+const addStakeholder = (StakeholderName) => {
+  return new Promise((resolve, reject) => {
+    fetch(URL + "/stakeholders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ StakeholderName }),
+      credentials: "include",
+    })
+      .then((response) => {
+        if (response.ok) {
+          resolve(response.json());
+        } else {
+          response.json().then((message) => {
+            reject(message);
+          });
+        }
+      }
+      )
+      .catch(() => {
+        reject({ error: "Cannot communicate with the server." });
+      });
+  });
+}
+
 const getStakeholder = (id) => {
   return new Promise((resolve, reject) => {
     fetch(URL + "/stakeholders/" + id, {
@@ -379,7 +471,24 @@ const getStakeholder = (id) => {
       });
   });
 };
-
+function getStakeholderByDocumentId(documentId) {
+  return new Promise((resolve, reject) => {
+    fetch(URL + "/documents/" + documentId + "/stakeholders", {
+      credentials: "include",
+    })
+      .then((response) => {
+        if (response.ok) {
+          response.json().then((stakeholders) => {
+            resolve(stakeholders);
+          });
+        } else {
+          response.json().then((message) => {
+            reject(message);
+          });
+        }
+      });
+  });
+}
 // API LOCATIONS CALL
 const getAllLocations = () => {
   return new Promise((resolve, reject) => {
@@ -690,6 +799,6 @@ const updateScale = (id, scale_number) => {
   });
 };
 
-const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, createDocumentConnection, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea, getDocumentResources, addResourcesToDocument, addArea,deleteResource,getScales,addScale,updateScale};
+const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, createDocumentConnection, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea, getDocumentResources, addResourcesToDocument, addArea,deleteResource,getScales,addScale,updateScale,addStakeholder,getStakeholderByDocumentId,createTypeDocument};
 
 export default API;

@@ -79,4 +79,31 @@ describe('stakeholderDao', () => {
             await expect(stakeholderDao.getStakeholderById(id)).rejects.toThrow('DB error');
         });
     });
+    describe('addStakeholder', () => {
+        let stakeholderName='New Stakeholder';
+        it('should add a new stakeholder successfully', async () => {
+            const mockLastId = 1; // Simulate the last inserted ID
+
+            // Mock db.run to simulate insertion and return the lastID
+            db.run.mockImplementation(function (sql, params, callback) {
+                callback.call({ lastID: mockLastId }, null); // simulating the last inserted ID
+            });
+
+            // Call the addStakeholder function and verify the result
+            const result = await stakeholderDao.addStakeholder(stakeholderName);
+            console.log("RESULT");
+            console.log(result);
+            // Assert that the result is the mocked lastID
+            expect(result).toBe(mockLastId);
+        });
+
+        it('should reject if there is a database error', async () => {
+            const mockError = new Error('DB error');
+            db.run.mockImplementation((sql, params, callback) => {
+                callback(mockError); // Simulate error during insertion
+            });
+
+            await expect(stakeholderDao.addStakeholder(stakeholderName)).rejects.toThrow('DB error');
+        });
+    });
 });
