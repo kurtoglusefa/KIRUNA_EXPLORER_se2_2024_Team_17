@@ -81,8 +81,6 @@ export function MyNavbar({ documents, setDocuments }) {
         });
         filteredResults = filteredResultsYear; // Update filtered results
       }
-      console.log("Filtering by type of document:", typeDocument); // for debugging
-      console.log("Filtered results:", typeDocument); // for debugging
       if(typeDocument) {
         console.log("Filtering by type of document:", typeDocument); // for debugging
         console.log("Filtered results:", filteredResults); // for debugging
@@ -91,7 +89,13 @@ export function MyNavbar({ documents, setDocuments }) {
         });
         filteredResults = filteredResultsType;
       }
-
+      filteredResults= await Promise.all(
+        filteredResults.map(async (doc) => {
+          const stakeholders = await API.getStakeholderByDocumentId(doc.IdDocument);
+          return { ...doc, IdStakeholder: stakeholders };
+        })
+      );
+      console.log("Filtered results:", filteredResults); // for debugging
       setDocuments(filteredResults); // store the filtered results
       if (filteredResults.length === 1) {
         setSelectedDocument(filteredResults[0]);
@@ -99,13 +103,19 @@ export function MyNavbar({ documents, setDocuments }) {
       else {
         setSelectedDocument(null);
       }
+      console.log("documents:",filteredResults); // for debugging
       console.log(`Search results for "${searchTerm}":`, filteredResults);
 
     }
     else {
       const allDocuments = await API.getAllDocuments(); // fetch all documents
-      setDocuments(allDocuments); // store the filtered results
-
+      let filteredResults= await Promise.all(
+        allDocuments.map(async (doc) => {
+          const stakeholders = await API.getStakeholderByDocumentId(doc.IdDocument);
+          return { ...doc, IdStakeholder: stakeholders };
+        })
+      );
+      setDocuments(filteredResults); // store the filtered results
     }
   };
 

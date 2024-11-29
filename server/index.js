@@ -280,24 +280,14 @@ app.get("/api/documents/title/:title", (req, res) => {
 app.patch("/api/documents/:documentid", isUrbanPlanner, async (req, res) => {
   const documentId = parseInt(req.params.documentid);
   const document = req.body;
-<<<<<<< HEAD
-
-  // Check if the required fields are present
-  if (!document.title) {
-    return res.status(400).json({
-      error: "The request body must contain all the required fields",
-    });
-=======
   if (!document.title || !document.idStakeholder) {
     res
       .status(400)
       .json({ error: "The request body must contain all the fields" });
     return;
->>>>>>> gpp-routes-organizing
   }
 
   try {
-<<<<<<< HEAD
     // Update the document using the DAO
     const updatedDocument = await documentDao.updateDocument(
       documentId,
@@ -330,22 +320,6 @@ app.patch("/api/documents/:documentid", isUrbanPlanner, async (req, res) => {
 
     // Send the updated document as a response
     return res.status(200).json(updatedDocument);
-=======
-    documentDao
-      .updateDocument(
-        documentId,
-        document.title,
-        parseInt(document.idStakeholder),
-        document.scale,
-        document.issuance_Date,
-        document.language,
-        parseInt(document.pages),
-        document.description,
-        parseInt(document.idtype)
-      )
-      .then((document) => res.status(200).json(document))
-      .catch(() => res.status(500).end());
->>>>>>> gpp-routes-organizing
   } catch (error) {
     // Handle errors
     console.error("Error updating document:", error.message);

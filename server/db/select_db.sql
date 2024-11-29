@@ -19,3 +19,4 @@ ADD COLUMN Area_Name VARCHAR(255);
 update Document set IdScale = 1
 
 delete from DocumentConnection
+delete from documents
