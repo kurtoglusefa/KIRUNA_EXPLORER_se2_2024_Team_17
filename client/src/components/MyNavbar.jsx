@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Navbar, Container, Button, Nav, ToggleButtonGroup, ToggleButton, Form, InputGroup, Modal, Card, FormGroup, FloatingLabel, Badge, Breadcrumb } from 'react-bootstrap';
+import { Navbar, Container, Button, Nav, ToggleButtonGroup, ToggleButton, Form, InputGroup, Modal, Card, FormGroup, FloatingLabel, Badge, Breadcrumb, Tooltip, Collapse } from 'react-bootstrap';
 import AppContext from '../AppContext';
 import '../App.css'
 import '../WelcomePage.css'
@@ -22,6 +22,7 @@ export function MyNavbar({ documents, setDocuments }) {
   const [stakeholder, setStakeholder] = useState();
   const [issuanceYear, setIssuanceYear] = useState('');
   const [typeDocument, setTypeDocument] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
 
 
   const getStakeholders = async () => {
@@ -100,8 +101,6 @@ export function MyNavbar({ documents, setDocuments }) {
       }
       console.log(`Search results for "${searchTerm}":`, filteredResults);
 
-      // show modal after search results are fetched
-      setShowModal(true);
     }
     else {
       const allDocuments = await API.getAllDocuments(); // fetch all documents
@@ -141,9 +140,9 @@ export function MyNavbar({ documents, setDocuments }) {
               />
           </Navbar.Brand>
 
-          <Nav>
             {loginState.loggedIn && location.pathname === '/home' &&
-              <div className=' d-flex justify-content-center align-items-center'>
+            <>
+              <Nav>
                 <ToggleButtonGroup
                   type="radio"
                   name="options"
@@ -190,65 +189,102 @@ export function MyNavbar({ documents, setDocuments }) {
                     Diagram
                   </ToggleButton>
                 </ToggleButtonGroup>
-                <div className='justify-content-end'>
-                <Form className="d-flex align-items-center ms-3" onSubmit={handleSearch}>
+              </Nav>
+              <Nav>
+                <Form className="d-flex align-items-center" onSubmit={handleSearch}>
                   <InputGroup>
+                  <Button
+                      onMouseEnter={(e) => {e.target.style.backgroundColor = '#A89559'; e.target.style.color = 'white'}}
+                      onMouseLeave={(e) => {e.target.style.backgroundColor = 'white'; e.target.style.color = '#A89559'}}
+                      className="rounded-start"
+                      style={{
+                        backgroundColor: 'white',
+                        color: '#A89559',
+                        borderColor: '#A89559',
+                        borderWidth: showFilters ? '2.5px' : '1px',
+                      }}
+                      onClick={() => setShowFilters(!showFilters)}
+                      aria-expanded={showFilters}
+                    >
+                      {(stakeholder || typeDocument || issuanceYear) ? 
+                        (<i className="bi bi-funnel-fill h5" />)
+                         : 
+                        (<i className="bi bi-funnel h5" />)
+                      }
+                    </Button>
                     <Form.Control
                       type="text"
-                      placeholder="Search Doc"
+                      placeholder="Search Document"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="rounded-start me-3"
+                      className=" mx-3"
                       style={{
                         borderColor: '#A89559',
-                        boxShadow: '0 0 5px rgba(0, 0, 0, 0.1)',
                       }}
+                      
                     />
-                    <Form.Select
-                      value={stakeholder || ""}
-                      onChange={(e) => setStakeholder(e.target.value)}
-                      style={{
-                        borderColor: '#A89559',
-                        width: '11ch',
-                      }}
-                      className="me-3"
-                    >
-                      <option value="">Select Stakeholder</option>
-                      {stakeholders.map((stk) => (
-                        <option key={stk.id} value={stk.id}>
-                          {stk.name}
-                        </option>
-                      ))}
-                    </Form.Select>
-                    <Form.Select
-                      value={typeDocument || ""}
-                      onChange={(e) => setTypeDocument(e.target.value)}
-                      style={{
-                        borderColor: '#A89559',
-                        width: '11ch',
-                      }}
-                      className="me-3"
-                    >
-                      <option value="">Select Type of document</option>
-                      {typeDocuments.map((typo) => (
-                        <option key={typo.id} value={typo.id}>
-                          {typo.type}
-                        </option>
-                      ))}
-                    </Form.Select>
-                    <Form.Control
-                      type="number"
-                      placeholder="YYYY"
-                      value={issuanceYear}
-                      onChange={(e) => setIssuanceYear(e.target.value)}
-                      className="rounded-0 me-3"
-                      style={{
-                        borderColor: '#A89559',
-                        maxWidth: '9ch',
-                      }}
-                      min={2000}
-                      max={2024}
-                    />
+
+                    {/* Filters */}
+                    <Collapse in={showFilters}>
+                      <Card className='filters-card rounded col-8'>
+                        <Card.Body>
+                          <Card.Title className='d-flex justify-content-between align-items-center mb-3'>
+                            Filters
+                            {(stakeholder || typeDocument || issuanceYear) && 
+                              <Button className='rounded-pill' variant='danger' size='sm' style={{backgroundColor:'darkred'}} onClick={() => {setStakeholder(null);setTypeDocument(null);setIssuanceYear(null)}}> 
+                                Reset
+                              </Button>
+                            }
+                            </Card.Title>
+                          <Form.Select
+                            value={stakeholder || ""}
+                            onChange={(e) => setStakeholder(e.target.value)}
+                            style={{
+                              borderColor: '#A89559',
+                              fontWeight: stakeholder ? 'bold' : 'normal',
+                            }}
+                            className="my-1"
+                          >
+                            <option value="">No Stakeholder</option>
+                            {stakeholders.map((stk) => (
+                              <option key={stk.id} value={stk.id}>
+                                {stk.name}
+                              </option>
+                            ))}
+                          </Form.Select>
+                          <Form.Select
+                            value={typeDocument || ""}
+                            onChange={(e) => setTypeDocument(e.target.value)}
+                            style={{
+                              borderColor: '#A89559',
+                              fontWeight: typeDocument ? 'bold' : 'normal',
+                            }}
+                            className="my-1"
+                          >
+                            <option value="">No Type</option>
+                            {typeDocuments.map((typo) => (
+                              <option key={typo.id} value={typo.id}>
+                                {typo.type}
+                              </option>
+                            ))}
+                          </Form.Select>
+                          <Form.Control
+                            type="number"
+                            placeholder="YYYY"
+                            value={issuanceYear}
+                            onChange={(e) => setIssuanceYear(e.target.value)}
+                            className="rounded my-1"
+                            style={{
+                              borderColor: '#A89559',
+                              fontWeight: issuanceYear ? 'bold' : 'normal',
+                            }}
+                            min={2000}
+                            max={2024}
+                            />
+                        </Card.Body>
+                      </Card>
+                    </Collapse>
+
                     <Button
                       variant="outline-primary"
                       type="submit"
@@ -263,10 +299,9 @@ export function MyNavbar({ documents, setDocuments }) {
                     </Button>
                   </InputGroup>
                 </Form>
-                </div>
-              </div>
+              </Nav>
+              </>
             }
-          </Nav>
           <Nav className=" d-flex justify-content-end">
             {loginState.loggedIn ? (
               <>

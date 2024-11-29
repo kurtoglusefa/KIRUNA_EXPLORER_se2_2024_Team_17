@@ -93,3 +93,11 @@
   top:110px;
   z-index:100;
 }
+
+.filters-card {
+  position: absolute;
+  z-index: 10000;
+  top: 50px;
+  border-width: 2px;
+  border-color: #A89559;
+}
