@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Polygon, useMap, LayersControl, LayerGroup, ZoomControl } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Polygon, useMap, LayersControl, LayerGroup, ZoomControl,GeoJSON  } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { Button, Card, Form, Spinner, Modal, CardFooter, Col, Overlay } from "react-bootstrap"; // Importing required components
 import { redirect, useLinkClickHandler, useNavigate } from "react-router-dom";
@@ -11,7 +11,8 @@ import CardDocument from './CardDocument';
 import "leaflet-draw/dist/leaflet.draw.css";
 import { EditControl } from "react-leaflet-draw"; // Import for the drawing tool
 import { FeatureGroup } from "react-leaflet"; // Import for the drawing tool
-
+import * as turf from "@turf/turf"; // Install this library for spatial operations
+import geoJsonData from "../assets/kiruna.json"; // If the data is saved in a file
 
 function Map({ locations, setLocations, locationsArea, documents, setSelectedLocation, propsDocument, selectedLocation, handleDocumentClick, numberofconnections, fetchLocationsArea }) {
   const selectedDocument = useContext(AppContext).selectedDocument;
@@ -40,35 +41,6 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
   const [newCoordinates, setNewCoordinates] = useState([]);
   const [icons, setIcons] = useState({});
   //const offsetDistance = 0.0020; //offset distance between markers
-
-/*
-  useEffect(() => {
-    const getIcon = async (document) => {
-      const res = await fetch(`src/icon/${documentTypes[document.IdType - 1]?.iconsrc}`);
-      const svg = await res.text();
-      svg.replace('fill="black"', 'fill="red"');
-      return new L.DivIcon({
-        iconUrl:`src/icon/${documentTypes[document.IdType - 1]?.iconsrc}`,
-        iconSize: [32, 32],
-        iconAnchor: [16, 32],
-        popupAnchor: [0, -32],
-        className: "",
-      });
-    };
-
-    const loadIcons = async () => {
-      const newIcons = {};
-      for (const document of documents) {
-        const icon = await getIcon(document);
-        newIcons[document.IdLocation] = icon;
-      }
-      setIcons(newIcons);
-    };
-
-    loadIcons();
-  }, [documents]);*/
-
-
   useEffect(() => {
     // Define an async function inside useEffect
     const updateArea = async () => {
@@ -273,8 +245,14 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
     useMapEvents({
       click(e) {
         if (modifyMode) {
-          const { lat, lng } = e.latlng;
-          setSelectedLocation({ lat, lng });
+          if(!isPointInFeature(e.latlng)) {
+            alert("You can't add a document that is not in the area of Kiruna");
+            return;
+          }
+          else{
+            const { lat, lng } = e.latlng;
+            setSelectedLocation({ lat, lng });
+          }
         }
         setSelectedDocument(null);
         setSelectedMarker(null);
@@ -296,6 +274,24 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
     setNewCoordinates(e.layers.getLayers()[0].getLatLngs());
   };
 
+  //function to check if click in area of kiruna = Boundaries
+  const isPointInFeature = (latlng) => {
+    const { lat, lng } = latlng;
+    const point = turf.point([lng, lat]); // Create a Turf.js point
+    const features = geoJsonData.features; // GeoJSON features
+    return features.some((feature) => {
+      const polygon = turf.feature(feature.geometry); // Convert geometry to Turf.js format
+      return turf.booleanPointInPolygon(point, polygon); // Check if point is inside
+    });
+  };
+  const calculateBounds = (geoJson) => {
+    const bbox = turf.bbox(geoJson); // Returns [minX, minY, maxX, maxY]
+    return [
+      [bbox[1], bbox[0]], // Southwest corner [lat, lng]
+      [bbox[3], bbox[2]], // Northeast corner [lat, lng]
+    ];
+  };
+
 
   return (
     <>
@@ -303,7 +299,8 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
         <Spinner animation="border" variant="primary" />
       ) : (
         <div>
-          <MapContainer ref={mapRef} center={[67.8400, 20.2253]} zoomControl={false} zoom={12} maxBounds={[[67.7, 19.6],[68, 20.8]]} minZoom={12}>
+          <MapContainer ref={mapRef} center={[67.8536, 20.2437]} zoomControl={false} zoom={15}  minZoom={8} maxBounds={ calculateBounds(geoJsonData)} // Constrain the map to Kiruna's bounding box
+      maxBoundsViscosity={1.0} >
             {/* Location listener */}
             <LocationMarker />
 
@@ -615,6 +612,17 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                 );
               }
             })*/}
+            <GeoJSON
+              data={geoJsonData}
+              style={() => ({
+                color: "black",
+                weight: 1,
+                fillColor: "black",
+                fillOpacity: 0.2,
+              })}
+
+             
+            />
             <CustomZoomHandler />
           </MapContainer> 
 
