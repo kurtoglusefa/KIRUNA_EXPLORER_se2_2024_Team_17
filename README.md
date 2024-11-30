@@ -74,6 +74,28 @@ You will see the kiruna explore at address: http://localhost:5173/
   - Decide what you want to test between users,documents then run the appropriate command (for example, to test users):
   - `npm test users`
   - You will see the total time taken to execute these tests and the different API calls.
+## How to test the fronted app
+
+- Open two terminals (reffered to as 'terminal 1' and 'terminal 2')
+
+- In terminal 1, type the following commands:
+  - `cd server`
+  - `npm i`
+  - `nodemon index.mjs` (to start the server)
+- In terminal 2, type the following commands:
+
+  - `cd client`
+  - `npm i`
+  - `npm run dev` (to start the client)
+
+- Then open another one and type the following commands:
+
+  - `cd client`
+  - `npm run cypress:run`
+  - You will see the total time taken to execute these tests and the components/view tested.
+Important: You can also run this command
+  - `npm run cypress:open`
+In the e2e testing you can see the different test files with the possibility to execute each one.
 
   ## React Client Application Routes
 
