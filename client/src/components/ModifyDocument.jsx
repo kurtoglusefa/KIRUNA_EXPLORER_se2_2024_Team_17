@@ -448,9 +448,9 @@ function ModifyDocument() {
   /* ------------------------------------ FORM ------------------------------------------ */
   return (
     <>
-      <Card className="container my-5 bg-light rounded form">
+      <Card className="container bg-light rounded form" style={{marginTop:'110px'}}>
         <Card.Title>
-          <h3 className="text-center my-5">
+          <h3 className="text-center mt-4">
             {documentId ? "Update" : "Create"} Document
           </h3>
         </Card.Title>
@@ -458,7 +458,7 @@ function ModifyDocument() {
           <Row>
             {/* ---------------------- Left Column --------------------------- */}
             <Col md={6}>
-              <Form.Group controlid="title" className="mb-3">
+              <Form.Group controlid="title" className="mb-3 text-start">
                 <label> Title* </label>
                 <Form.Control
                   type="text"
@@ -605,7 +605,7 @@ function ModifyDocument() {
                   <div className=" d-flex justify-content-between mt-2">
                     <div className="col-8 text-start mx-3">
                       {connections.length > 0 ? (
-                        <ListGroup variant="flush" className="mb-2">
+                        <ListGroup variant="flush" className="mb-2" style={{maxHeight:'100px', overflowY:'auto'}}>
                           {connections.map((conn, index) => (
                             <ListGroup.Item key={index}>
                               {conn.IdDocument1 == documentId
@@ -652,7 +652,7 @@ function ModifyDocument() {
                   {/* List of resources */}
                   {resources.length > 0 ? (
                     <ListGroup variant="flush" className="mb-2">
-                      <div style={{ overflowY: "auto", maxHeight: "150px" }}>
+                      <div style={{ overflowY: "auto", maxHeight: "100px" }}>
                         {resources.map((res, index) => (
                           <ListGroup.Item
                             key={index}
@@ -699,7 +699,7 @@ function ModifyDocument() {
             </Col>
 
             {/* ---------------------- Right Column --------------------------- */}
-            <Col md={6}>
+            <Col className="text-start" md={6}>
               <FormGroup
                 controlId="stakeholder"
                 className="mb-3"
@@ -800,18 +800,6 @@ function ModifyDocument() {
                   {documentId ? area : area.Area_Name}
                 </p>
               )}
-            </Col>
-            {message && (
-              <Alert
-                variant="danger"
-                dismissible
-                onClick={() => setMessage("")}
-              >
-                {message}
-              </Alert>
-            )}
-          </Row>
-        </Card.Body>
         <div className="d-flex justify-content-center mb-4 mx-5">
           <Button
             variant="outline-secondary"
@@ -828,6 +816,18 @@ function ModifyDocument() {
             Save
           </Button>
         </div>
+            </Col>
+            {message && (
+              <Alert
+                variant="danger"
+                dismissible
+                onClick={() => setMessage("")}
+              >
+                {message}
+              </Alert>
+            )}
+          </Row>
+        </Card.Body>
       </Card>
 
       {/* ----------------------- Modal for Adding a Connection ----------------------------- */}
