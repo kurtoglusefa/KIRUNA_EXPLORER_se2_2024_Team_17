@@ -242,7 +242,7 @@ function Home(props) {
               <Spinner animation="border" variant="primary" />
             ) : (
               <div>
-                <Diagram documents={props.documents} setDocuments={props.setDocuments} />
+                <Diagram documents={props.documents} setDocuments={props.setDocuments} selectedDocument={selectedDocument} setSelectedDocument={setSelectedDocument} />
               </div>
             )
           ) : null

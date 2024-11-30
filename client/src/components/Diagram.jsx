@@ -7,13 +7,13 @@ import API from '../API'; // Import API module
 import '../App.css'
 import '../WelcomePage.css';
 
-function Diagram({documents,setDocuments}) {
+function Diagram({documents,setDocuments,selectedDocument,setSelectedDocument}) {
   const [numberofconnections, setNumberofconnections] = useState(0);
   const [typeConnections, setTypeConnections] = useState([]);
   const [connections, setConnections] = useState([]);
   const [infoOpened, setInfoOpened] = useState(false);
 
-  const [selectedDocument, setSelectedDocument] = useState(null); //when click on a node, it will be selected
+  //const [selectedDocument, setSelectedDocument] = useState(null); //when click on a node, it will be selected
 
   const [documentTypes, setDocumentTypes] = useState([]);
   const [stakeholders, setStakeholders] = useState([]);
@@ -32,6 +32,22 @@ function Diagram({documents,setDocuments}) {
 
   const [selectedEdge, setSelectedEdge] = useState(null);
 
+  useEffect(() => {
+    if (selectedDocument) {
+      setNodes((prevNodes) =>
+        prevNodes.map((node) =>
+          node.id === selectedDocument.IdDocument.toString()
+            ? { ...node, selected: true } // Mark the node as selected
+            : { ...node, selected: false } // Deselect all other nodes
+        )
+      );
+    } else {
+      // If no document is selected, clear all selections
+      setNodes((prevNodes) =>
+        prevNodes.map((node) => ({ ...node, selected: false }))
+      );
+    }
+  }, [selectedDocument]);
   const OffsetEdge = ({ id, sourceX, sourceY, targetX, targetY, style, data }) => {
     const offset = data?.offset || 50; // Use offset from data (default: 50)
   
