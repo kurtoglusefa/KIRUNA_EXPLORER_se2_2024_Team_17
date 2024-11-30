@@ -11,7 +11,7 @@ import CardDocument from './CardDocument';
 import "leaflet-draw/dist/leaflet.draw.css";
 import { EditControl } from "react-leaflet-draw"; // Import for the drawing tool
 import { FeatureGroup } from "react-leaflet"; // Import for the drawing tool
-
+import { Rnd } from 'react-rnd'
 
 function Map({ locations, setLocations, locationsArea, documents, setSelectedLocation, propsDocument, selectedLocation, handleDocumentClick, numberofconnections, fetchLocationsArea }) {
   const selectedDocument = useContext(AppContext).selectedDocument;
@@ -299,7 +299,7 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
         <Spinner animation="border" variant="primary" />
       ) : (
         <div>
-          <MapContainer ref={mapRef} center={[67.8558, 20.2253]} zoomControl={false} zoom={12} maxBounds={[[67.7, 19.6],[68, 20.8]]} minZoom={12}>
+          <MapContainer ref={mapRef} className="map-container" center={[67.8558, 20.2253]} zoomControl={false} zoom={12} maxBounds={[[67.7, 19.6],[68, 20.8]]} minZoom={12}>
             {/* Location listener */}
             <LocationMarker />
 
@@ -591,7 +591,18 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
           {selectedDocument && (
             <div
               className='document-card overlay col-lg-3 col-md-6 col-sm-9'
-              style={{ marginLeft: '1%', bottom: '18%', width: '28%' }}
+              style={{ marginLeft: '1%', bottom: '18%', width: '28%' }}>
+               <Rnd
+              default={{
+                x: 100,
+                y: -450,
+                width: 450,
+                height: 320,
+              }}
+              minHeight={150}
+              minWidth={150}
+              bounds=".map-container"
+              style={{ zIndex: 1000 }} // Set a higher z-index
             >
               <CardDocument
                 document={selectedMarker}
@@ -605,11 +616,24 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                 numberofconnections={numberofconnections}
                 areaName={locationsArea[selectedMarker?.IdLocation]?.Area_Name}
               />
+              </Rnd>
             </div>
           )}
           {/* Card location for creating new document */}
           {modifyMode &&
             <div className='d-flex justify-content-end me-4'>
+              <Rnd
+              default={{
+                x: 1300,
+                y: -350,
+                width: 320,
+                height: 320,
+              }}
+              minHeight={150}
+              minWidth={150}
+              bounds=".map-container"
+              style={{ zIndex: 1000 }} // Set a higher z-index
+            >
               <Card className='text-start form overlay' style={{ bottom: '8%' }}>
                 <Card.Header>
                   <Card.Title className='text.center mx-4 mt-1'>
@@ -655,8 +679,7 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                           ))}
                         </Form.Select>
                       </Form.Group>
-                    )
-                    }
+                    )}
                   </div>
                 </Card.Body>
                 <div className='d-flex justify-content-center'>
@@ -681,6 +704,7 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                   </Button>
                 </div>
               </Card>
+            </Rnd>
             </div>
           }
           {/* Button enable */}
