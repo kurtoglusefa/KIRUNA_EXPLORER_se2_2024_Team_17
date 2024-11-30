@@ -6,6 +6,7 @@ import AppContext from '../AppContext';
 import API from '../API'; // Import API module
 import '../App.css'
 import '../WelcomePage.css';
+import { Card, Collapse, Placeholder } from 'react-bootstrap';
 
 function Diagram({documents,setDocuments}) {
   const [numberofconnections, setNumberofconnections] = useState(0);
@@ -120,14 +121,14 @@ function Diagram({documents,setDocuments}) {
       let edges = res.map((connection) => {
         offsetObjects[connection.IdDocument1+"-"+connection.IdDocument2] = offsetObjects[connection.IdDocument1+"-"+connection.IdDocument2]+1;
         let edgeStyle = {}; // Define a default edge style
-        if(connection.IdConnection === 1){
+        if(connection.IdConnection === 2){
           edgeStyle = {
             stroke: 'black',
             strokeWidth: 2,
             strokeDasharray: '0', // Normal solid line
           };
         }
-        else if(connection.IdConnection === 2){
+        else if(connection.IdConnection === 1){
           edgeStyle = {
             stroke: 'black',
             strokeWidth: 2,
@@ -145,7 +146,7 @@ function Diagram({documents,setDocuments}) {
           edgeStyle = {
             stroke: 'black',
             strokeWidth: 3,
-            strokeDasharray: '1,5', // "Dotted" line 
+            strokeDasharray: '8,4,1,4', // "Dotted" line 
           };
         }
         return {
@@ -396,56 +397,250 @@ function Diagram({documents,setDocuments}) {
   
 
   return (
-    <>
+  <>
+    <div style={{display:'flex'}}>
+      {/* React Flow Diagram*/}
+      <div style={{padding: '15px',height: '89vh', width:'100vw', backgroundColor:'#FDFDFD'}}>
         {/* Info Button */}
         <i className="bi bi-info-circle-fill h1 info-button" onClick={() => setInfoOpened(!infoOpened)} style={{color:'FDFDFD'}} onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'} onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}></i>
-        {infoOpened && 
-          <img className='info-button me-5' style={{borderRadius:'20px'}} src="/info-connections.png" /> 
-        }
-
-        {/* React Flow Diagram*/}
-        <div style={{padding: '15px',height: '89vh', backgroundColor:'#FDFDFD'}}>
+        
+        {/* Diagram */}
         <ReactFlowProvider>
           <ReactFlow
-          nodes={nodes}
-          snapGrid={[10, 10]}
-          snapToGrid={true}
-          minZoom={0.3} 
-          maxZoom={1.6}
-          edges={edges}
-          edgeTypes={edgeTypes} // Use custom edge types
-          fitView={true}
-          
-          nodeTypes={{ svgNode: SvgNode }}
-          onNodeClick={handleNodeClick} 
-          onEdgeClick={handleEdgeClick}
-          onNodeMouseEnter={(e) => e.target.style.cursor = 'pointer'}
-          onNodeMouseLeave={(e) => e.target.style.cursor = 'drag'}
-          style={{ background: "#FDFDFD" }}>
-          <Background color="lightgray" gap={gapx} variant={BackgroundVariant.Lines} />
-          <Controls  showZoom={false} showInteractive={false} showFitView={true}/>
-        </ReactFlow>
+            nodes={nodes}
+            snapGrid={[10, 10]}
+            snapToGrid={true}
+            minZoom={0.3} 
+            maxZoom={1.6}
+            edges={edges}
+            edgeTypes={edgeTypes} // Use custom edge types
+            fitView={true}
+            
+            nodeTypes={{ svgNode: SvgNode }}
+            onNodeClick={handleNodeClick} 
+            onEdgeClick={handleEdgeClick}
+            onNodeMouseEnter={(e) => e.target.style.cursor = 'pointer'}
+            onNodeMouseLeave={(e) => e.target.style.cursor = 'drag'}
+            style={{ background: "#FDFDFD" }}>
+            <Background color="lightgray" gap={gapx} variant={BackgroundVariant.Lines} />
+            <Controls  showZoom={false} showInteractive={false} showFitView={true}/>
+          </ReactFlow>
         </ReactFlowProvider>
-    </div>
-    {selectedDocument && (
-            <div
-              className='document-card overlay col-lg-3 col-md-6 col-sm-9'
-              style={{ marginLeft: '1%', bottom: '12%', width: '30%' }}
-            >
-              <CardDocument
-                document={selectedDocument}
-                locationType={locationsArea[selectedDocument?.IdLocation] ? "Area" : "Point"}
-                latitude={locations[selectedDocument?.IdLocation]?.Latitude.toFixed(4)}
-                longitude={locations[selectedDocument?.IdLocation]?.Longitude.toFixed(4)}
-                setShowCard={setSelectedDocument}
-                setSelectedDocument={setSelectedDocument}
-                viewMode='map'
-                isLogged={isLogged}
-                numberofconnections={numberofconnections}
-                areaName={locationsArea[selectedDocument?.IdLocation]?.Area_Name}
-              />
+      </div>
+    
+      {/* Sidebar */}
+      <Collapse in={infoOpened} dimension={'width'} className='sidebar'>
+        <Card className='p-3 pe-3 pt-4 text-start'>
+          <Card.Body className='mt-5'>
+          {/* Node Types */}
+          <div className='mb-4'>
+            <h6>Node types</h6>
+            <div className='ms-3 mt-3'>
+              <div className='d-flex my-1'>
+                <img src='/src/icon/000000/design_doc.svg' style={{marginRight: '10px', width:'20px'}} />
+                <label>Design document</label>
+              </div>
+              <div className='d-flex my-1'>
+                <img src='/src/icon/000000/informative_doc.svg' style={{marginRight: '10px', width:'20px'}} />
+                <label>Informative document</label>
+              </div>
+              <div className='d-flex my-1'>
+                <img src='/src/icon/000000/prescriptive_doc.svg' style={{marginRight: '10px', width:'20px'}} />
+                <label>Prescriptive document</label>
+              </div>
+              <div className='d-flex my-1'>
+                <img src='/src/icon/000000/technical_doc.svg' style={{marginRight: '10px', width:'20px'}} />
+                <label>Technical document</label>
+              </div>
             </div>
+            <div className='ms-3 mt-3'>
+              <div className='d-flex my-1'>
+                <img src='/src/icon/000000/agreement.svg' style={{marginRight: '10px', width:'20px'}} />
+                <label>Agreement</label>
+              </div>
+              <div className='d-flex my-1'>
+                <img src='/src/icon/000000/conflict.svg' style={{marginRight: '10px', width:'20px'}} />
+                <label>Conflict</label>
+              </div>
+              <div className='d-flex my-1'>
+                <img src='/src/icon/000000/consultation.svg' style={{marginRight: '10px', width:'20px'}} />
+                <label>Consultation</label>
+              </div>
+            </div>
+            <div className='ms-3 mt-3'>
+              <div className='d-flex my-1'>
+                <img src='/src/icon/000000/action.svg' style={{marginRight: '10px', width:'20px'}} />
+                <label>Action</label>
+              </div>
+            </div>
+          </div>
+          {/* Stakeholders */}
+          <div className='mb-4'>
+            <h6>Stakeholders</h6>
+            <div className='d-flex mt-3'>
+              <div className='ms-3'>
+                <div className='d-flex my-1 align-items-center'>
+                  <svg width="20" height="20">
+                    <circle
+                      cx="10" // X-coordinate of the center
+                      cy="10" // Y-coordinate of the center
+                      r="8"   // Radius
+                      fill="#000000" // Circle fill color
+                    />
+                  </svg>
+                  <label className='ms-3'>LKAB</label>
+                </div>
+                <div className='d-flex my-1 align-items-center'>
+                  <svg width="20" height="20">
+                    <circle
+                      cx="10" // X-coordinate of the center
+                      cy="10" // Y-coordinate of the center
+                      r="8"   // Radius
+                      fill="#8C6760" // Circle fill color
+                    />
+                  </svg>
+                  <label className='ms-3'>Municipality</label>
+                </div>              
+                <div className='d-flex my-1 align-items-center'>
+                  <svg width="20" height="20">
+                    <circle
+                      cx="10" // X-coordinate of the center
+                      cy="10" // Y-coordinate of the center
+                      r="8"   // Radius
+                      fill="#702F36" // Circle fill color
+                    />
+                  </svg>
+                  <label className='ms-3'>Norrbotten Country</label>
+                </div>              
+              </div>
+              <div className='ms-3'>
+                <div className='d-flex my-1 align-items-center'>
+                  <svg width="20" height="20">
+                    <circle
+                      cx="10" // X-coordinate of the center
+                      cy="10" // Y-coordinate of the center
+                      r="8"   // Radius
+                      fill="#B6AD9D" // Circle fill color
+                    />
+                  </svg>
+                  <label className='ms-3'>Architecture Firms</label>
+                </div>              
+                <div className='d-flex my-1 align-items-center'>
+                  <svg width="20" height="20">
+                    <circle
+                      cx="10" // X-coordinate of the center
+                      cy="10" // Y-coordinate of the center
+                      r="8"   // Radius
+                      fill="#B3D0D3" // Circle fill color
+                    />
+                  </svg>
+                  <label className='ms-3'>Citizens</label>
+                </div>              
+                <div className='d-flex my-1 align-items-center'>
+                  <svg width="20" height="20">
+                    <circle
+                      cx="10" // X-coordinate of the center
+                      cy="10" // Y-coordinate of the center
+                      r="8"   // Radius
+                      fill="#8A9FA4" // Circle fill color
+                    />
+                  </svg>
+                  <label className='ms-3'>Others</label>
+                </div>
+              </div> 
+            </div>
+          </div>
+          {/* Connections */}
+          <div className='mb-4'>
+            <h6>Connections</h6>
+            <div className='ms-3 mt-3'>
+              <div className='d-flex my-1 align-items-center'>
+                <svg width="50" height="20">
+                  <line
+                    x1="0" // Starting x-coordinate
+                    y1="10" // Starting y-coordinate
+                    x2="50" // Ending x-coordinate
+                    y2="10" // Ending y-coordinate
+                    stroke="black" // Line color
+                    strokeWidth="1" // Line thickness
+                    strokeDasharray='0'
+                  />
+                </svg>
+                <label className='ms-3'>Direct consequence</label>
+              </div>
+              <div className='d-flex my-1 align-items-center'>
+                <svg width="50" height="20">
+                  <line
+                    x1="0" // Starting x-coordinate
+                    y1="10" // Starting y-coordinate
+                    x2="50" // Ending x-coordinate
+                    y2="10" // Ending y-coordinate
+                    stroke="black" // Line color
+                    strokeWidth="1" // Line thickness
+                    strokeDasharray='5,5'
+                  />
+                </svg>
+                <label className='ms-3'>Collateral consequence</label>
+              </div>
+              <div className='d-flex my-1 align-items-center'>
+                <svg width="50" height="20">
+                  <line
+                    x1="0" // Starting x-coordinate
+                    y1="10" // Starting y-coordinate
+                    x2="50" // Ending x-coordinate
+                    y2="10" // Ending y-coordinate
+                    stroke="black" // Line color
+                    strokeWidth="1" // Line thickness
+                    strokeDasharray='1,3'
+                  />
+                </svg>
+                <label className='ms-3'>Projection</label>
+              </div>
+              <div className='d-flex my-1 align-items-center'>
+                <svg width="50" height="20">
+                  <line
+                    x1="0" // Starting x-coordinate
+                    y1="10" // Starting y-coordinate
+                    x2="50" // Ending x-coordinate
+                    y2="10" // Ending y-coordinate
+                    stroke="black" // Line color
+                    strokeWidth="1" // Line thickness
+                    strokeDasharray='8,4,1,4'
+                  />
+                </svg>
+                <label className='ms-3'>Update</label>
+              </div>
+            </div>
+          </div>
+          </Card.Body>
+        </Card>
+      </Collapse>
+    
+    </div>
+
+    {/* Card Document */}
+
+    {selectedDocument && (
+      <div
+        className='document-card overlay col-lg-3 col-md-6 col-sm-9'
+        style={{ marginLeft: '1%', bottom: '12%', width: '30%' }}
+      >
+        <CardDocument
+          document={selectedDocument}
+          locationType={locationsArea[selectedDocument?.IdLocation] ? "Area" : "Point"}
+          latitude={locations[selectedDocument?.IdLocation]?.Latitude.toFixed(4)}
+          longitude={locations[selectedDocument?.IdLocation]?.Longitude.toFixed(4)}
+          setShowCard={setSelectedDocument}
+          setSelectedDocument={setSelectedDocument}
+          viewMode='map'
+          isLogged={isLogged}
+          numberofconnections={numberofconnections}
+          areaName={locationsArea[selectedDocument?.IdLocation]?.Area_Name}
+        />
+      </div>
     )}
+
+    {/* Card Connection */}
     {selectedEdge && (
       <div
         className='overlay col-lg-3 col-md-6 col-sm-9 p-3'
@@ -462,7 +657,7 @@ function Diagram({documents,setDocuments}) {
         </div>
       </div>
     )}
-    </>
+  </>
   );
 }
 

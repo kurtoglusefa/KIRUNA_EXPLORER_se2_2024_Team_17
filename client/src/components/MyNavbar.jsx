@@ -204,12 +204,9 @@ export function MyNavbar({ documents, setDocuments }) {
                 <Form className="d-flex align-items-center" onSubmit={handleSearch}>
                   <InputGroup>
                   <Button
-                      onMouseEnter={(e) => {e.target.style.backgroundColor = '#A89559'; e.target.style.color = 'white'}}
-                      onMouseLeave={(e) => {e.target.style.backgroundColor = 'white'; e.target.style.color = '#A89559'}}
-                      className="rounded-start"
+                      className="rounded-start btn-filter"
+                      variant="secondary"
                       style={{
-                        backgroundColor: 'white',
-                        color: '#A89559',
                         borderColor: '#A89559',
                         borderWidth: showFilters ? '2.5px' : '1px',
                       }}
@@ -296,12 +293,10 @@ export function MyNavbar({ documents, setDocuments }) {
                     </Collapse>
 
                     <Button
-                      variant="outline-primary"
+                      variant="secondary"
                       type="submit"
-                      className="rounded-end"
+                      className="rounded-end btn-search"
                       style={{
-                        backgroundColor: '#A89559',
-                        color: 'white',
                         borderColor: '#A89559',
                       }}
                     >
