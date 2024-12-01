@@ -12,6 +12,7 @@ import {
   FormGroup,
   Alert,
   InputGroup,
+  CloseButton,
 } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import Select from "react-select";
@@ -448,9 +449,9 @@ function ModifyDocument() {
   /* ------------------------------------ FORM ------------------------------------------ */
   return (
     <>
-      <Card className="container my-5 bg-light rounded form">
+      <Card className="container bg-light rounded form" style={{marginTop:'110px'}}>
         <Card.Title>
-          <h3 className="text-center my-5">
+          <h3 className="text-center mt-4">
             {documentId ? "Update" : "Create"} Document
           </h3>
         </Card.Title>
@@ -458,8 +459,8 @@ function ModifyDocument() {
           <Row>
             {/* ---------------------- Left Column --------------------------- */}
             <Col md={6}>
-              <Form.Group controlid="title" className="mb-3">
-                <label> Title* </label>
+              <Form.Group controlid="title" className="mb-2 text-start">
+              <Form.Label as="strong">Title*</Form.Label>
                 <Form.Control
                   type="text"
                   value={title}
@@ -467,7 +468,8 @@ function ModifyDocument() {
                 />
               </Form.Group>
 
-              <Form.Group controlid="scale" className="mb-3">
+              <Form.Group controlid="scale" className="mb-2 text-start">
+                <Form.Label as="strong">Scale*</Form.Label>
                 <InputGroup>
                   <Form.Select
                     required
@@ -519,8 +521,8 @@ function ModifyDocument() {
                         </InputGroup>
                       </Form.Group>
                       
-                      <Form.Group controlid="language" className="mb-3">
-                        <FloatingLabel label="Language" className="mb-3">
+                      <Form.Group controlid="language" className="mb-2 text-start">
+                      <Form.Label as="strong">Language</Form.Label>
                           <Form.Select
                               placeholder='language'
                               value={language}
@@ -530,29 +532,23 @@ function ModifyDocument() {
                               <option value="English">English</option>
                               <option value="Swedish">Swedish</option>
                           </Form.Select>
-                        </FloatingLabel>
                       </Form.Group>
                       
-                      <div className='d-flex justify-content-between'>
-                      <Form.Group controlid="pages" className='col-2'>
-                        <FloatingLabel label="Pages" className="mb-3">
-                          <Form.Control
+                      <div className='d-flex justify-content-between mb-2'>
+                        <Form.Group controlid="pages" className='col-3 d-flex align-items-center'>
+                        <strong className="me-3">Pages</strong>
+                        <Form.Control
                               defaultValue={0}
-                              size="sm"
                               type="number"
+                              className="text-end"
                               value={pages}
                               onChange={(e) => setPages(e.target.value)}
                               min={0}
                               />
-                        </FloatingLabel>
-                      </Form.Group>
-                      
-                      <Form.Group controlid="issuanceDate" className="ms-1 mb-3 d-flex align-items-center">
-                        <label className='me-2'> Issuance Date:</label>
-                        <FloatingLabel label='year*'>
-
-                          <Form.Control 
-                            size='sm'
+                        </Form.Group>
+                        <Form.Group controlid="issuanceDate" className="d-flex align-items-center">
+                          <strong className="me-3">Issuance Date</strong>
+                          <Form.Control
                             controlid='year' 
                             className='mx-1' 
                             type='number' 
@@ -563,11 +559,8 @@ function ModifyDocument() {
                             value={issuanceDate.year}
                             onChange={(e)=>setIssuanceDate({year: e.target.value, month: issuanceDate.month, day: issuanceDate.day})} required
                           />
-                        </FloatingLabel>
-                        /
-                        <FloatingLabel label='month'>
-                          <Form.Control 
-                            size='sm'
+                          /
+                          <Form.Control
                             controlid='month' 
                             className='mx-1' 
                             type='number' 
@@ -579,33 +572,29 @@ function ModifyDocument() {
                             onInput={(e) => {if(e.target.value < 10) e.target.value = '0' + e.target.value}} 
                             onChange={(e)=>setIssuanceDate({year: issuanceDate.year, month: e.target.value, day: issuanceDate.day})}
                           />
-                        </FloatingLabel>
-                        /
-                        <FloatingLabel label='day'>
-                        <Form.Control 
-                          size='sm'
-                          controlid='day' 
-                          className='mx-1' 
-                          type='number'
-                          maxLength={2} 
-                          style={{width:'8ch'}} 
-                          min={1} 
-                          max={31} 
-                          value={issuanceDate.day}
-                          onInput={(e) => {if(e.target.value < 10) e.target.value = '0' + e.target.value}} 
-                          onChange={(e)=>setIssuanceDate({year: issuanceDate.year, month: issuanceDate.month, day: e.target.value})}
-                          />
-                        </FloatingLabel>
-                      </Form.Group>
+                          /
+                          <Form.Control
+                            controlid='day' 
+                            className='mx-1' 
+                            type='number'
+                            maxLength={2} 
+                            style={{width:'8ch'}} 
+                            min={1} 
+                            max={31} 
+                            value={issuanceDate.day}
+                            onInput={(e) => {if(e.target.value < 10) e.target.value = '0' + e.target.value}} 
+                            onChange={(e)=>setIssuanceDate({year: issuanceDate.year, month: issuanceDate.month, day: e.target.value})}
+                            />
+                        </Form.Group>
                       </div>
 
               {documentId && (
-                <div className="mb-3">
-                  <Form.Label as="strong">Connections</Form.Label>
-                  <div className=" d-flex justify-content-between mt-2">
-                    <div className="col-8 text-start mx-3">
+                <div className="mb-2 text-start">
+                  <Form.Label as="strong" className="text-start">Connections: </Form.Label>{connections.length}
+                  <div className=" d-flex justify-content-between mt-1">
+                    <div className="col-7 text-start me-3">
                       {connections.length > 0 ? (
-                        <ListGroup variant="flush" className="mb-2">
+                        <ListGroup variant="flush" className="mb-2" style={{ fontSize:'12px',maxHeight:'100px', overflowY:'auto'}}>
                           {connections.map((conn, index) => (
                             <ListGroup.Item key={index}>
                               {conn.IdDocument1 == documentId
@@ -629,10 +618,10 @@ function ModifyDocument() {
                           ))}
                         </ListGroup>
                       ) : (
-                        <p className="text-muted">No connections added yet.</p>
+                        <p className="text-muted text-center">No connections added yet.</p>
                       )}
                     </div>
-                    <div>
+                    <div className="text-center me-5">
                       <Button
                         variant="secondary"
                         size="sm"
@@ -645,71 +634,62 @@ function ModifyDocument() {
                   </div>
                 </div>
               )}
-              <div className="mb-3">
-                <Form.Group controlId="formFileMultiple" className="mb-3">
-                  <Form.Label as="strong">Original Resource</Form.Label>
-
-                  {/* List of resources */}
-                  {resources.length > 0 ? (
-                    <ListGroup variant="flush" className="mb-2">
-                      <div style={{ overflowY: "auto", maxHeight: "150px" }}>
-                        {resources.map((res, index) => (
-                          <ListGroup.Item
+              <div className="text-start">
+                <Form.Group controlId="formFileMultiple" className="mb-2">
+                  <Form.Label as="strong">Original Resources: </Form.Label>{resources.length}
+                  <div className="d-flex">
+                    <div className="col-7 me-2">
+                    {/* List of resources */}
+                    {resources.length > 0 ? (
+                      <ListGroup variant="flush" className="mb-2">
+                        <div style={{ overflowY: "auto", maxHeight: "100px", fontSize:'12px' }}>
+                          {resources.map((res, index) => (
+                            <ListGroup.Item
                             key={index}
-                            className="d-flex justify-content-between align-items-center"
-                          >
-                            {/* Resource Link */}
-                            <a
-                              href={`http://localhost:3001${res.url}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{ textDecoration: "underline" }}
-                            >
-                              {res.filename}
-                            </a>
+                              className="d-flex justify-content-between align-items-center"
+                              >
+                              {/* Resource Link */}
+                              <a
+                                href={`http://localhost:3001${res.url}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ textDecoration: "underline" }}
+                                >
+                                {res.filename}
+                              </a>
 
-                            {/* Cancel/Delete Button */}
-                            <button
-                              type="button"
-                              className="btn btn-link text-danger p-0"
-                              onClick={() => handleDeleteResource(res)} // Replace with your delete handler
-                              style={{ textDecoration: "none" }}
-                            >
-                              ✖
-                            </button>
-                          </ListGroup.Item>
-                        ))}
-                      </div>
-                    </ListGroup>
-                  ) : (
-                    <p className="text-muted">No resources added yet.</p>
-                  )}
-
-                  {/* Form to upload new resources */}
-                  <div className="d-flex mt-3 justify-content-between">
-                    <Form.Control
-                      type="file"
-                      onChange={(e) => setAddResources(e.target.files)}
-                      size="sm"
-                      multiple
-                    />
+                              {/* Cancel/Delete Button */}
+                              <CloseButton onClick={() => handleDeleteResource(res)}></CloseButton>
+                            </ListGroup.Item>
+                          ))}
+                        </div>
+                      </ListGroup>
+                    ) : (
+                      <p className="text-muted text-center">No resources added yet.</p>
+                    )}
+                    </div>
+                    <div className="col">
+                      {/* Form to upload new resources */}
+                      <Form.Control
+                        type="file"
+                        onChange={(e) => setAddResources(e.target.files)}
+                        size="sm"
+                        multiple
+                        />
+                    </div>  
                   </div>
                 </Form.Group>
               </div>
             </Col>
 
             {/* ---------------------- Right Column --------------------------- */}
-            <Col md={6}>
+            <Col className="text-start" md={6}>
               <FormGroup
                 controlId="stakeholder"
                 className="mb-3"
-                style={ {display: "flex",
-                  gap: "10px",
-                  alignItems: "center",
-                  marginBottom: "1rem"}}
               >
-                <div style={{ flexGrow: 1 }}>
-                  <label>Stakeholder*</label>
+              <Form.Label as="strong">Stakeholders*</Form.Label>
+                <InputGroup className="align-items-center">
                   <Select
                     options={stakeholders.map((stk) => ({
                       value: stk.id,
@@ -719,34 +699,25 @@ function ModifyDocument() {
                     placeholder="Select Stakeholder"
                     value={selectedStakeholders}
                     onChange={(selected) => setSelectedStakeholders(selected)}
+                    className="col-9"
                   />
-                </div>
-
-                <Button
-                  variant="outline-primary"
-                  onClick={() => setShowAddStakeholder(true)}
-                  
-                  style={{ flex: "2", textAlign: "center" ,marginBottom: "-15px"}}
-                  className="mt-2"
-                >
-                  Add Stakeholder
-                </Button>
+                  <Button
+                    variant="outline-secondary"
+                    onClick={() => setShowAddStakeholder(true)}
+                    className="rounded-end col"
+                  >
+                    Add Stakeholder
+                  </Button>
+                </InputGroup>
               </FormGroup>
 
               <FormGroup controlid="type" className="mb-3">
-                <label>Document Type*</label>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "10px",
-                    alignItems: "center",
-                    marginBottom: "1rem",
-                  }}
-                >
+                <Form.Label as="strong">Document Type*</Form.Label>
+                <InputGroup className="align-items-center">
                   <Form.Select
                     value={type.id}
                     onChange={(e) => setType(e.target.value)}
-                    style={{ flex: "3" }}
+                    className="col-8"
                   >
                     <option>Select Document Type</option>
                     {types.map((tp) => (
@@ -757,16 +728,15 @@ function ModifyDocument() {
                   </Form.Select>
 
                   <Button
-                    variant="outline-primary"
+                    variant="outline-secondary"
                     onClick={() => setShowAddDocumentType(true)}
-                    style={{ flex: "2", textAlign: "center" }}
                   >
                     Add Document Type
                   </Button>
-                </div>
+                </InputGroup>
               </FormGroup>
               <Form.Group controlid="description" className="mb-3">
-                <label>Description*</label>
+                <Form.Label as="strong">Description*</Form.Label>
                 <Form.Control
                   className="mt-auto"
                   as="textarea"
@@ -800,18 +770,6 @@ function ModifyDocument() {
                   {documentId ? area : area.Area_Name}
                 </p>
               )}
-            </Col>
-            {message && (
-              <Alert
-                variant="danger"
-                dismissible
-                onClick={() => setMessage("")}
-              >
-                {message}
-              </Alert>
-            )}
-          </Row>
-        </Card.Body>
         <div className="d-flex justify-content-center mb-4 mx-5">
           <Button
             variant="outline-secondary"
@@ -828,6 +786,18 @@ function ModifyDocument() {
             Save
           </Button>
         </div>
+            </Col>
+            {message && (
+              <Alert
+                variant="danger"
+                dismissible
+                onClick={() => setMessage("")}
+              >
+                {message}
+              </Alert>
+            )}
+          </Row>
+        </Card.Body>
       </Card>
 
       {/* ----------------------- Modal for Adding a Connection ----------------------------- */}

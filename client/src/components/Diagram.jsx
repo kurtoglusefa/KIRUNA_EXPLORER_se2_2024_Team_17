@@ -11,7 +11,6 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments,se
   const [numberofconnections, setNumberofconnections] = useState(0);
   const [typeConnections, setTypeConnections] = useState([]);
   const [connections, setConnections] = useState([]);
-  const [infoOpened, setInfoOpened] = useState(false);
 
   const [documentTypes, setDocumentTypes] = useState([]);
   const [stakeholders, setStakeholders] = useState([]);
@@ -120,14 +119,14 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments,se
       let edges = res.map((connection) => {
         offsetObjects[connection.IdDocument1+"-"+connection.IdDocument2] = offsetObjects[connection.IdDocument1+"-"+connection.IdDocument2]+1;
         let edgeStyle = {}; // Define a default edge style
-        if(connection.IdConnection === 1){
+        if(connection.IdConnection === 2){
           edgeStyle = {
             stroke: 'black',
             strokeWidth: 2,
             strokeDasharray: '0', // Normal solid line
           };
         }
-        else if(connection.IdConnection === 2){
+        else if(connection.IdConnection === 1){
           edgeStyle = {
             stroke: 'black',
             strokeWidth: 2,
@@ -145,7 +144,7 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments,se
           edgeStyle = {
             stroke: 'black',
             strokeWidth: 3,
-            strokeDasharray: '1,5', // "Dotted" line 
+            strokeDasharray: '8,4,1,4', // "Dotted" line 
           };
         }
         return {
@@ -425,56 +424,63 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments,se
   
 
   return (
-    <>
-        {/* Info Button */}
-        <i className="bi bi-info-circle-fill h1 info-button" onClick={() => setInfoOpened(!infoOpened)} style={{color:'FDFDFD'}} onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'} onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}></i>
-        {infoOpened && 
-          <img className='info-button me-5' style={{borderRadius:'20px'}} src="/info-connections.png" /> 
-        }
-
-        {/* React Flow Diagram*/}
-        <div style={{padding: '15px',height: '89vh', backgroundColor:'#FDFDFD'}}>
+  <>
+    <div style={{display:'flex'}}>
+      {/* React Flow Diagram*/}
+      <div style={{padding: '15px',height: '89vh', width:'100vw', backgroundColor:'#FDFDFD'}}>
+        
+        
+        {/* Diagram */}
         <ReactFlowProvider>
           <ReactFlow
-          nodes={nodes}
-          snapGrid={[10, 10]}
-          snapToGrid={true}
-          minZoom={0.3} 
-          maxZoom={1.6}
-          edges={edges}
-          edgeTypes={edgeTypes} // Use custom edge types
-          fitView={true}
-          
-          nodeTypes={{ svgNode: SvgNode }}
-          onNodeClick={handleNodeClick} 
-          onEdgeClick={handleEdgeClick}
-          onNodeMouseEnter={(e) => e.target.style.cursor = 'pointer'}
-          onNodeMouseLeave={(e) => e.target.style.cursor = 'drag'}
-          style={{ background: "#FDFDFD" }}>
-          <Background color="lightgray" gap={gapx} variant={BackgroundVariant.Lines} />
-          <Controls  showZoom={false} showInteractive={false} showFitView={true}/>
-        </ReactFlow>
+            nodes={nodes}
+            snapGrid={[10, 10]}
+            snapToGrid={true}
+            minZoom={0.3} 
+            maxZoom={1.6}
+            edges={edges}
+            edgeTypes={edgeTypes} // Use custom edge types
+            fitView={true}
+            
+            nodeTypes={{ svgNode: SvgNode }}
+            onNodeClick={handleNodeClick} 
+            onEdgeClick={handleEdgeClick}
+            onNodeMouseEnter={(e) => e.target.style.cursor = 'pointer'}
+            onNodeMouseLeave={(e) => e.target.style.cursor = 'drag'}
+            style={{ background: "#FDFDFD" }}>
+            <Background color="lightgray" gap={gapx} variant={BackgroundVariant.Lines} />
+            <Controls  showZoom={false} showInteractive={false} showFitView={true}/>
+          </ReactFlow>
         </ReactFlowProvider>
+      </div>
+    
+      
+    
     </div>
+
+    {/* Card Document */}
+
     {selectedDocument && (
-            <div
-              className='document-card overlay col-lg-3 col-md-6 col-sm-9'
-              style={{ marginLeft: '1%', bottom: '12%', width: '30%' }}
-            >
-              <CardDocument
-                document={selectedDocument}
-                locationType={locationsArea[selectedDocument?.IdLocation] ? "Area" : "Point"}
-                latitude={locations[selectedDocument?.IdLocation]?.Latitude.toFixed(4)}
-                longitude={locations[selectedDocument?.IdLocation]?.Longitude.toFixed(4)}
-                setShowCard={setSelectedDocument}
-                setSelectedDocument={setSelectedDocument}
-                viewMode='map'
-                isLogged={isLogged}
-                numberofconnections={numberofconnections}
-                areaName={locationsArea[selectedDocument?.IdLocation]?.Area_Name}
-              />
-            </div>
+      <div
+        className='document-card overlay col-lg-3 col-md-6 col-sm-9'
+        style={{ marginLeft: '1%', bottom: '12%', width: '30%' }}
+      >
+        <CardDocument
+          document={selectedDocument}
+          locationType={locationsArea[selectedDocument?.IdLocation] ? "Area" : "Point"}
+          latitude={locations[selectedDocument?.IdLocation]?.Latitude.toFixed(4)}
+          longitude={locations[selectedDocument?.IdLocation]?.Longitude.toFixed(4)}
+          setShowCard={setSelectedDocument}
+          setSelectedDocument={setSelectedDocument}
+          viewMode='map'
+          isLogged={isLogged}
+          numberofconnections={numberofconnections}
+          areaName={locationsArea[selectedDocument?.IdLocation]?.Area_Name}
+        />
+      </div>
     )}
+
+    {/* Card Connection */}
     {selectedEdge && (
       <div
         className='overlay col-lg-3 col-md-6 col-sm-9 p-3'
@@ -491,7 +497,7 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments,se
         </div>
       </div>
     )}
-    </>
+  </>
   );
 }
 

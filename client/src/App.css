@@ -88,10 +88,27 @@
 }
 
 .info-button {
-  position:absolute;
-  right:1.5%;
-  top:110px;
+  position: absolute;
+  right:1.6%;
+  top:23px;
   z-index:100;
+}
+
+.btn-filter {
+  background-color: white;
+  color: #A89559;
+}
+.btn-filter:hover {
+  background-color: #A89559;
+  color: white;
+}
+
+.btn-search {
+  background-color: #A89559;
+  color: white ;
+}
+.btn-search:hover {
+  background-color: #7a5d00;
 }
 
 .filters-card {
@@ -100,4 +117,15 @@
   top: 50px;
   border-width: 2px;
   border-color: #A89559;
+}
+
+.sidebar {
+  position: absolute;
+  top: 80px;
+  right: 0px;
+  min-height: 90vh;
+  max-height: 90vh;
+  background-color: #eeeeee;
+  z-index: 0;
+  box-shadow: #000000 0px 0px 70px;
 }

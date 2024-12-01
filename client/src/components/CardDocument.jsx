@@ -1,129 +1,207 @@
-import { useEffect, useState } from "react"; 
-import { Badge, Button, Card } from "react-bootstrap"; 
-import { useNavigate } from "react-router-dom"; 
-import API from "../API"; 
- 
-function CardDocument ({document, locationType, latitude, longitude, setShowCard, setSelectedDocument, isLogged, viewMode, areaName, numberofconnections}) { 
-  const navigate = useNavigate(); 
-   
-  const [resource, setResource] = useState([]); 
-  const [stakeholders, setStakeholders] = useState([]); 
-  const [scales, setScales] = useState([]); 
- 
-  const [connections, setConnections] = useState([]); 
-  const [documents, setDocuments] = useState([]); 
-  const [typeConnections, setTypeConnections] = useState({}); 
-  console.log(locationType);
-  console.log(latitude);
-  console.log(longitude);
-  useEffect(() => { 
-    const fetchResources = async () => { 
-      try { 
-          const res = await API.getDocumentResources(document.IdDocument); 
-          setResource(res); 
-      } catch (err) { 
-        if(err === 404) { 
-          setResource([]); 
-        } else { 
-          setMessage('Error fetching resources'); 
-        } 
-      } 
-    }; 
-    const fetchStakeholders = async () => { 
-      try { 
-        const res = await API.getAllStakeholders(); 
-        setStakeholders(res); 
-      } catch (err) { 
-        console.error(err); 
-      } 
-    }; 
- 
-    const fetchScales = async () => { 
-      try { 
-        const res = await API.getScales(); 
-        res.map(scale => scales[scale.IdScale] = { scale_text: scale.scale_text, scale_number: scale.scale_number }); 
-        console.log(res); 
-        setScales(res); 
-      } catch (err) { 
-        console.error(err); 
-      } 
-    }; 
-    const fetchDocuments = async () => { 
-      try { 
-        const res = await API.getAllDocuments(); 
-        setDocuments(res); 
-      } catch (err) { 
-        console.error(err); 
-      } 
-    }; 
-    const fetchDocumentConnections = async () => { 
-      try { 
-        const res = await API.getDocumentConnection(document.IdDocument); 
-        console.log("Document connections"); 
-        console.log(res); 
-        setConnections(res); 
-      } 
-      catch (err) { 
-        console.error(err); 
-      } 
-    }; 
-    const getAllTypeConnections = async () => { 
-      try { 
-        console.log("get all type connections"); 
-        const res = await API.getAllTypeConnections(); 
-        console.log(res); 
- 
-        const typeConnectionId = res.reduce((acc, conn) => { 
-          acc[conn.IdConnection] = conn; 
-          return acc; 
-        }, {}); 
-        setTypeConnections(typeConnectionId); 
-      } catch (err) { 
-        console.error(err); 
-      } 
-    }; 
-      console.log(document);
-      fetchResources(); 
-      fetchStakeholders(); 
-      fetchScales(); 
-      fetchDocumentConnections(); 
-      fetchDocuments(); 
-      getAllTypeConnections(); 
-  }, [document?.IdDocument]); 
- 
-   
+import { useEffect, useState } from "react";
+import { Badge, Button, Card, Placeholder, PlaceholderButton, Spinner } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import API from "../API";
+
+function CardDocument ({document, locationType, latitude, longitude, setShowCard, setSelectedDocument, isLogged, viewMode, areaName, numberofconnections}) {
+  const navigate = useNavigate();
   
-  const handleModifyDocument = () => { 
-    if (document) { 
-      //setShowCard(false); 
-      navigate(`/documents/modify-document/${document.IdDocument}`, { state: { document: document , location: (latitude && longitude) ? {lat: latitude, lng: longitude} : null, area: areaName ? areaName : null} }); 
-    } 
-  }; 
-  return ( 
-    <Card> 
-      <Button  
-        variant="close" 
-        onClick={() => { 
-          if(viewMode == 'map') { 
-          setShowCard(false); 
-          } 
-          setSelectedDocument(null); 
-        }}  
-        style={{  
-          position: 'absolute',  
-          top: '2%',  
-          right: '2%'  
-          }}  
-          /> 
-      <Card.Header className='document px-4'> 
-        <Card.Title><strong>{document?.Title}</strong></Card.Title> 
-      </Card.Header> 
-      <Card.Body className='document-card text-start'> 
-        <div className='d-flex'> 
+  const [resource, setResource] = useState([]);
+  const [stakeholders, setStakeholders] = useState([]);
+  const [scales, setScales] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchResources = async () => {
+      setLoading(true);
+      try {
+          const res = await API.getDocumentResources(document.IdDocument);
+          setResource(res);
+      } catch (err) {
+        console.log(err);
+        if(err === 404) {
+          setResource([]);
+        } else {
+          setMessage('Error fetching resources');
+        }
+      }
+      setLoading(false);
+    };
+    const fetchStakeholders = async () => {
+      setLoading(true);
+      try {
+        const res = await API.getAllStakeholders();
+        setStakeholders(res);
+        console.log(res);
+      } catch (err) {
+        console.error(err);
+      }
+      setLoading(false);
+    };
+
+    const fetchScales = async () => {
+      setLoading(true);
+      try {
+        const res = await API.getScales();
+        res.map(scale => scales[scale.IdScale] = { scale_text: scale.scale_text, scale_number: scale.scale_number });
+        console.log(res);
+        setScales(res);
+      } catch (err) {
+        console.error(err);
+      }
+      setLoading(false);
+    };
+    
+      fetchResources();
+      fetchStakeholders();
+      fetchScales();
+  }, [document?.IdDocument]);
+
+  
  
-          <div className='col-6 m-1'> 
- 
-          <Card.Text style={{ fontSize: '16px' }}><strong>Date:</strong> {document?.Issuance_Date}</Card.Text>
+  const handleModifyDocument = () => {
+    if (document) {
+      //setShowCard(false);
+      navigate(`/documents/modify-document/${document.IdDocument}`, { state: { document: document , location: (latitude && longitude) ? {lat: latitude, lng: longitude} : null, area: areaName ? areaName : null} });
+    }
+  };
+  console.log(document);
+  
+  return (
+    loading ? (
+      <Card>
+      <Button 
+        variant="close"
+        onClick={() => {
+          if(viewMode == 'map') {
+          setShowCard(false);
+          }
+          setSelectedDocument(null);
+        }} 
+        style={{ 
+          position: 'absolute', 
+          top: '2%', 
+          right: '2%' 
+          }} 
+          />
+      <Card.Header className='document px-4'>
+        <Placeholder as={Card.Title} animation="wave">
+          <Placeholder xs={6}  />
+        </Placeholder>
+      </Card.Header>
+      <Card.Body className='document-card text-start'>
+        <div className='d-flex'>
+
+          <div className='col-6 m-1'>
+
+            <Placeholder as={Card.Text} animation="wave">
+              <Placeholder xs={6}  />
+            </Placeholder>
+            <Placeholder as={Card.Text} animation="wave">
+              <Placeholder xs={6}  />
+            </Placeholder>
+                        
+            <Placeholder as={Card.Text} animation="wave">
+              <Placeholder xs={6}  />
+            </Placeholder>
+            <Placeholder as={Card.Text} animation="wave">
+              <Placeholder xs={6}  />
+            </Placeholder>
+            <Placeholder as={Card.Text} animation="wave">
+              <Placeholder xs={10}  />
+            </Placeholder>
+            
+            <Placeholder as='strong' animation="wave">
+              <Placeholder xs={6}  />
+            </Placeholder>
+            <div style={{ overflowY: "auto",maxHeight : "70px"}}>
+              <Placeholder as='a' animation="wave">
+                <Placeholder xs={10}  />
+              </Placeholder>
+              <Placeholder as='a' animation="wave">
+                <Placeholder xs={10}  />
+              </Placeholder>
+              <Placeholder as='a' animation="wave">
+                <Placeholder xs={10}  />
+              </Placeholder>
+              <Placeholder as='a' animation="wave">
+                <Placeholder xs={10}  />
+              </Placeholder>
+              <Placeholder as='a' animation="wave">
+                <Placeholder xs={10}  />
+              </Placeholder>
+            </div>
+            <div className="text-center mt-4">                
+              {isLogged &&
+                locationType == 'Point' ? (
+                  <>
+                  <Placeholder as='strong' animation="wave">
+                    <Placeholder xs={6}  />
+                  </Placeholder><br></br>
+                  <Placeholder as='strong' animation="wave">
+                    <Placeholder xs={6}  />
+                  </Placeholder>
+                </>  
+                ) : (
+                  <>
+                    <Placeholder as='strong' animation="wave">
+                      <Placeholder xs={6}  />
+                    </Placeholder>
+                  </>
+                  ) 
+                }
+            </div>
+          </div>
+          <div className="m-1 col-6"> 
+            <Placeholder as={Card.Text} animation="wave">
+              <Placeholder xs={6}  />
+            </Placeholder>
+            <Placeholder as='p' animation="wave">
+              <Placeholder xs={10}  />
+              <Placeholder xs={10}  />
+              <Placeholder xs={10}  />
+              <Placeholder xs={10}  />
+              <Placeholder xs={10}  />
+              <Placeholder xs={10}  />
+              <Placeholder xs={10}  />
+              <Placeholder xs={10}  />
+              <Placeholder xs={10}  />
+            </Placeholder>
+          </div>
+        </div>
+      </Card.Body>
+      {isLogged && (
+        <Card.Footer className=' text-end' >
+          <Placeholder.Button variant='dark' xs={3} aria-hidden="true" />
+        </Card.Footer>
+      )}
+    </Card>
+    ) : (
+
+    <Card>
+      <Button 
+        variant="close"
+        onClick={() => {
+          if(viewMode == 'map') {
+          setShowCard(false);
+          }
+          setSelectedDocument(null);
+        }} 
+        style={{ 
+          position: 'absolute', 
+          top: '2%', 
+          right: '2%' 
+          }} 
+          />
+      <Card.Header className='document px-4'>
+        <Card.Title><strong>{document?.Title}</strong></Card.Title>
+      </Card.Header>
+      <Card.Body className='document-card text-start'>
+        <div className='d-flex'>
+
+          <div className='col-6 m-1'>
+
+            <Card.Text style={{ fontSize: '16px' }}><strong>Date:</strong> {document?.Issuance_Date}</Card.Text>
             <Card.Text style={{ fontSize: '16px' }}><strong>Scale Name:</strong> {scales[document?.IdScale-1] ? scales[document?.IdScale-1].scale_text : ""}</Card.Text>
             {scales[document?.IdScale] && scales[document?.IdScale].scale_number !== '' ? (
               <Card.Text style={{ fontSize: '16px' }}>
