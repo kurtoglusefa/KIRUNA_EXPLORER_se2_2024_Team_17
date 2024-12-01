@@ -12,6 +12,8 @@ import "leaflet-draw/dist/leaflet.draw.css";
 import { EditControl } from "react-leaflet-draw"
 import { FeatureGroup } from "react-leaflet"; 
 import { Rnd } from 'react-rnd'
+import MarkerClusterGroup from "react-leaflet-cluster"
+
 
 function Map({ locations, setLocations, locationsArea, documents, setSelectedLocation, propsDocument, selectedLocation, handleDocumentClick, numberofconnections, fetchLocationsArea }) {
   const selectedDocument = useContext(AppContext).selectedDocument;
@@ -274,15 +276,15 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
       centerControl.onAdd = () => {
         const container = L.DomUtil.create('div', 'leaflet-bar');
 
-        // Create the location button
+        // create the location button
         const locationButton = L.DomUtil.create('a', '', container);
         locationButton.href = '#';
         locationButton.title = 'Center Map';
 
-        // Add the location icon (using Bootstrap's "geo-alt" class for simplicity)
+        // add the location icon
         locationButton.innerHTML = '<i class="bi bi-crosshair" style="font-size: 20px; color: black;"></i>';
 
-        // Add click functionality to center the map
+        // add click functionality to center the map
         locationButton.onclick = (e) => {
           e.preventDefault();
           map.setView([67.8558, 20.2253], 12); // Center the map to the given coordinates
@@ -336,6 +338,7 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
               <LayersControl position="topright" collapsed={false}>
                 <LayersControl.Overlay name="Documents" checked>
                   <LayerGroup>
+                  <MarkerClusterGroup>
                     {documents.map((document, index) => {
                       // Determine the location of the document
                       const location =
@@ -384,10 +387,12 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                       }
                       return null; // Ensure that the map function returns null if location is not found
                     })}
+                    </MarkerClusterGroup>
                   </LayerGroup>
                 </LayersControl.Overlay>
                 <LayersControl.Overlay name="Area" checked>
                   <LayerGroup>
+                   
                     {locationsArea &&
                       Object.values(locationsArea).map((area, index) => {
                         let coordinates;
@@ -420,6 +425,7 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                           </Polygon>
                         );
                       })}
+                    
                   </LayerGroup>
                 </LayersControl.Overlay>
               </LayersControl>
@@ -442,10 +448,7 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                         location.Longitude + (index % 2 === 0 ? -offsetIndex : offsetIndex),
                       ];
                     }
-
-
                     const iconPath = `src/icon/${stakeholders[document.IdStakeholder - 1]?.color}/${documentTypes[document.IdType - 1]?.iconsrc}`;
-
                     return (
                       <Marker
                         key={index}
