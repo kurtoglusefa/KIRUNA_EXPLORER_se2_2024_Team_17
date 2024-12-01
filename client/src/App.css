@@ -86,3 +86,19 @@
   z-index: 1000;
   box-shadow: #000000 0px 10px 20px 0px;
 }
+
+@keyframes blink {
+  0%, 100% {
+    border-color: red;
+    box-shadow: 0 0 5px 2px rgba(255, 0, 0, 0.5);
+  }
+  50% {
+    border-color: transparent;
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.blink {
+  animation: blink 2s infinite;
+  border-width: 2px !important; /* Make the border thicker */
+}
