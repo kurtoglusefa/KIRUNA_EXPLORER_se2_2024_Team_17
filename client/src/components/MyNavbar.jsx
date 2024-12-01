@@ -320,7 +320,7 @@ export function MyNavbar({ documents, setDocuments }) {
                 <div className='d-flex align-items-center'>
                   <Button size='md' className='px-3 rounded-pill btn-logout' variant='' onClick={() => {
                     loginState.doLogout();
-                    navigate('/');
+                    navigate('/home');
                   }}>
                     {'Logout '}
                     <i className="bi bi-person-fill" />

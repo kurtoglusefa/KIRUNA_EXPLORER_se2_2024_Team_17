@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Badge, Button, Card } from "react-bootstrap";
+import { Badge, Button, Card, Placeholder, PlaceholderButton, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import API from "../API";
 
@@ -9,9 +9,11 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
   const [resource, setResource] = useState([]);
   const [stakeholders, setStakeholders] = useState([]);
   const [scales, setScales] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchResources = async () => {
+      setLoading(true);
       try {
           const res = await API.getDocumentResources(document.IdDocument);
           setResource(res);
@@ -23,8 +25,10 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
           setMessage('Error fetching resources');
         }
       }
+      setLoading(false);
     };
     const fetchStakeholders = async () => {
+      setLoading(true);
       try {
         const res = await API.getAllStakeholders();
         setStakeholders(res);
@@ -32,9 +36,11 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
       } catch (err) {
         console.error(err);
       }
+      setLoading(false);
     };
 
     const fetchScales = async () => {
+      setLoading(true);
       try {
         const res = await API.getScales();
         res.map(scale => scales[scale.IdScale] = { scale_text: scale.scale_text, scale_number: scale.scale_number });
@@ -43,8 +49,9 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
       } catch (err) {
         console.error(err);
       }
+      setLoading(false);
     };
-  
+    
       fetchResources();
       fetchStakeholders();
       fetchScales();
@@ -61,6 +68,116 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
   console.log(document);
   
   return (
+    loading ? (
+      <Card>
+      <Button 
+        variant="close"
+        onClick={() => {
+          if(viewMode == 'map') {
+          setShowCard(false);
+          }
+          setSelectedDocument(null);
+        }} 
+        style={{ 
+          position: 'absolute', 
+          top: '2%', 
+          right: '2%' 
+          }} 
+          />
+      <Card.Header className='document px-4'>
+        <Placeholder as={Card.Title} animation="wave">
+          <Placeholder xs={6}  />
+        </Placeholder>
+      </Card.Header>
+      <Card.Body className='document-card text-start'>
+        <div className='d-flex'>
+
+          <div className='col-6 m-1'>
+
+            <Placeholder as={Card.Text} animation="wave">
+              <Placeholder xs={6}  />
+            </Placeholder>
+            <Placeholder as={Card.Text} animation="wave">
+              <Placeholder xs={6}  />
+            </Placeholder>
+                        
+            <Placeholder as={Card.Text} animation="wave">
+              <Placeholder xs={6}  />
+            </Placeholder>
+            <Placeholder as={Card.Text} animation="wave">
+              <Placeholder xs={6}  />
+            </Placeholder>
+            <Placeholder as={Card.Text} animation="wave">
+              <Placeholder xs={10}  />
+            </Placeholder>
+            
+            <Placeholder as='strong' animation="wave">
+              <Placeholder xs={6}  />
+            </Placeholder>
+            <div style={{ overflowY: "auto",maxHeight : "70px"}}>
+              <Placeholder as='a' animation="wave">
+                <Placeholder xs={10}  />
+              </Placeholder>
+              <Placeholder as='a' animation="wave">
+                <Placeholder xs={10}  />
+              </Placeholder>
+              <Placeholder as='a' animation="wave">
+                <Placeholder xs={10}  />
+              </Placeholder>
+              <Placeholder as='a' animation="wave">
+                <Placeholder xs={10}  />
+              </Placeholder>
+              <Placeholder as='a' animation="wave">
+                <Placeholder xs={10}  />
+              </Placeholder>
+            </div>
+            <div className="text-center mt-4">                
+              {isLogged &&
+                locationType == 'Point' ? (
+                  <>
+                  <Placeholder as='strong' animation="wave">
+                    <Placeholder xs={6}  />
+                  </Placeholder><br></br>
+                  <Placeholder as='strong' animation="wave">
+                    <Placeholder xs={6}  />
+                  </Placeholder>
+                </>  
+                ) : (
+                  <>
+                    <Placeholder as='strong' animation="wave">
+                      <Placeholder xs={6}  />
+                    </Placeholder>
+                  </>
+                  ) 
+                }
+            </div>
+          </div>
+          <div className="m-1 col-6"> 
+            <Placeholder as={Card.Text} animation="wave">
+              <Placeholder xs={6}  />
+            </Placeholder>
+            <Placeholder as='p' animation="wave">
+              <Placeholder xs={10}  />
+              <Placeholder xs={10}  />
+              <Placeholder xs={10}  />
+              <Placeholder xs={10}  />
+              <Placeholder xs={10}  />
+              <Placeholder xs={10}  />
+              <Placeholder xs={10}  />
+              <Placeholder xs={10}  />
+              <Placeholder xs={10}  />
+            </Placeholder>
+          </div>
+        </div>
+      </Card.Body>
+      {isLogged && (
+        <Card.Footer className=' text-end' >
+          <Placeholder.Button variant='dark' xs={3} aria-hidden="true" />
+        </Card.Footer>
+      )}
+    </Card>
+    ) : (
+
     <Card>
       <Button 
         variant="close"
@@ -104,7 +221,7 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
             {/*<Card.Text style={{ fontSize: '16px' }}><strong>Type: </strong> {locationType}</Card.Text>*/}
             <Card.Text style={{ fontSize: '16px'}}><strong>Connections:</strong> {numberofconnections}</Card.Text>
             <Card.Text style={{ fontSize: '16px' }}>
-              <strong>Original Resource:</strong><br></br>
+              <strong>Original Resources:</strong><br></br>
               <div style={{ overflowY: "auto",maxHeight : "100px"}}>
                 {resource.length > 0 ? (
                   resource.map((res, index) => (
@@ -115,7 +232,7 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
                   ))
                 
                 ): (
-                  <span style={{fontSize:'13px'}}>No original resource added</span>
+                  <span style={{fontSize:'13px'}}>No original resources added</span>
                 )}
               </div>
               </Card.Text>
@@ -141,7 +258,7 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
               </Badge>
             }
           </div>
-          <div className="m-1"> 
+          <div className="m-1 col-6"> 
             <strong style={{fontSize:'16px'}}>Description:</strong>
             <Card.Text style={{marginTop:'5px',height: '300px', overflowY: 'auto' , fontSize: '16px' }}>{document?.Description}</Card.Text>
           </div>
@@ -153,6 +270,8 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
         </Card.Footer>
       )}
     </Card>
+    )
+
   )
 }
 

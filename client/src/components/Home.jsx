@@ -11,6 +11,7 @@ import '../App.css';
 import { Modal } from 'react-bootstrap';
 import CardDocument from './CardDocument';
 import Diagram from './Diagram';
+import SidebarLegend from './SidebarLegend';
 
 
 
@@ -247,6 +248,8 @@ function Home(props) {
             )
           ) : null
         }
+        
+        <SidebarLegend loggedIn={isLogged}/>
       </div>
 
       <Modal show={showAddConnection} centered onHide={() => setShowAddConnection(false)}>
