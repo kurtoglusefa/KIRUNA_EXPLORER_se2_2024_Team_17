@@ -726,108 +726,131 @@ function ModifyDocument() {
                   </Button>
                 </InputGroup>
               </FormGroup>
+                <FormGroup controlid="type" className="mb-3">
+                  <Form.Label as="strong">Document Type*</Form.Label>
+                  <InputGroup className="align-items-center">
+                    <Form.Select
+                      value={type.id}
+                      onChange={(e) => setType(e.target.value)}
+                      className="col-8"
+                    >
+                      <option>Select Document Type</option>
+                      {types.map((tp) => (
+                        <option key={tp.id} value={tp.id}>
+                          {tp.type}
+                        </option>
+                      ))}
+                    </Form.Select>
 
-              <FormGroup controlid="type" className="mb-3">
-                <Form.Label as="strong">Document Type*</Form.Label>
-                <InputGroup className="align-items-center">
-                  <Form.Select
-                    value={type.id}
-                    onChange={(e) => setType(e.target.value)}
-                    className="col-8"
-                  >
-                    <option>Select Document Type</option>
-                    {types.map((tp) => (
-                      <option key={tp.id} value={tp.id}>
-                        {tp.type}
-                      </option>
-                    ))}
-                  </Form.Select>
+                    <Button
+                      variant="outline-secondary"
+                      onClick={() => setShowAddDocumentType(true)}
+                    >
+                      Add Document Type
+                    </Button>
+                  </InputGroup>
+                </FormGroup>
+                <Form.Group controlid="description" className="mb-3">
+                  <Form.Label as="strong">Description*</Form.Label>
+                  <Form.Control
+                    className="mt-auto"
+                    as="textarea"
+                    style={{ height: "205px" }}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+                </Form.Group>
 
-                  <Button
-                    variant="outline-secondary"
-                    onClick={() => setShowAddDocumentType(true)}
-                  >
-                    Add Document Type
-                  </Button>
-                </InputGroup>
-              </FormGroup>
-              <Form.Group controlid="description" className="mb-3">
-                <Form.Label as="strong">Description*</Form.Label>
-                <Form.Control
-                  className="mt-auto"
-                  as="textarea"
-                  style={{ height: "205px" }}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
-              </Form.Group>
-              <Form.Group controlid="location" className="mb-3">
-                <Form.Label as="strong">Type Location</Form.Label>
-                  <div>
-                    <Form.Check
-                      type="radio"
-                      label="Area"
-                      name="options"
-                      id="optionArea"
-                      value="Area"
-                      checked={locationType === "Area"}
-                      onChange={handleOptionChangeLocation}
-                    />
-                    <Form.Check
-                      type="radio"
-                      label="Point"
-                      name="options"
-                      id="optionPoint"
-                      value="Point"
-                      checked={locationType === "Point"}
-                      onChange={handleOptionChangeLocation}
-                    />
+                <Form.Group controlid="location" className="mb-5 d-flex justify-content-between">
+                  <div  className="ms-3">
+                    <Form.Label as="strong" className="">Type Location</Form.Label>
+                    <div className="ms-3 mt-2">
+                      <Form.Check
+                        type="radio"
+                        label="Area"
+                        name="options"
+                        id="optionArea"
+                        value="Area"
+                        checked={locationType === "Area"}
+                        onChange={handleOptionChangeLocation}
+                      />
+                      <Form.Check
+                        type="radio"
+                        label="Point"
+                        name="options"
+                        id="optionPoint"
+                        value="Point"
+                        checked={locationType === "Point"}
+                        onChange={handleOptionChangeLocation}
+                      />
+                    </div>
                   </div>
-              </Form.Group>
-              {locationType === "Point" ? (
-                <div className="mb-4 d-flex">
-                  <p className="mx-4 d-flex align-items-center">
-                    <strong className="me-2">Latitude:</strong>{" "}
-                    <Form.Control
-                      value={latitude}
-                      onChange={(e) => setLatitude(e.target.value)}
-                      maxLength={7}
-                    ></Form.Control>
-                  </p>
-                  <p className="mx-4 d-flex align-items-center">
-                    <strong className="me-2">Longitude:</strong>{" "}
-                    <Form.Control
-                      value={longitude}
-                      onChange={(e) => setLongitude(e.target.value)}
-                      maxLength={7}
-                    ></Form.Control>
-                  </p>
-                </div>
-              ) : (
-                 <Form.Group>
-                        <Form.Label>
-                          <strong>Area</strong>
-                        </Form.Label>
-                        <Form.Select
-                          value={selectedArea ? selectedArea.IdLocation : ""}
-                          onChange={(e) => {
-                            const area = locationsArea[e.target.value];
-                            setSelectedArea(area);
-                          }}
-                          required={true}
-                        >
-                          <option>Select an Area</option>
-                          {Object.values(locationsArea).map((area) => (
-                            <option
+
+                      
+
+                  <div className="mt-4">
+                    {locationType === "Point" ? (
+                      <>
+                        <div className="d-flex justify-content-between col-9">
+                          <Form.Label as='strong'>
+                            Latitude
+                          </Form.Label>
+                          <div className="col-6 text-end">
+                            <Form.Control
+                              id="latitude"
+                              value={latitude}
+                              onChange={(e) => setLatitude(e.target.value)}
+                              maxLength={7}
+                              className="ms-2"
+                              size="sm"
+                              />
+                          </div>
+                        </div>
+                        <div className="d-flex justify-content-between col-9">
+                          <Form.Label as='strong'>
+                            Longitude
+                          </Form.Label>
+                          <div className="col-6 text-end">
+                          <Form.Control
+                            id="longitude"
+                            value={longitude}
+                            onChange={(e) => setLongitude(e.target.value)}
+                            maxLength={7}
+                            size="sm"
+                            className="ms-2"
+                            />
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="d-flex align-items-center me-5">
+                          <Form.Label as='strong' className="mt-1 me-3">
+                            Area
+                          </Form.Label>
+                          <Form.Select
+                            value={selectedArea ? selectedArea.IdLocation : ""}
+                            onChange={(e) => {
+                              const area = locationsArea[e.target.value];
+                              setSelectedArea(area);
+                            }}
+                            size="sm"
+                            required={true}
+                            >
+                            <option>Select an Area</option>
+                            {Object.values(locationsArea).map((area) => (
+                              <option
                               key={area.IdLocation}
                               value={area.IdLocation}
-                            >
-                              {area.Area_Name || `Area ${area.IdLocation}`}
-                            </option>
-                          ))}
-                        </Form.Select>
-                      </Form.Group>
-              )}
+                              >
+                                {area.Area_Name || `Area ${area.IdLocation}`}
+                              </option>
+                            ))}
+                          </Form.Select>
+                      </div>
+                    )}
+                  </div>
+                </Form.Group>
+              
         <div className="d-flex justify-content-center mb-4 mx-5">
           <Button
             variant="outline-secondary"

@@ -102,7 +102,8 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
   const handleModifyDocument = () => {
     if (document) {
       //setShowCard(false);
-      navigate(`/documents/modify-document/${document.IdDocument}`, { state: { document: document , location: (locationType=="Point") ? {lat: latitude, lng: longitude,type:locationType} : {area: area,type:locationType}, area: area.Area_Name ? area.Area_Name : null,type:locationType } });
+      console.log(locationType);
+      navigate(`/documents/modify-document/${document.IdDocument}`, { state: { document: document , location: (locationType=="Point") ? {lat: latitude, lng: longitude,type:locationType} : {area: area,type:locationType}, type:locationType } });
     }
   };
   console.log(document);
