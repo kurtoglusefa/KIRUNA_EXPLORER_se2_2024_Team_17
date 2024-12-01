@@ -7,19 +7,15 @@ import API from '../API'; // Import API module
 import '../App.css'
 import '../WelcomePage.css';
 
-function Diagram({documents,setDocuments,selectedDocument,setSelectedDocument}) {
+function Diagram({locations,setLocations,locationsArea,documents,setDocuments,selectedDocument,setSelectedDocument}) {
   const [numberofconnections, setNumberofconnections] = useState(0);
   const [typeConnections, setTypeConnections] = useState([]);
   const [connections, setConnections] = useState([]);
   const [infoOpened, setInfoOpened] = useState(false);
 
-  //const [selectedDocument, setSelectedDocument] = useState(null); //when click on a node, it will be selected
-
   const [documentTypes, setDocumentTypes] = useState([]);
   const [stakeholders, setStakeholders] = useState([]);
   const [scales, setScales] = useState([]);
-  const [locations, setLocations] = useState([]);
-  const [locationsArea, setLocationsArea] = useState([]);
 
   const context = useContext(AppContext);
   const isLogged = context.loginState.loggedIn;
@@ -32,22 +28,10 @@ function Diagram({documents,setDocuments,selectedDocument,setSelectedDocument}) 
 
   const [selectedEdge, setSelectedEdge] = useState(null);
 
-  useEffect(() => {
-    if (selectedDocument) {
-      setNodes((prevNodes) =>
-        prevNodes.map((node) =>
-          node.id === selectedDocument.IdDocument.toString()
-            ? { ...node, selected: true } // Mark the node as selected
-            : { ...node, selected: false } // Deselect all other nodes
-        )
-      );
-    } else {
-      // If no document is selected, clear all selections
-      setNodes((prevNodes) =>
-        prevNodes.map((node) => ({ ...node, selected: false }))
-      );
-    }
-  }, [selectedDocument]);
+  const [dataReady, setDataReady] = useState(false); // Tracks when the necessary data is ready
+  const [documentsReady, setDocumentsReady] = useState(false); // Tracks when documents are loaded
+
+  
   const OffsetEdge = ({ id, sourceX, sourceY, targetX, targetY, style, data }) => {
     const offset = data?.offset || 50; // Use offset from data (default: 50)
   
@@ -306,20 +290,49 @@ function Diagram({documents,setDocuments,selectedDocument,setSelectedDocument}) 
       console.error('Error fetching documents:', err);
     }
   };
-
+  
   useEffect(() => {
+    // Initial data fetching
     fetchConnections();
     fetchTypeConnections();
     fetchDocumentTypes();
     fetchStakeholders();
-    fetchScales();  
-  }, []);
-
+    fetchScales();
+  }, []); // Run once on mount
+  
   useEffect(() => {
-    if (documentTypes.length > 0 && stakeholders.length > 0 && scales.length > 0 ) {
-      fetchDocuments();
+    // Check if all dependencies are loaded
+    if (documentTypes.length > 0 && stakeholders.length > 0 && scales.length > 0) {
+      setDataReady(true); // Set the flag when all dependencies are loaded
     }
-  }, [documentTypes]); // Ensure `fetchDocuments` runs only after `documentTypes` are loaded
+  }, [documentTypes, stakeholders, scales]); // Depend on these arrays
+  
+  useEffect(() => {
+    // Trigger document fetching when data is ready
+    if (dataReady) {
+      fetchDocuments().then(() => setDocumentsReady(true)); // Set the flag after documents are fetched
+    }
+  }, [dataReady,documents]); // Runs when `dataReady` becomes `true`
+  
+  useEffect(() => {
+    // Handle selection logic after nodes are set
+    if (documentsReady) {
+      if (selectedDocument) {
+        setNodes((prevNodes) =>
+          prevNodes.map((node) =>
+            node.id === selectedDocument.IdDocument.toString()
+              ? { ...node, selected: true } // Mark the node as selected
+              : { ...node, selected: false } // Deselect all other nodes
+          )
+        );
+      } else {
+        // If no document is selected, clear all selections
+        setNodes((prevNodes) =>
+          prevNodes.map((node) => ({ ...node, selected: false }))
+        );
+      }
+    }
+  }, [documentsReady, selectedDocument]); // Depend on `documentsReady` and `selectedDocument`
 
 
   const handleNodeClick = async(event, node) => {

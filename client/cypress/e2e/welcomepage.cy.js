@@ -6,25 +6,14 @@ describe('template spec', () => {
     it('displays the welcome message', () => {
       cy.get('h1').should('contain', 'Welcome to Kiruna eXplorer');
       cy.get('.welcome-message p').should('contain', 'Join us in mapping the transformation of Kiruna');
-  });
+    });
+    it('should navigate to the home page when the button is clicked', () => {
+    // Click the "Explore the Move!" button
+    cy.get('.welcome-message-button').click();
 
-  it('displays the navbar and logo', () => {
-      cy.get('.navbar').should('exist');
-      cy.get('.logo-img').should('have.attr', 'src', '/kiruna2.webp');
+    // Verify that the URL changes to /home
+    cy.url().should('include', '/home');
   });
-
-  it('contains breadcrumb links with popups', () => {
-      // Verify "Explore the Move!" link
-      cy.get('.breadcrumb-nav').within(() => {
-          cy.contains('Explore the Move!').should('exist')
-              .trigger('mouseover'); // Simulate hover to show popup
-          cy.get('.popup-message').should('contain', 'Discover the journey of relocating Kiruna city.');
-      });
-  });
-
-  it('navigates to login page on clicking Login breadcrumb', () => {
-      cy.contains('Login').click();
-      cy.url().should('include', '/login'); // Verify the URL includes /login
-  });
+  
 
 })

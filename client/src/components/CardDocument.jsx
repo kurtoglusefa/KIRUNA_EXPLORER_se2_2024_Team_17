@@ -13,7 +13,9 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
   const [connections, setConnections] = useState([]); 
   const [documents, setDocuments] = useState([]); 
   const [typeConnections, setTypeConnections] = useState({}); 
- 
+  console.log(locationType);
+  console.log(latitude);
+  console.log(longitude);
   useEffect(() => { 
     const fetchResources = async () => { 
       try { 
@@ -80,7 +82,7 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
         console.error(err); 
       } 
     }; 
-   
+      console.log(document);
       fetchResources(); 
       fetchStakeholders(); 
       fetchScales(); 

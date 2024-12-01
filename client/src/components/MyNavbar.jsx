@@ -263,6 +263,7 @@ export function MyNavbar({ documents, setDocuments }) {
                             ))}
                           </Form.Select>
                           <Form.Select
+                            id="typeDocumentSelect" // Add an id
                             value={typeDocument || ""}
                             onChange={(e) => setTypeDocument(e.target.value)}
                             style={{
