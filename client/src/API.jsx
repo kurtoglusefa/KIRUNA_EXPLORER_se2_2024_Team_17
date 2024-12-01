@@ -581,6 +581,9 @@ const updateLocationDocument = (id, location_type, latitude, longitude, area_coo
       });
   });
 };
+const updateAreaDocument = (idArea,IdDocument) => {
+  //crate api that update the document with the area id in the document record
+};
 
 const getAllTypeConnections = () => {
   return new Promise((resolve, reject) => {
@@ -799,6 +802,6 @@ const updateScale = (id, scale_number) => {
   });
 };
 
-const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, createDocumentConnection, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea, getDocumentResources, addResourcesToDocument, addArea,deleteResource,getScales,addScale,updateScale,addStakeholder,getStakeholderByDocumentId,createTypeDocument};
+const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, createDocumentConnection, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea, getDocumentResources, addResourcesToDocument, addArea,deleteResource,getScales,addScale,updateScale,addStakeholder,getStakeholderByDocumentId,createTypeDocument,updateAreaDocument};
 
 export default API;

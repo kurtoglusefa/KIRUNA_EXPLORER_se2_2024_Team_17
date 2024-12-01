@@ -279,7 +279,7 @@ export function MyNavbar({ documents, setDocuments }) {
                           <Form.Control
                             type="number"
                             placeholder="YYYY"
-                            value={issuanceYear}
+                            value={issuanceYear || ''}
                             onChange={(e) => setIssuanceYear(e.target.value)}
                             className="rounded my-1"
                             style={{

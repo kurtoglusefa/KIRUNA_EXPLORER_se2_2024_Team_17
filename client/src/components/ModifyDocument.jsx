@@ -25,6 +25,10 @@ function ModifyDocument() {
   const location = useLocation();
   const selectedLocation = location.state.location || {};
 
+  console.log("selected location");
+  console.log(selectedLocation);
+
+
   // document fields
   const [title, setTitle] = useState("");
   const [scale, setScale] = useState("");
@@ -57,6 +61,7 @@ function ModifyDocument() {
 
   const [documents, setDocuments] = useState([]); // List of all documents
   const [filteredDocuments, setFilteredDocuments] = useState([]); // used to filter documents
+  const [locationsArea, setLocationsArea] = useState([]);
 
   const [showAddScale, setShowAddScale] = useState(false);
   const [scales, setScales] = useState([]);
@@ -74,6 +79,12 @@ function ModifyDocument() {
 
   const [selectedStakeholders, setSelectedStakeholders] = useState([]);
 
+  const [locationType, setLocationType] = useState(selectedLocation.type);
+  const [selectedArea, setSelectedArea] = useState(selectedLocation.area);
+
+
+  console.log("selected loc");
+  console.log(selectedLocation.type);
   useEffect(() => {
     const fetchResources = async () => {
       try {
@@ -130,6 +141,22 @@ function ModifyDocument() {
       } catch (err) {
         console.error(err);
       }
+    };
+    const fetchLocationsArea = async () => {
+  
+      API.getAllLocationsArea()
+        .then((res) => {
+  
+          const locationsById = res.reduce((acc, location) => {
+            acc[location.IdLocation] = location;
+            return acc;
+          }, {});
+          // Set the transformed object to state
+          setLocationsArea(locationsById);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
     };
 
     const fetchDocument = async () => {
@@ -198,6 +225,7 @@ function ModifyDocument() {
         console.error(err);
       }
     };
+    fetchLocationsArea();
     getAllScales();
     fetchDocuments();
     getStakeholders();
@@ -306,7 +334,7 @@ function ModifyDocument() {
           description,
           type.id ? type.id : type
         );
-        if (!area)
+        if (locationType === "Point") {
           await API.updateLocationDocument(
             document.IdLocation,
             "Point",
@@ -314,31 +342,17 @@ function ModifyDocument() {
             longitude,
             ""
           );
-      } else {
+        }
+        else{
+          // update the document with the new chosen area
+          await API.updateLocationDocument(document.IdDocument,selectedArea.IdLocation); //TODO check if it works
+        }
+    } else {
         console.log("sto inserendo");
         console.log(selectedStakeholders);
         console.log(selectedLocation);
-        if (
-          selectedLocation != null &&
-          selectedLocation.lat != null &&
-          selectedLocation.lng != null
-        ) {
+        if ( locationType === "Point" && latitude && longitude) {
           // insert the document which is a point
-          console.log({
-            title,
-            documentScale,
-            issuanceDate,
-            description,
-            connections,
-            language,
-            pages,
-            stakeholder: selectedStakeholders.map((stk) => stk.value),
-            type: type,
-            locationType: "Point",
-            latitude: selectedLocation.lat,
-            longitude: selectedLocation.lng,
-            area_coordinates: "",
-          });
           //check to be here the type of the document BEACYSE MUST BE NOT NULL
           let result = await API.addDocument(
             title,
@@ -350,15 +364,17 @@ function ModifyDocument() {
             description,
             type,
             "Point",
-            selectedLocation.lat,
-            selectedLocation.lng,
+            latitude,
+            longitude,
             ""
           );
           //console.log(result);
           result = await result.idDocument;
           documentId = result;
-        } else if (area) {
+        } else{
           //insert the document inside an area
+
+          console.log("sto inserendo un documento in un area");
           let result = await API.addDocumentArea(
             title,
             selectedStakeholders.map((stk) => stk.value),
@@ -368,16 +384,12 @@ function ModifyDocument() {
             pages,
             description,
             type,
-            area.IdLocation
+            selectedArea.IdLocation
           );
           console.log(result);
           result = await result.idDocument;
           documentId = result;
         }
-        // insert the document
-        //let result= await API.addDocument(title,selectedStakeholders.map((stk) => stk.value), documentScale.id, issuanceDate,language,pages, description, type,);
-        //console.log(result);
-        //navigate('/');
       }
 
       if (addResources) {
@@ -445,6 +457,10 @@ function ModifyDocument() {
     setStakeholders(res);
     setNewStakeholder_name("");
     setShowAddStakeholder(false);
+  };
+
+  const handleOptionChangeLocation = (e) => {
+    setLocationType(e.target.value);
   };
   /* ------------------------------------ FORM ------------------------------------------ */
   return (
@@ -745,7 +761,30 @@ function ModifyDocument() {
                   onChange={(e) => setDescription(e.target.value)}
                 />
               </Form.Group>
-              {latitude && longitude ? (
+              <Form.Group controlid="location" className="mb-3">
+                <Form.Label as="strong">Type Location</Form.Label>
+                  <div>
+                    <Form.Check
+                      type="radio"
+                      label="Area"
+                      name="options"
+                      id="optionArea"
+                      value="Area"
+                      checked={locationType === "Area"}
+                      onChange={handleOptionChangeLocation}
+                    />
+                    <Form.Check
+                      type="radio"
+                      label="Point"
+                      name="options"
+                      id="optionPoint"
+                      value="Point"
+                      checked={locationType === "Point"}
+                      onChange={handleOptionChangeLocation}
+                    />
+                  </div>
+              </Form.Group>
+              {locationType === "Point" ? (
                 <div className="mb-4 d-flex">
                   <p className="mx-4 d-flex align-items-center">
                     <strong className="me-2">Latitude:</strong>{" "}
@@ -765,10 +804,29 @@ function ModifyDocument() {
                   </p>
                 </div>
               ) : (
-                <p>
-                  <strong>Location: </strong>{" "}
-                  {documentId ? area : area.Area_Name}
-                </p>
+                 <Form.Group>
+                        <Form.Label>
+                          <strong>Area</strong>
+                        </Form.Label>
+                        <Form.Select
+                          value={selectedArea ? selectedArea.IdLocation : ""}
+                          onChange={(e) => {
+                            const area = locationsArea[e.target.value];
+                            setSelectedArea(area);
+                          }}
+                          required={true}
+                        >
+                          <option>Select an Area</option>
+                          {Object.values(locationsArea).map((area) => (
+                            <option
+                              key={area.IdLocation}
+                              value={area.IdLocation}
+                            >
+                              {area.Area_Name || `Area ${area.IdLocation}`}
+                            </option>
+                          ))}
+                        </Form.Select>
+                      </Form.Group>
               )}
         <div className="d-flex justify-content-center mb-4 mx-5">
           <Button

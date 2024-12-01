@@ -29,7 +29,7 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
   const [stakeholders, setStakeholders] = useState([]);
   const [modifyMode, setModifyMode] = useState(false);
   const [loading, setLoading] = useState(true);
-  const offsetDistance = 0.0020; //offset distance between markers
+  const offsetDistance = 0.0001; //offset distance between markers
   const mapRef = useRef(null); // To get a reference to the map instance
   const markerRef = useRef(); // To get a reference to the marker instance
 
@@ -643,7 +643,7 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                 isLogged={isLogged}
                 viewMode='map'
                 numberofconnections={numberofconnections}
-                areaName={locationsArea[selectedMarker?.IdLocation]?.Area_Name}
+                area={locationsArea[selectedMarker?.IdLocation]}
               />
             </div>
           )}
@@ -717,14 +717,14 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
                           alert('Select an area')
                           return;
                         }
-                        navigate(`../documents/create-document`, { state: { area: selectedArea }, relative: 'path' })
+                        navigate(`../documents/create-document`, { state: { location:{ area: selectedArea,type: 'Area' }}, relative: 'path' })
                       }
                       else {
                         if(selectedDocument) {
-                          navigate(`../documents/create-document`, { state: { location: {lat: locations[selectedDocument.IdLocation]?.Latitude.toFixed(4), lng: locations[selectedDocument.IdLocation]?.Longitude.toFixed(4) }}, relative: 'path' })
+                          navigate(`../documents/create-document`, { state: { location: {lat: locations[selectedDocument.IdLocation]?.Latitude.toFixed(4), lng: locations[selectedDocument.IdLocation]?.Longitude.toFixed(4),type: 'Point' }}, relative: 'path' })
                         }
 
-                        navigate(`../documents/create-document`, { state: { location: {lat: selectedLocation.lat.toFixed(4), lng: selectedLocation.lng.toFixed(4) }}, relative: 'path' })
+                        navigate(`../documents/create-document`, { state: { location: {lat: selectedLocation.lat.toFixed(4), lng: selectedLocation.lng.toFixed(4),type: 'Point' }}, relative: 'path' })
                       }
                     }}
                   >

@@ -3,13 +3,17 @@ import { Badge, Button, Card, Placeholder, PlaceholderButton, Spinner } from "re
 import { useNavigate } from "react-router-dom";
 import API from "../API";
 
-function CardDocument ({document, locationType, latitude, longitude, setShowCard, setSelectedDocument, isLogged, viewMode, areaName, numberofconnections}) {
+function CardDocument ({document, locationType, latitude, longitude, setShowCard, setSelectedDocument, isLogged, viewMode, area, numberofconnections}) {
   const navigate = useNavigate();
   
   const [resource, setResource] = useState([]);
   const [stakeholders, setStakeholders] = useState([]);
   const [scales, setScales] = useState([]);
+  const [documents, setDocuments] = useState([]); 
   const [loading, setLoading] = useState(false);
+  const [connections, setConnections] = useState([]); 
+  const [typeConnections, setTypeConnections] = useState({}); 
+  
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -38,6 +42,29 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
       }
       setLoading(false);
     };
+    const fetchDocuments = async () => { 
+      try { 
+        const res = await API.getAllDocuments(); 
+        setDocuments(res); 
+      } catch (err) { 
+        console.error(err); 
+      } 
+    }; 
+    const getAllTypeConnections = async () => { 
+      try { 
+        console.log("get all type connections"); 
+        const res = await API.getAllTypeConnections(); 
+        console.log(res); 
+ 
+        const typeConnectionId = res.reduce((acc, conn) => { 
+          acc[conn.IdConnection] = conn; 
+          return acc; 
+        }, {}); 
+        setTypeConnections(typeConnectionId); 
+      } catch (err) { 
+        console.error(err); 
+      } 
+    }; 
 
     const fetchScales = async () => {
       setLoading(true);
@@ -51,10 +78,23 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
       }
       setLoading(false);
     };
-    
-      fetchResources();
-      fetchStakeholders();
-      fetchScales();
+    const fetchDocumentConnections = async () => { 
+      try { 
+        const res = await API.getDocumentConnection(document.IdDocument); 
+        console.log("Document connections"); 
+        console.log(res); 
+        setConnections(res); 
+      } 
+      catch (err) { 
+        console.error(err); 
+      } 
+    }; 
+    fetchDocumentConnections();
+    fetchResources();
+    fetchStakeholders();
+    fetchScales();
+    fetchDocuments(); 
+    getAllTypeConnections();
   }, [document?.IdDocument]);
 
   
@@ -62,7 +102,7 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
   const handleModifyDocument = () => {
     if (document) {
       //setShowCard(false);
-      navigate(`/documents/modify-document/${document.IdDocument}`, { state: { document: document , location: (latitude && longitude) ? {lat: latitude, lng: longitude} : null, area: areaName ? areaName : null} });
+      navigate(`/documents/modify-document/${document.IdDocument}`, { state: { document: document , location: (locationType=="Point") ? {lat: latitude, lng: longitude,type:locationType} : {area: area,type:locationType}, area: area.Area_Name ? area.Area_Name : null,type:locationType } });
     }
   };
   console.log(document);
@@ -271,7 +311,7 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
               ) : ( 
                 <> 
                 <Card.Text style={{ fontSize: '16px'}}> 
-                <strong>Area:</strong> {areaName} 
+                <strong>Area:</strong> {area.Area_Name} 
                 </Card.Text> 
                 </> 
                 )  
@@ -287,12 +327,12 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
       </Card.Body> 
       {isLogged && ( 
         <Card.Footer className=' text-end' > 
-          <Button variant="secondary" classNam
-e='btn-document rounded-pill px-3' onClick={handleModifyDocument}>Modify</Button> 
+          <Button variant="secondary" className='btn-document rounded-pill px-3' onClick={handleModifyDocument}>Modify</Button> 
         </Card.Footer> 
       )} 
     </Card> 
   ) 
+  );
 } 
  
 export default CardDocument;
