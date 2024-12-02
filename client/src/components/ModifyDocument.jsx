@@ -13,6 +13,7 @@ import {
   Alert,
   InputGroup,
   CloseButton,
+  Spinner,
 } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import Select from "react-select";
@@ -81,6 +82,7 @@ function ModifyDocument() {
 
   const [locationType, setLocationType] = useState(selectedLocation.type);
   const [selectedArea, setSelectedArea] = useState(selectedLocation.area);
+  const [loading, setLoading] = useState(false);
 
 
   console.log("selected loc");
@@ -192,6 +194,7 @@ function ModifyDocument() {
       } catch (err) {
         console.error(err);
       }
+      setLoading(false);
     };
     const getAllTypeConnections = async () => {
       try {
@@ -225,6 +228,7 @@ function ModifyDocument() {
         console.error(err);
       }
     };
+    setLoading(true);
     fetchLocationsArea();
     getAllScales();
     fetchDocuments();
@@ -465,13 +469,17 @@ function ModifyDocument() {
   /* ------------------------------------ FORM ------------------------------------------ */
   return (
     <>
-      <Card className="container bg-light rounded form" style={{marginTop:'110px'}}>
+
+      <Card className="container bg-light rounded form" style={{marginTop:'140px', minHeight:'680px'}}>
         <Card.Title>
           <h3 className="text-center mt-4">
             {documentId ? "Update" : "Create"} Document
           </h3>
         </Card.Title>
         <Card.Body>
+        { loading ? (
+          <Spinner animation="border" role="status" style={{marginTop:'50px'}} />
+        ) : (
           <Row>
             {/* ---------------------- Left Column --------------------------- */}
             <Col md={6}>
@@ -755,7 +763,7 @@ function ModifyDocument() {
                   <Form.Control
                     className="mt-auto"
                     as="textarea"
-                    style={{ height: "205px" }}
+                    style={{ height: "150px" }}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                   />
@@ -878,6 +886,7 @@ function ModifyDocument() {
               </Alert>
             )}
           </Row>
+      ) }
         </Card.Body>
       </Card>
 
