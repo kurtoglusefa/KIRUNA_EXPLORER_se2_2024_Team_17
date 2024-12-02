@@ -85,17 +85,14 @@ describe("Document API with Session Authentication", () => {
   it("should update an existing document", async () => {
     const updatedDocumentData = {
       title: "Updated Sample Title",
-<<<<<<< HEAD
       IdScale: 1,
-=======
-      idStakeholder: 2,
-      scale: 1,
->>>>>>> gpp-routes-organizing
       issuance_Date: "05/2020",
       language: "Spanish",
       pages: 100,
       description: "Updated description for the document",
       idtype: 3,
+      idLocation: 1,
+      idStakeholder: [1,2]
     };
 
     const updateResponse = await agent
@@ -110,12 +107,7 @@ describe("Document API with Session Authentication", () => {
     expect(retrieveResponse.body).toMatchObject({
       IdDocument: documentId,
       Title: "Updated Sample Title",
-<<<<<<< HEAD
       IdScale: 1,
-=======
-      IdStakeholder: 2,
-      scale: 1,
->>>>>>> gpp-routes-organizing
       Issuance_Date: "05/2020",
       Language: "Spanish",
       Pages: 100,

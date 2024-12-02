@@ -118,11 +118,12 @@ exports.updateDocument = (
   language,
   pages,
   description,
-  idtype
+  idtype,
+  idlocation
 ) => {
   return new Promise((resolve, reject) => {
     const sql =
-      "UPDATE Document SET Title = ?, IdScale = ?, Issuance_Date = ?, Language = ?, Pages = ?, Description = ?, IdType = ?  WHERE IdDocument = ?";
+      "UPDATE Document SET Title = ?, IdScale = ?, Issuance_Date = ?, Language = ?, Pages = ?, Description = ?, IdType = ?,IdLocation = ?  WHERE IdDocument = ?";
     db.run(
       sql,
       [
@@ -133,6 +134,7 @@ exports.updateDocument = (
         pages,
         description,
         idtype,
+        idlocation,
         documentId,
       ],
       function (err) {

@@ -79,4 +79,45 @@ describe("Stakeholder API", () => {
       expect(response.body).toEqual({});
     });
   });
+  describe("POST /api/stakeholders", () => {
+    it("should create a new stakeholder", async () => {
+      const newStakeholder = {
+        Name: "New stakeholder",
+        Color: "#000000",
+      };
+
+      const createdStakeholder = {
+        IdStakeholder: 4,
+        Name: newStakeholder.Name,
+        Color: newStakeholder.Color,
+      };
+
+      StakeholderDao.addStakeholder.mockResolvedValue(createdStakeholder);
+
+      const response = await agent
+        .post("/api/stakeholders")
+        .send(newStakeholder);
+
+      expect(response.status).toBe(201);
+      expect(response.body.stakeholderId).toEqual(createdStakeholder);
+    });
+
+    it("should return 500 for database errors", async () => {
+      const newStakeholder = {
+        Name: "New stakeholder",
+        Color: "#000000",
+      };
+
+      StakeholderDao.addStakeholder.mockRejectedValue(
+        new Error("Database error")
+      );
+
+      const response = await agent
+        .post("/api/stakeholders")
+        .send(newStakeholder);
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({ "error": "Database error"});
+    });
+  });
 });
