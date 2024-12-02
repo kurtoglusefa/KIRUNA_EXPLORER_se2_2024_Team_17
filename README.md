@@ -451,9 +451,74 @@ In the e2e testing you can see the different test files with the possibility to 
       "Color": "#8C6760"
     }
     ```
+- POST `/api/stakeholders`
+  - **Description**: Add a stakeholder.
+    - **Request Body**:
+      ```json
+      {
+        "Name": " new Municipality",
+        "Color": "#8C6760"
+      }
+      ```
+    - **Response**: Returns `20q Created` with the stakeholder data if added, `400 Bad request` if the parameters are not present, or `500 Internal Server Error` if an unexpected error occurs.
+    - **Response Body on Success**:
+      ```json
+      {
+        "IdStakeholder": 4,
+        "Name": " new Municipality",
+        "Color": "#8C6760"
+      }
+      ```
+- GET `/api/documents/:documentId/stakeholders`
+  - **Description**: Retrieves all stakeholders associated with a specific document.
+    - **Request Parameters**:
+      - `documentId` (String, required): The unique ID of the document.
+    - **Response**: Returns `200 OK` with a JSON array of stakeholders if successful, or `500 Internal Server Error` if an unexpected error occurs.
+      - **Response Body on Success**:
+        ```json
+          [
+            {
+              "IdStakeholder": 1,
+              "Name": "Municipality",
+              "Color": "#8C6760"
+            }
+          ]
+        ```
+- GET `/api/stakeholders/:stakeholderId/documents`
+  - **Description**: Retrieves all documents associated with a specific stakeholder.
+    - **Request Parameters**:
+      - `stakeholderId` (String, required): The unique ID of the stakeholder.
+    - **Response**: Returns `200 OK` with a JSON array of documents if successful, or `500 Internal Server Error` if an unexpected error occurs.
+      - **Response Body on Success**:
+      ```json
+          [
+            {
+              "documentId": 123,
+              "title": "Sample Title",
+              "idStakeholder": 1,
+              "scale": "National",
+              "issuance_Date": "04/2019",
+              "language": "English",
+              "pages": 50,
+              "description": "A description for the document",
+              "idType": 2,
+              "idLocation": 1
+            }
+          ]
+      ```
 
-# TYPEDOCUMENT API
-
+- DELETE `/api/documents/:documentId/stakeholders`
+  - **Description**: Clears all stakeholders from a specific document.
+    - **Request Parameters**:
+        - `documentId` (String, required): The unique ID of the document.
+    - **Response**: Returns `200 OK` with a success message if stakeholders are removed, `404 Not Found` if no stakeholders are found to remove, or `500 Internal Server Error` if an unexpected error occurs.
+      - **Response Body on Success**:
+        ```json
+        {
+            "message": "Stakeholders removed successfully."
+        }
+        ```
+# Type API
 - GET `/api/types`
 
   - **Description**: Retrieves a list of all document types.
@@ -483,8 +548,23 @@ In the e2e testing you can see the different test files with the possibility to 
       "Name": "Report",
       "Description": "A detailed report document type."
     }
+- POST `/api/types`
+    - **Description**: Allows an urban planner to add a new type with an associated icon.
+    - **Request Body**:
+    ```json
+    {
+      "type": "New type",
+      "iconSrc" : "abc.jpg" 
+    }
     ```
-
+    - **Responses**:
+      - `201 Created`: If the type is successfully added. The response contains the `typeId` of the newly added type and a success message or `400 Bad Request`: If either `type` or `iconSrc` is missing from the request body. The response contains an error message or `500 Internal Server Error`: If there is an error while adding the type. The response contains an error message.
+        ```json
+        {
+          "typeId": "12345",
+          "message": "Type added successfully."
+        }
+        ```
 ## Database Tables
 
 **User**
@@ -521,7 +601,7 @@ In the e2e testing you can see the different test files with the possibility to 
 
 - **IdDocument**: Unique identifier for each document
 - **Title**: Title of the document
-- **IdStakeholder**: Reference to the stakeholder responsible for this document
+- **IdStakeholder**: Reference to the array of id stakeholders responsible for this document
 - **Scale**: Scope or scale of the document (e.g., National, Regional)
 - **Issuance_Date**: Date when the document was issued
 - **Language**: Language of the document
@@ -529,6 +609,16 @@ In the e2e testing you can see the different test files with the possibility to 
 - **Description**: Brief description of the document
 - **IdType**: Reference to the type of the document
 - **IdLocation**: Reference to the location associated with this document
+- **IdScale**: Reference to the Scale associated with this document
+
+**Location**
+
+- **IdLocation**: Unique identifier for each location
+- **Location_Type**: Type of Location(e.g., Point, Area)
+- **Latitude**: Latitude of the document, if location_type is an area it is the center of it
+- **Longitude**: Longitude of the document, if location_type is an area it is the center of it
+- **Area_Coordinates**: Area coordinates
+- **Area_Name**: Area name
 
 **Connection**
 
@@ -543,6 +633,12 @@ In the e2e testing you can see the different test files with the possibility to 
 - **IdDocument2**: Reference to the second document in the connection
 - **IdConnection**: Reference to the type of connection between the documents
 
+**Scale**
+
+- **IdScale**: Unique identifier for each connection scale
+- **scale_text**: Name of scale (e.g., architecture plan new,..)
+- **scale_number**: scale numbers es 1:100
+
 ## Main React Components
 
 - **Login.jsx**: Handles the user authentication process, including login and session management.
@@ -554,6 +650,7 @@ In the e2e testing you can see the different test files with the possibility to 
 - **API.jsx**: Manages API calls to the backend, centralizing data fetching and providing reusable hooks for components.
 - **App.jsx**: The root component that renders the entire application, integrating routing and layout to ensure smooth app functionality.
 - **WelcomePage.jsx**: The main UI component where the users can start using the application and navigate related pages.
+- **Diagram.jsx** : this Page show the diagram where the users can see the different connections and relationship among documents.
 - 
 ## Screenshots
 

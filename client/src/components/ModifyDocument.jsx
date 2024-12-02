@@ -237,6 +237,7 @@ function ModifyDocument() {
     getAllTypeConnections();
     getDocumentConnections();
     if (documentId) fetchDocument();
+    setLoading(false);
   }, []);
 
   const handleDeleteResource = async (resource) => {
@@ -327,18 +328,10 @@ function ModifyDocument() {
         await API.updateScale(documentScale.id, `1:${oldScale_number}`);
       }
       if (documentId) {
-        await API.updateDocument(
-          documentId,
-          title,
-          selectedStakeholders.map((stk) => stk.value),
-          documentScale.id,
-          date,
-          language,
-          pages,
-          description,
-          type.id ? type.id : type
-        );
-        if (locationType === "Point") {
+        //dovrei controllare se è un documento con un area non posos aggiornare cosi ma devo crearmi un id location lui
+        //e poi fare l'update
+        let locationId;
+        if (locationType === "Point" && selectedArea==null) {
           await API.updateLocationDocument(
             document.IdLocation,
             "Point",
@@ -347,10 +340,53 @@ function ModifyDocument() {
             ""
           );
         }
-        else{
-          // update the document with the new chosen area
-          await API.updateLocationDocument(document.IdDocument,selectedArea.IdLocation); //TODO check if it works
+        else if (locationType === "Point" && selectedArea) {
+          const result = await API.addLocationPoint("Point", latitude, longitude);
+          locationId= await result.locationId;
+          await API.updateDocument(
+            documentId,
+            title,
+            selectedStakeholders.map((stk) => stk.value),
+            documentScale.id,
+            date,
+            language,
+            pages,
+            description,
+            type.id ? type.id : type,
+            locationId
+          );
         }
+        else if (locationType === "Area") {
+          await API.updateDocument(
+            documentId,
+            title,
+            selectedStakeholders.map((stk) => stk.value),
+            documentScale.id,
+            date,
+            language,
+            pages,
+            description,
+            type.id ? type.id : type,
+            selectedArea.IdLocation
+          );
+        }
+        else
+        {
+          await API.updateDocument(
+            documentId,
+            title,
+            selectedStakeholders.map((stk) => stk.value),
+            documentScale.id,
+            date,
+            language,
+            pages,
+            description,
+            type.id ? type.id : type,
+            document.IdLocation
+          );
+
+        }
+        
     } else {
         console.log("sto inserendo");
         console.log(selectedStakeholders);

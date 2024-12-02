@@ -297,7 +297,8 @@ app.patch("/api/documents/:documentid", isUrbanPlanner, async (req, res) => {
       document.language,
       parseInt(document.pages),
       document.description,
-      parseInt(document.idtype)
+      parseInt(document.idtype),
+      parseInt(document.idLocation)
     );
 
     if (!updatedDocument) {
@@ -639,7 +640,8 @@ app.get("/api/locations/:locationId", (req, res) => {
 });
 
 app.post("/api/locations", isUrbanPlanner, async (req, res) => {
-  const {
+  console.log(req.body);
+    const {
     location_type: locationType,
     center_lat: latitude,
     center_lng: longitude,

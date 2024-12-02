@@ -362,14 +362,14 @@ const createDocumentConnection = (IdDocument1, IdDocument2, connection_type) => 
   });
 };
 
-const updateDocument = (Id_document,title,idStakeholder, scale, issuance_Date,language,pages,description, idtype ) => { 
+const updateDocument = (Id_document,title,idStakeholder, scale, issuance_Date,language,pages,description, idtype,idLocation ) => { 
   return new Promise((resolve, reject) => { 
     fetch(URL + "/documents/"+Id_document, { 
       method: "PATCH", 
       headers: { 
         "Content-Type": "application/json", 
       }, 
-      body: JSON.stringify({ title,idStakeholder, IdScale: scale, issuance_Date,language,pages,description, idtype}), 
+      body: JSON.stringify({ title,idStakeholder, IdScale: scale, issuance_Date,language,pages,description, idtype,idLocation}), 
       credentials: "include", 
     }) 
       .then((response) => { 
@@ -516,6 +516,31 @@ const getAllLocations = () => {
       });
   });
 }
+const addLocationPoint = (location_type, latitude, longitude) => {
+  return new Promise((resolve, reject) => {
+    fetch(URL + "/locations", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ location_type: location_type, center_lat: latitude, center_lng: longitude,area_coordinates: [],areaName: "" }),
+      credentials: "include",
+    })
+      .then((response) => {
+        if (response.ok) {
+          resolve(response.json());
+        } else {
+          response.json().then((message) => {
+            reject(message);
+          });
+        }
+      }
+      )
+      .catch(() => {
+        reject({ error: "Cannot communicate with the server." });
+      });
+  });
+};
 const getAllLocationsArea = () => {
   
   return new Promise((resolve, reject) => {
@@ -580,9 +605,6 @@ const updateLocationDocument = (id, location_type, latitude, longitude, area_coo
         reject({ error: "Cannot communicate with the server." });
       });
   });
-};
-const updateAreaDocument = (idArea,IdDocument) => {
-  //crate api that update the document with the area id in the document record
 };
 
 const getAllTypeConnections = () => {
@@ -802,6 +824,6 @@ const updateScale = (id, scale_number) => {
   });
 };
 
-const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, createDocumentConnection, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea, getDocumentResources, addResourcesToDocument, addArea,deleteResource,getScales,addScale,updateScale,addStakeholder,getStakeholderByDocumentId,createTypeDocument,updateAreaDocument};
+const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, createDocumentConnection, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea, getDocumentResources, addResourcesToDocument, addArea,deleteResource,getScales,addScale,updateScale,addStakeholder,getStakeholderByDocumentId,createTypeDocument,addLocationPoint};
 
 export default API;
