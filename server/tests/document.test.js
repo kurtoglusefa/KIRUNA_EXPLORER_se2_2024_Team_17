@@ -258,12 +258,12 @@ describe("File Upload API", () => {
 
     const loginResponse = await agent
       .post("/api/sessions")
-      .send({ username: "mario@test.it", password: "pwd" });
+      .send({ username: "mario@test.it", password: process.env.TEST_USER_PASSWORD, });
     expect(loginResponse.status).toBe(200);
   });
   it("should upload a file successfully", async () => {
     // Mock the file upload process
-    const mockFiles = { filename: "testfile.txt", filename: "test2file.txt" };
+    const mockFiles = { filename: "testfile.txt", filename2: "test2file.txt" };
 
     // Mock the req.file object to simulate a successful file upload
     const mockRequest = {

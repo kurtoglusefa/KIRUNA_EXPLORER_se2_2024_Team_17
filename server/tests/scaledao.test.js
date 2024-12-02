@@ -3,8 +3,6 @@ const scaleDAO = require('../dao/scale-dao');
 
 const Scale = require('../models/scale');
 
-'use strict';
-
 
 jest.mock('../db/db');
 

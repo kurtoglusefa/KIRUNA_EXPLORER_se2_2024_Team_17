@@ -14,7 +14,7 @@ import { FeatureGroup } from "react-leaflet"; // Import for the drawing tool
 import * as turf from "@turf/turf"; // Install this library for spatial operations
 import geoJsonData from "../assets/kiruna.json"; // If the data is saved in a file
 
-function Map({ locations, setLocations, locationsArea, documents, setSelectedLocation, propsDocument, selectedLocation, handleDocumentClick, numberofconnections, fetchLocationsArea }) {
+function MapComponent({ locations, setLocations, locationsArea, documents, setSelectedLocation, propsDocument, selectedLocation, handleDocumentClick, numberofconnections, fetchLocationsArea }) {
   const selectedDocument = useContext(AppContext).selectedDocument;
   const setSelectedDocument = useContext(AppContext).setSelectedDocument;
   const [selectedMarker, setSelectedMarker] = useState(selectedDocument);
@@ -793,4 +793,4 @@ function Map({ locations, setLocations, locationsArea, documents, setSelectedLoc
   );
 }
 
-export default Map;
+export default MapComponent;

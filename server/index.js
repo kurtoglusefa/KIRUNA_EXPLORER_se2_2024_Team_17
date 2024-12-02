@@ -102,7 +102,11 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({ storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // Limit to 10MB
+  },
+ });
 
 // init express
 const app = new express();

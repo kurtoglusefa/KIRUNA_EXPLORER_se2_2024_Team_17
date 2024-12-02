@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import Map from './Map';
+import MapComponent from './Map';
 import { Button, ToggleButtonGroup, ToggleButton, ListGroup, Spinner, Card, Row, Col, Container } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Navigate, useNavigate } from 'react-router-dom';
@@ -184,7 +184,7 @@ function Home(props) {
           loading ? (
             <Spinner animation="border" variant="primary" />
           ) : (
-            <Map locations={locations} setLocations={setLocations} locationsArea={locationsArea} documents={props.documents} setSelectedLocation={setSelectedLocation} setSelectedDocument={setSelectedDocument} selectedLocation={selectedLocation} handleDocumentClick={handleDocumentClick} numberofconnections={numberofconnections} fetchLocationsArea={fetchLocationsArea} />
+            <MapComponent locations={locations} setLocations={setLocations} locationsArea={locationsArea} documents={props.documents} setSelectedLocation={setSelectedLocation} setSelectedDocument={setSelectedDocument} selectedLocation={selectedLocation} handleDocumentClick={handleDocumentClick} numberofconnections={numberofconnections} fetchLocationsArea={fetchLocationsArea} />
           )
 
         )}
