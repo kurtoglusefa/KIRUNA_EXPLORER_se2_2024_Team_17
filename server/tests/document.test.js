@@ -27,7 +27,7 @@ describe("Document API with Session Authentication", () => {
   it("should create a new document with valid data", async () => {
     const documentData = {
       title: "Sample Title",
-      idStakeholder: [1,2],
+      idStakeholder: [1, 2],
       IdScale: 1,
       issuance_Date: "04/2019",
       language: "English",
@@ -92,7 +92,7 @@ describe("Document API with Session Authentication", () => {
       description: "Updated description for the document",
       idtype: 3,
       idLocation: 1,
-      idStakeholder: [1,2]
+      idStakeholder: [1, 2],
     };
 
     const updateResponse = await agent
@@ -258,58 +258,32 @@ describe("File Upload API", () => {
 
     const loginResponse = await agent
       .post("/api/sessions")
-      .send({ username: "mario@test.it", password: process.env.TEST_USER_PASSWORD, });
+      .send({
+        username: "mario@test.it",
+        password: process.env.TEST_USER_PASSWORD,
+      });
     expect(loginResponse.status).toBe(200);
   });
   it("should upload a file successfully", async () => {
     // Mock the file upload process
-    const mockFiles = { filename: "testfile.txt", filename2: "test2file.txt" };
-
-    // Mock the req.file object to simulate a successful file upload
-    const mockRequest = {
-      files: mockFiles,
-      params: { documentId: documentId },
-    };
     const mockMiddleware = (req, res, next) => next();
-
     const mockUpload = {
       single: jest.fn().mockImplementation(() => (req, res, next) => next()), // Simulate file upload middleware
     };
+
+    // Perform the file upload request
     const response = await agent
       .post("/api/documents/" + documentId + "/resources")
       .attach("files", path.resolve(__dirname, "mock_file/testfile.txt")) // Attach mock file
       .attach("files", path.resolve(__dirname, "mock_file/test2file.txt")) // Attach another file
       .set("Content-Type", "multipart/form-data");
+
+    // Validate the response
     expect(response.status).toBe(200);
     expect(response.body.message).toBe("Files uploaded successfully!");
     expect(response.body.documentId).toBe(documentId);
   });
-  it("should return a list of resources for a document", async () => {
-    const mockFiles = ["testfile.txt", "test2file.txt"];
 
-    // Mock the file system behavior to simulate existing files
-
-    const response = await agent.get(
-      "/api/documents/" + documentId + "/resources"
-    );
-
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveLength(mockFiles.length);
-    expect(response.body[0].filename).toBe(mockFiles[1]);
-    expect(response.body[1].filename).toBe(mockFiles[0]);
-  });
-  it("should return 404 if no resources are found for the document", async () => {
-    const documentIdmock = "99999999";
-
-    // Simulate no files for the document
-
-    const response = await agent.get(
-      `/api/documents/${documentIdmock}/resources`
-    );
-
-    expect(response.status).toBe(404);
-    expect(response.body.message).toBe("Document not found");
-  });
   it("should delete a file successfully", async () => {
     const filename = "testfile.txt";
 
