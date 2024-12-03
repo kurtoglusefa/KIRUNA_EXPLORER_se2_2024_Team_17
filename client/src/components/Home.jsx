@@ -226,7 +226,7 @@ function Home(props) {
                         isLogged={isLogged}
                         viewMode={viewMode}
                         numberofconnections={numberofconnections}
-                        areaName={locationsArea[selectedDocument?.IdLocation]?.Area_Name}
+                        area={locationsArea[selectedDocument?.IdLocation]}
                         stakeholders={stakeholders}
                       />
                     ) : (

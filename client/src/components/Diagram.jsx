@@ -368,7 +368,9 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments,se
   const SvgNode = ({ data ,selected }) => {
     console.log(data);
     //let path = `src/icon/${stakeholders[data.stakeholder - 1]?.color}/${data.iconSrc}`;
-    let path = `src/icon/${data.stakeholder[0].Color}/${data.iconSrc}`;
+    let path = `src/icon/${data.stakeholder[0].Color ? data.stakeholder[0].Color: '8A9FA4'}/${data.iconSrc}`;
+    //iconPath = `src/icon/${document.IdStakeholder[0].Color ? document.IdStakeholder[0].Color : '8A9FA4'}/${documentTypes[document.IdType - 1]?.iconsrc ? documentTypes[document.IdType - 1]?.iconsrc : 'other.svg'}`;
+
     return (
       <div
       style={{
@@ -475,7 +477,7 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments,se
           viewMode='map'
           isLogged={isLogged}
           numberofconnections={numberofconnections}
-          areaName={locationsArea[selectedDocument?.IdLocation]?.Area_Name}
+          area={locationsArea[selectedDocument?.IdLocation]}
         />
       </div>
     )}

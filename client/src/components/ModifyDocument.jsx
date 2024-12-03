@@ -274,7 +274,7 @@ function ModifyDocument() {
   const handleAddDocumentType = async () => {
     // here call api to add a document type
     console.log(newDocumentType_name);
-    await API.createTypeDocument(newDocumentType_name,' ');
+    await API.createTypeDocument(newDocumentType_name,'other.svg');
     const res = await API.getAllTypesDocument();
     setTypes(res);
     setNewDocumentType_name("");

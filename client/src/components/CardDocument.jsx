@@ -312,7 +312,7 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
               ) : ( 
                 <> 
                 <Card.Text style={{ fontSize: '16px'}}> 
-                <strong>Area:</strong> {area.Area_Name} 
+                <strong>Area:</strong> {area?.Area_Name} 
                 </Card.Text> 
                 </> 
                 )  
