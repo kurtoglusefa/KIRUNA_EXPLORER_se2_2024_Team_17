@@ -102,11 +102,12 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage,
+const upload = multer({
+  storage,
   limits: {
     fileSize: 10 * 1024 * 1024, // Limit to 10MB
   },
- });
+});
 
 // init express
 const app = new express();
@@ -132,8 +133,8 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false, // set to true if using HTTPS
-      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // set to true if using HTTPS
+      httpOnly: true, // prevents client-side scripts from accessing the cookie
       sameSite: "lax", // set the sameSite attribute correctly
     },
   })
@@ -462,7 +463,7 @@ app.get("/api/types/:typeid", (req, res) => {
 app.post("/api/types", isUrbanPlanner, async (req, res) => {
   console.log(req.body);
   const { type, iconSrc } = req.body;
-  if(!type || !iconSrc) {
+  if (!type || !iconSrc) {
     return res.status(400).json({ error: "type and iconSrc are required." });
   }
   try {
@@ -645,7 +646,7 @@ app.get("/api/locations/:locationId", (req, res) => {
 
 app.post("/api/locations", isUrbanPlanner, async (req, res) => {
   console.log(req.body);
-    const {
+  const {
     location_type: locationType,
     center_lat: latitude,
     center_lng: longitude,
