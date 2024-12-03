@@ -1,11 +1,10 @@
 import request from "supertest";
 
-import {app,server} from '../index.js';
+import { app, server } from "../index.js";
 
 const DocumentConnectionDao = require("../dao/document-connection-dao.js");
 const UserDao = require("../dao/user-dao.js");
 jest.mock("../dao/document-connection-dao.js");
-// jest.mock("../dao/user-dao");
 
 describe("Document Connections API", () => {
   let agent;
