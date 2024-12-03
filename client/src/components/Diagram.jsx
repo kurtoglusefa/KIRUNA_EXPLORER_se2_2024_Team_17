@@ -266,7 +266,7 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments,se
       };
       // Convert documents into nodes
       const nodes = documents.map((doc, index) => {
-        const iconSrc = documentTypes[doc.IdType-1]?.iconsrc || 'default-icon.svg'; // Fallback to a default icon
+        const iconSrc = documentTypes[doc.IdType-1]?.iconsrc || 'other.svg'; // Fallback to a default icon
         const x= mapDateToX(doc.Issuance_Date);
         const y = mapScaleToY(doc.IdScale);
         console.log("ciao"+doc.IdStakeholder);

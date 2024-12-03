@@ -346,7 +346,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                       }
                       let iconPath;
                       if (Array.isArray(document.IdStakeholder) && document.IdStakeholder.length > 0) {
-                         iconPath = `src/icon/${document.IdStakeholder[0].Color}/${documentTypes[document.IdType - 1]?.iconsrc}`;
+                         iconPath = `src/icon/${document.IdStakeholder[0].Color ? document.IdStakeholder[0].Color : '8A9FA4'}/${documentTypes[document.IdType - 1]?.iconsrc ? documentTypes[document.IdType - 1]?.iconsrc : 'other.svg'}`;
                          console.log(iconPath);
                       } else {
                          iconPath = `src/icon/${stakeholders[document.IdStakeholder-1]?.color}/${documentTypes[document.IdType - 1]?.iconsrc}`;
