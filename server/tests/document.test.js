@@ -256,26 +256,18 @@ describe("File Upload API", () => {
   beforeAll(async () => {
     agent = request.agent(app);
 
-    const loginResponse = await agent
-      .post("/api/sessions")
-      .send({
-        username: "mario@test.it",
-        password: process.env.TEST_USER_PASSWORD,
-      });
+    const loginResponse = await agent.post("/api/sessions").send({
+      username: "mario@test.it",
+      password: process.env.TEST_USER_PASSWORD,
+    });
     expect(loginResponse.status).toBe(200);
   });
   it("should upload a file successfully", async () => {
-    // Mock the file upload process
-    const mockMiddleware = (req, res, next) => next();
-    const mockUpload = {
-      single: jest.fn().mockImplementation(() => (req, res, next) => next()), // Simulate file upload middleware
-    };
-
     // Perform the file upload request
     const response = await agent
       .post("/api/documents/" + documentId + "/resources")
-      .attach("files", path.resolve(__dirname, "mock_file/testfile.txt")) // Attach mock file
-      .attach("files", path.resolve(__dirname, "mock_file/test2file.txt")) // Attach another file
+      .attach("files", path.resolve(__dirname, "mock_file/testfile.txt"))
+      .attach("files", path.resolve(__dirname, "mock_file/test2file.txt"))
       .set("Content-Type", "multipart/form-data");
 
     // Validate the response
