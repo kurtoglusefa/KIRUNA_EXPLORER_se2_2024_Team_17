@@ -14,7 +14,6 @@ class Document {
   ) {
     this.idDocument = idDocument; // id of the document
     this.title = title;
-    //this.stakeholders = stakeholders; // array of stakeholders
     this.scale = scale;
     this.issuance_Date = dayjs(issuance_Date).format("MM/YYYY"); // format to display in the cards
     this.language = language;
