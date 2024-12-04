@@ -466,6 +466,9 @@ function ModifyDocument() {
   const handleSearchChange = (e) => {
     const searchValue = e.target.value;
     setSelectedDocument(searchValue);
+  const handleSearchChange = (e) => {
+    const searchValue = e.target.value;
+    setSelectedDocument(searchValue);
 
     // Filter documents that match the input
     if (searchValue.length > 0) {

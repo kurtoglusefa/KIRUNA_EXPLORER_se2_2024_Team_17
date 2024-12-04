@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Polygon, useMap, LayersControl, LayerGroup, ZoomControl,GeoJSON  } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { Button, Card, Form, Spinner, Modal, CardFooter, Col, Overlay } from "react-bootstrap"; // Importing required components
+import { Button, Card, Form, Spinner, Modal, CardFooter, Col, Overlay } from "react-bootstrap";
 import { redirect, useLinkClickHandler, useNavigate } from "react-router-dom";
 import AppContext from '../AppContext';
 import L, { DivOverlay, popup } from 'leaflet';
@@ -13,6 +13,10 @@ import { EditControl } from "react-leaflet-draw"; // Import for the drawing tool
 import { FeatureGroup } from "react-leaflet"; // Import for the drawing tool
 import * as turf from "@turf/turf"; // Install this library for spatial operations
 import geoJsonData from "../assets/kiruna.json"; // If the data is saved in a file
+import { EditControl } from "react-leaflet-draw"
+import { FeatureGroup } from "react-leaflet"; 
+import { Rnd } from 'react-rnd'
+import MarkerClusterGroup from "react-leaflet-cluster"
 
 function MapComponent({ locations, setLocations, locationsArea, documents, setSelectedLocation, propsDocument, selectedLocation, handleDocumentClick, numberofconnections, fetchLocationsArea }) {
   const selectedDocument = useContext(AppContext).selectedDocument;
@@ -31,8 +35,8 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   const [loading, setLoading] = useState(true);
   const offsetDistance = 0.0001; //offset distance between markers
   const mapRef = useRef(null); // To get a reference to the map instance
-  const markerRef = useRef(); // To get a reference to the marker instance
-
+  const markerRef = useRef(); 
+  
   const [areaCoordinates, setAreaCoordinates] = useState([]);
 
   const [areaName, setAreaName] = useState("");
@@ -41,12 +45,41 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   const [newCoordinates, setNewCoordinates] = useState([]);
   const [icons, setIcons] = useState({});
   //const offsetDistance = 0.0020; //offset distance between markers
+
+/*
+  useEffect(() => {
+    const getIcon = async (document) => {
+      const res = await fetch(`src/icon/${documentTypes[document.IdType - 1]?.iconsrc}`);
+      const svg = await res.text();
+      svg.replace('fill="black"', 'fill="red"');
+      return new L.DivIcon({
+        iconUrl:`src/icon/${documentTypes[document.IdType - 1]?.iconsrc}`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32],
+        className: "",
+      });
+    };
+
+    const loadIcons = async () => {
+      const newIcons = {};
+      for (const document of documents) {
+        const icon = await getIcon(document);
+        newIcons[document.IdLocation] = icon;
+      }
+      setIcons(newIcons);
+    };
+
+    loadIcons();
+  }, [documents]);*/
+
+
   useEffect(() => {
     // Define an async function inside useEffect
     const updateArea = async () => {
 
       if (selectedArea && newCoordinates.length > 0) {
-    
+
         // Assuming getCenter is available and newCoordinates is a valid object
         const { lat, lng } = getCenter(newCoordinates);
         // Call the API function with the required parameters
@@ -148,7 +181,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
 
   const handleAddArea = async () => {
     if (areaName) {
-      
+
       API.addArea(
         areaName,
         JSON.stringify(areaCoordinates[0]),
@@ -230,10 +263,11 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
 
   };
 
-  function MarkerFocus ({position}) {
+  function MarkerFocus({ position }) {
     const map = useMap();
     console.log(position);
     useEffect(() => {
+      if (selectedMarker && position != [undefined, undefined]) {
         try {
           map.setView(position ? position : map.getLatLng(), map.getZoom());
         } catch (e) {
@@ -296,6 +330,43 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   };
 
 
+  const CenterMapControl = () => {
+    const map = useMap();
+
+    useEffect(() => {
+      const centerControl = new L.Control({ position: 'topleft' });
+
+      centerControl.onAdd = () => {
+        const container = L.DomUtil.create('div', 'leaflet-bar');
+
+        // create the location button
+        const locationButton = L.DomUtil.create('a', '', container);
+        locationButton.href = '#';
+        locationButton.title = 'Center Map';
+
+        // add the location icon
+        locationButton.innerHTML = '<i class="bi bi-crosshair" style="font-size: 20px; color: black;"></i>';
+
+        // add click functionality to center the map
+        locationButton.onclick = (e) => {
+          e.preventDefault();
+          map.setView([67.8558, 20.2253], 12); // Center the map to the given coordinates
+        };
+
+        return container;
+      };
+
+      map.addControl(centerControl);
+
+      return () => {
+        map.removeControl(centerControl);
+      };
+    }, [map]);
+
+    return null;
+  };
+
+
   return (
     <>
       {loading == true ? (
@@ -325,9 +396,78 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
 
             {/* Zoom Buttons - changed position to have it under the satellite/street view */}
             <ZoomControl position="topleft" />
-            
+            <CenterMapControl /> {/* control for centering the map */}
             {/* Layers */}
             {isLogged ? (
+              <LayersControl position="topright" collapsed={false}>
+                <LayersControl.Overlay name="Documents" checked>
+                  <LayerGroup>
+                  <MarkerClusterGroup>
+                    {documents.map((document, index) => {
+                      // Determine the location of the document
+                      const location =
+                        locationsArea[document.IdLocation] ||
+                        locations[document.IdLocation];
+                      const offsetIndex = index * offsetDistance;
+                      if (location) {
+                        let position = [];
+                        if (location.Location_Type === "Point") {
+                          position = [location.Latitude, location.Longitude];
+                        } else {
+                          position = [
+                            location.Latitude + (index % 2 === 0 ? offsetIndex : -offsetIndex),
+                            location.Longitude + (index % 2 === 0 ? -offsetIndex : offsetIndex),
+                          ];
+                        }
+
+
+                        const iconPath = `src/icon/${stakeholders[document.IdStakeholder - 1]?.color}/${documentTypes[document.IdType - 1]?.iconsrc}`;
+
+                        return (
+                          <Marker
+                            key={index}
+                            position={position}
+                            icon={
+                              new L.Icon({
+                                iconUrl: iconPath,
+                                iconSize: [32, 32],
+                                iconAnchor: [16, 32],
+                                popupAnchor: [0, -32],
+                              })
+                            }
+                            draggable={modifyMode}
+                            eventHandlers={{
+                              dragend: (e) => {
+                                if (isLogged) {
+                                  handleDragEnd(document, e);
+                                }
+                              },
+                              click: () => handleMarkerClick(document),
+                            }}
+                          >
+                            <Popup>{document.Title}</Popup>
+                          </Marker>
+                        );
+                      }
+                      return null; // Ensure that the map function returns null if location is not found
+                    })}
+                    </MarkerClusterGroup>
+                  </LayerGroup>
+                </LayersControl.Overlay>
+                <LayersControl.Overlay name="Area" checked>
+                  <LayerGroup>
+                   
+                    {locationsArea &&
+                      Object.values(locationsArea).map((area, index) => {
+                        let coordinates;
+                        try {
+                          coordinates = Array.isArray(area.Area_Coordinates)
+                            ? area.Area_Coordinates
+                            : JSON.parse(area.Area_Coordinates);
+                        } catch (error) {
+                          console.error("Error parsing coordinates:", error);
+                          return null; // Skip this area if coordinates are invalid
+                        }
             <LayersControl position="topright" collapsed={false}>
               <LayersControl.Overlay name="Documents" checked>
                 <LayerGroup>
@@ -397,37 +537,38 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                         return null; // Skip this area if coordinates are invalid
                       }
 
-                      return (
-                        <Polygon
-                          key={index}
-                          positions={coordinates} // Use the parsed array as positions
-                          pathOptions={{
-                            color: "blue",
-                            fillColor: "blue",
-                            fillOpacity: 0.1,
-                          }}
-                          eventHandlers={{
-                            click: () => handleAreaClick(area),
-                          }}
-                        >
-                          <Popup>
-                            {area.Area_Name} <br />
-                            {getNumberOfDocumentsArea(area.IdLocation)} documents
-                          </Popup>
-                        </Polygon>
-                      );
-                    })}
-                </LayerGroup>
-              </LayersControl.Overlay>
-            </LayersControl>
+                        return (
+                          <Polygon
+                            key={index}
+                            positions={coordinates} // Use the parsed array as positions
+                            pathOptions={{
+                              color: "blue",
+                              fillColor: "blue",
+                              fillOpacity: 0.1,
+                            }}
+                            eventHandlers={{
+                              click: () => handleAreaClick(area),
+                            }}
+                          >
+                            <Popup>
+                              {area.Area_Name} <br />
+                              {getNumberOfDocumentsArea(area.IdLocation)} documents
+                            </Popup>
+                          </Polygon>
+                        );
+                      })}
+                    
+                  </LayerGroup>
+                </LayersControl.Overlay>
+              </LayersControl>
             ) : (
               <LayerGroup>
-                  {documents.map((document, index) => {
-                    // Determine the location of the document
-                    const location =
-                      locationsArea[document.IdLocation] ||
-                      locations[document.IdLocation];
-                    const offsetIndex = index * offsetDistance;
+                {documents.map((document, index) => {
+                  // Determine the location of the document
+                  const location =
+                    locationsArea[document.IdLocation] ||
+                    locations[document.IdLocation];
+                  const offsetIndex = index * offsetDistance;
 
                     if (location) {
                       let position = [];
@@ -564,177 +705,130 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
             )}
             
             {/* setView on selected Marker*/}
-            
-            {/*(!loading && locations && locationsArea && selectedMarker && selectedDocument) ? <MarkerFocus position={locationsArea[selectedMarker?.IdLocation] ? {lat: locationsArea[selectedMarker?.IdLocation].Latitude, lng:locationsArea[selectedMarker?.IdLocation].Longitude} : {lat:locations[selectedMarker?.IdLocation]?.Latitude, lng: locations[selectedMarker?.IdLocation]?.Longitude}} /> : <MarkerFocus position={{lat:67.8400,lng: 20.2253}}/>*/}
-            {/* Markers 
-            {documents.map((document, index) => {
-              //used to not overleap the documents
-              const offsetIndex = index * offsetDistance;
-              const location = locationsArea[document.IdLocation] ? locationsArea[document.IdLocation] : locations[document.IdLocation];
-              if (location) {
-                let position = [];
-                if (location.Location_Type === "Point") {
-                  position = [
-                    location.Latitude,
-                    location.Longitude,
-                  ];
-                }
-                else {
-                  position = [
-                    location.Latitude + (index % 2 === 0 ? offsetIndex : -offsetIndex),
-                    location.Longitude + (index % 2 === 0 ? -offsetIndex : offsetIndex),
-                  ];
-                }
-                return (
-                  <Marker
-                    icon={
-                      new L.Icon({
-                        iconUrl: `src/icon/${stakeholders[document.IdStakeholder-1]?.color}/${documentTypes[document.IdType - 1]?.iconsrc}`,
-                        iconSize: [32, 32],
-                        iconAnchor: [16, 32],
-                        popupAnchor: [0, -32],
-                      })
-                    }
-                    draggable={
-                      modifyMode
-                    } // Only make draggable if logged in
-                    eventHandlers={{
-                      dragend: (e) => {
-                        if (isLogged) {
-                          handleDragEnd(document, e); // Only call dragend if logged in
-                        }
-                      },
-                      click: () => handleMarkerClick(document),
-                    }}
-                    key={index}
-                    position={position}
-                  >
-                    <Popup>{document.Title}</Popup>
-                  </Marker>
-                );
-              }
-            })*/}
-            <GeoJSON
-              data={geoJsonData}
-              style={() => ({
-                color: "black",
-                weight: 1,
-                fillColor: "black",
-                fillOpacity: 0.2,
-              })}
+            {(!loading && locations && locationsArea && selectedMarker && selectedDocument) ? <MarkerFocus position={locationsArea[selectedMarker?.IdLocation] ? { lat: locationsArea[selectedMarker?.IdLocation].Latitude, lng: locationsArea[selectedMarker?.IdLocation].Longitude } : { lat: locations[selectedMarker?.IdLocation]?.Latitude, lng: locations[selectedMarker?.IdLocation]?.Longitude }} /> : <MarkerFocus position={{ lat: 67.8558, lng: 20.2253 }} />}
 
-             
-            />
             <CustomZoomHandler />
-          </MapContainer> 
+          </MapContainer>
 
           {/* Overlay components*/}
           {/* Document Card */}
           {selectedDocument && (
             <div
               className='document-card overlay col-lg-3 col-md-6 col-sm-9'
-              style={{ marginLeft: '1%', bottom: '14.5%', width: '30%' }}
-            >
-              <CardDocument
-                key={document?.IdDocument}
-                document={selectedMarker}
-                locationType={locationsArea[selectedMarker?.IdLocation] ? "Area" : "Point"}
-                latitude={locations[selectedMarker?.IdLocation]?.Latitude.toFixed(4)}
-                longitude={locations[selectedMarker?.IdLocation]?.Longitude.toFixed(4)}
-                setShowCard={setSelectedDocument}
-                setSelectedDocument={setSelectedDocument}
-                isLogged={isLogged}
-                viewMode='map'
-                numberofconnections={numberofconnections}
-                area={locationsArea[selectedMarker?.IdLocation]}
-              />
+              style={{ marginLeft: '1%', bottom: '18%', width: '28%' }}>
+              <Rnd
+                default={{
+                  x: 100,
+                  y: -450,
+                  width: 450,
+                  height: 320,
+                }}
+                minHeight={150}
+                minWidth={150}
+                bounds=".map-container"
+                style={{ zIndex: 1000 }} // Set a higher z-index
+              >
+                <CardDocument
+                  document={selectedMarker}
+                  locationType={locationsArea[selectedMarker?.IdLocation] ? "Area" : "Point"}
+                  latitude={locations[selectedMarker?.IdLocation]?.Latitude.toFixed(4)}
+                  longitude={locations[selectedMarker?.IdLocation]?.Longitude.toFixed(4)}
+                  setShowCard={setSelectedDocument}
+                  setSelectedDocument={setSelectedDocument}
+                  isLogged={isLogged}
+                  viewMode='map'
+                  numberofconnections={numberofconnections}
+                  areaName={locationsArea[selectedMarker?.IdLocation]?.Area_Name}
+                />
+              </Rnd>
             </div>
           )}
           {/* Card location for creating new document */}
           {modifyMode &&
             <div className='d-flex justify-content-end me-4'>
-              <Card className='text-start form overlay' style={{ bottom: '6%' }}>
-                <Card.Header>
-                  <Card.Title className='text.center mx-4 mt-1'>
-                    <strong>Add New Document</strong>
-                  </Card.Title>
-                  <Button
-                    hidden={!selectedLocation && !selectedDocument}
-                    variant="link"
-                    style={{ color: 'darkred', position: 'absolute', right: '0px', bottom: '50%' }}
-                    onClick={() => {setSelectedLocation(null);setSelectedDocument(null)}}>
-                    <i className="bi bi-x h2"></i>
-                  </Button>
-                </Card.Header>
-                <Card.Body>
-                  <div className='mx-3'>
-                    <h5>Selected Location:</h5>
-                    {selectedLocation ? (
-                      <>
-                        <h6><strong>Latitude:</strong> {selectedLocation?.lat.toFixed(4)}<br></br>
-                          <strong>Longitude:</strong> {selectedLocation?.lng.toFixed(4)}</h6>
-                      </>
-                    ) : (
-                      selectedDocument ? (
+              <Rnd
+                default={{
+                  x: 1300,
+                  y: -350,
+                  width: 320,
+                  height: 320,
+                }}
+                minHeight={150}
+                minWidth={150}
+                bounds=".map-container"
+                style={{ zIndex: 1000 }} // Set a higher z-index
+              >
+                <Card className='text-start form overlay' style={{ bottom: '8%' }}>
+                  <Card.Header>
+                    <Card.Title className='text.center mx-4 mt-1'>
+                      <strong>Add New Document</strong>
+                    </Card.Title>
+                    <Button
+                      hidden={!selectedLocation}
+                      variant="link"
+                      style={{ color: 'darkred', position: 'absolute', right: '0px', bottom: '50%' }}
+                      onClick={() => setSelectedLocation(null)}>
+                      <i className="bi bi-x h2"></i>
+                    </Button>
+                  </Card.Header>
+                  <Card.Body>
+                    <div className='mx-3'>
+                      <h5>Selected Location:</h5>
+                      {selectedLocation ? (
                         <>
-                          <h6><strong>Latitude:</strong> {locations[selectedDocument.IdLocation]?.Latitude.toFixed(4)}<br></br>
-                            <strong>Longitude:</strong> {locations[selectedDocument.IdLocation]?.Longitude.toFixed(4)}</h6>
+                          <h6><strong>Latitude:</strong> {selectedLocation?.lat.toFixed(4)}<br></br>
+                            <strong>Longitude:</strong> {selectedLocation?.lng.toFixed(4)}</h6>
                         </>
-
                       ) : (
-                      <Form.Group>
-                        <Form.Label>
-                          <strong>Area</strong>
-                        </Form.Label>
-                        <Form.Select
-                          value={selectedArea ? selectedArea.IdLocation : ""}
-                          onChange={(e) => {
-                            const area = locationsArea[e.target.value];
-                            setSelectedArea(area);
-                          }}
-                          required={true}
-                        >
-                          <option>Select an Area</option>
-                          {Object.values(locationsArea).map((area) => (
-                            <option
-                              key={area.IdLocation}
-                              value={area.IdLocation}
-                            >
-                              {area.Area_Name || `Area ${area.IdLocation}`}
-                            </option>
-                          ))}
-                        </Form.Select>
-                      </Form.Group>
-                    ))
-                    }
+                        <Form.Group>
+                          <Form.Label>
+                            <strong>Area</strong>
+                          </Form.Label>
+                          <Form.Select
+                            value={selectedArea ? selectedArea.IdLocation : ""}
+                            onChange={(e) => {
+                              const area = locationsArea[e.target.value];
+                              setSelectedArea(area);
+                            }}
+                            required={true}
+                          >
+                            <option>Select an Area</option>
+                            {Object.values(locationsArea).map((area) => (
+                              <option
+                                key={area.IdLocation}
+                                value={area.IdLocation}
+                              >
+                                {area.Area_Name || `Area ${area.IdLocation}`}
+                              </option>
+                            ))}
+                          </Form.Select>
+                        </Form.Group>
+                      )}
+                    </div>
+                  </Card.Body>
+                  <div className='d-flex justify-content-center'>
+                    <Button
+                      variant="dark"
+                      className='px-4 py-2 mb-2 rounded-pill btn-document'
+                      size="md"
+                      onClick={() => {
+                        if (!selectedLocation) {
+                          if (!selectedArea) {
+                            alert('Select an area')
+                            return;
+                          }
+                          navigate(`../documents/create-document`, { state: { area: selectedArea }, relative: 'path' })
+                        }
+                        else {
+                          navigate(`../documents/create-document`, { state: { location: { lat: selectedLocation.lat.toFixed(4), lng: selectedLocation.lng.toFixed(4) } }, relative: 'path' })
+                        }
+                      }}
+                    >
+                      Add document
+                    </Button>
                   </div>
-                </Card.Body>
-                <div className='d-flex justify-content-center'>
-                  <Button
-                    variant="dark"
-                    className='px-4 py-2 mb-2 rounded-pill btn-document'
-                    size="md"
-                    onClick={() => {
-                      if (!selectedLocation && !selectedDocument) {
-                        if(!selectedArea) {
-                          alert('Select an area')
-                          return;
-                        }
-                        navigate(`../documents/create-document`, { state: { location:{ area: selectedArea,type: 'Area' }}, relative: 'path' })
-                      }
-                      else {
-                        if(selectedDocument) {
-                          navigate(`../documents/create-document`, { state: { location: {lat: locations[selectedDocument.IdLocation]?.Latitude.toFixed(4), lng: locations[selectedDocument.IdLocation]?.Longitude.toFixed(4),type: 'Point' }}, relative: 'path' })
-                        }
-
-                        navigate(`../documents/create-document`, { state: { location: {lat: selectedLocation.lat.toFixed(4), lng: selectedLocation.lng.toFixed(4),type: 'Point' }}, relative: 'path' })
-                      }
-                    }}
-                  >
-                    Add document
-                  </Button>
-                </div>
-              </Card>
+                </Card>
+              </Rnd>
             </div>
           }
           {/* Button enable */}
