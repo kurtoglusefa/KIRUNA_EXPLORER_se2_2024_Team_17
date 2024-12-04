@@ -542,7 +542,7 @@ function ModifyDocument() {
                     onChange={(event) =>
                       handleTypeScaleChange(event.target.value)
                     }
-                    className={formSubmitted && !scale ? "font-size-20 blink" : "font-size-20"}
+                    className={formSubmitted && !documentScale ? "font-size-20 blink" : "font-size-20"}
                   >
                     <option value="0">Select scale</option>
                     {scales &&
@@ -802,7 +802,7 @@ function ModifyDocument() {
                 <Form.Group controlid="description" className="mb-3">
                   <Form.Label as="strong">Description*</Form.Label>
                   <Form.Control
-                    className={formSubmitted && !title ? "mt-auto blink" : "mt-auto"}
+                    className={formSubmitted && !description ? "mt-auto blink" : "mt-auto"}
                     as="textarea"
                     style={{ height: "150px" }}
                     value={description}
