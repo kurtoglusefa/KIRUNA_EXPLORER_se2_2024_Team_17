@@ -5,6 +5,8 @@ import { app, server } from "../index.js";
 const DocumentConnectionDao = require("../dao/document-connection-dao.js");
 const UserDao = require("../dao/user-dao.js");
 jest.mock("../dao/document-connection-dao.js");
+require("dotenv").config();
+
 
 describe("Document Connections API", () => {
   let agent;
@@ -15,7 +17,7 @@ describe("Document Connections API", () => {
     // Simulate login to maintain session state for future requests
     await agent
       .post("/api/sessions")
-      .send({ username: "mario@test.it", password: "pwd" });
+      .send({ username: "mario@test.it", password: process.env.TEST_USER_PASSWORD });
   });
 
   describe("GET /api/document-connections", () => {

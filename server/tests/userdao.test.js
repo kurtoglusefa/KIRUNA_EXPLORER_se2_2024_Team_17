@@ -12,7 +12,7 @@ describe('userDao', () => {
         
         beforeEach(() => {
             email = 'test@example.com';
-            password = 'password123';
+            password = process.env.TEST_USER_PASSWORD;
 
             // Sample data to mock a database response
             mockRow = {

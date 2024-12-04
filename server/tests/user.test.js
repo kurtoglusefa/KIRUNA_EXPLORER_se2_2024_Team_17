@@ -17,7 +17,7 @@ describe('User API', () => {
     it('should fail login with invalid credentials', async () => {
         const response = await request(app)
             .post('/api/sessions')
-            .send({ username: 'invalidUser', password: 'invalidPassword' });
+            .send({ username: 'invalidUser', password: process.env.TEST_ERROR_USER_PASSWORD });
         expect(response.status).toBe(401);
     });
 
@@ -26,7 +26,7 @@ describe('User API', () => {
         const agent = request.agent(app);
         await agent
             .post('/api/sessions')
-            .send({ username: 'mario@test.it', password: 'pwd' });
+            .send({ username: 'mario@test.it', password: process.env.TEST_USER_PASSWORD });
 
         const response = await agent.delete('/api/sessions/current');
         expect(response.status).toBe(200);
@@ -37,7 +37,7 @@ describe('User API', () => {
         const agent = request.agent(app);
         await agent
             .post('/api/sessions')
-            .send({ username: 'mario@test.it', password: 'pwd' });
+            .send({ username: 'mario@test.it', password: process.env.TEST_USER_PASSWORD });
 
         const response = await agent.get('/api/sessions/current');
         expect(response.status).toBe(200);
