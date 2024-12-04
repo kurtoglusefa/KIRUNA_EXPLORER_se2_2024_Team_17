@@ -16,10 +16,13 @@ import SidebarLegend from './SidebarLegend';
 
 
 function Home(props) {
-  const viewMode = useContext(AppContext).viewMode.viewMode;
+  
+  const context = useContext(AppContext);
+  const isLogged = context.loginState.loggedIn;
+  const viewMode = context.viewMode.viewMode;
   const [loading, setLoading] = useState(true);
-  const selectedDocument = useContext(AppContext).selectedDocument;
-  const setSelectedDocument = useContext(AppContext).setSelectedDocument;
+  const selectedDocument = context.selectedDocument;
+  const setSelectedDocument = context.setSelectedDocument;
   const [stakeholders, setStakeholders] = useState([]);
   const [locations, setLocations] = useState([]);
   const [locationsArea, setLocationsArea] = useState([]);
@@ -34,9 +37,6 @@ function Home(props) {
   const [selectDocumentSearch, setSelectDocumentSearch] = useState('');
 
 
-
-  const context = useContext(AppContext);
-  const isLogged = context.loginState.loggedIn;
   const fetchDocuments = async () => {
     try {
       const documents  = await API.getAllDocuments();

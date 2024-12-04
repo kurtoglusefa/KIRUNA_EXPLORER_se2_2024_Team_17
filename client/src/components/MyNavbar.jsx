@@ -129,7 +129,7 @@ export function MyNavbar({ documents, setDocuments }) {
   return (
     <>
       <Navbar sticky='top' bg="light" variant="dark" className='justify-content-between'>
-          <Navbar.Brand href='/home'>
+          <Navbar.Brand href='/'>
               <img
                 src="/kiruna2.webp"
                 alt="Kiruna eXplorer"
@@ -150,8 +150,8 @@ export function MyNavbar({ documents, setDocuments }) {
               />
           </Navbar.Brand>
 
-            {loginState.loggedIn && location.pathname === '/home' &&
-            <>
+            {location.pathname === '/home' &&
+            
               <Nav>
                 <ToggleButtonGroup
                   type="radio"
@@ -185,6 +185,7 @@ export function MyNavbar({ documents, setDocuments }) {
                   >
                     List
                   </ToggleButton>
+                  {loginState.loggedIn &&
                   <ToggleButton
                     id="tbg-diagram"
                     value="diagram"
@@ -198,8 +199,12 @@ export function MyNavbar({ documents, setDocuments }) {
                   >
                     Diagram
                   </ToggleButton>
+                  }
                 </ToggleButtonGroup>
               </Nav>
+            }
+            {loginState.loggedIn && location.pathname === '/home' &&
+              <>
               <Nav>
                 <Form className="d-flex align-items-center" onSubmit={handleSearch}>
                   <InputGroup>

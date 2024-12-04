@@ -17,6 +17,8 @@ import { Rnd } from 'react-rnd'
 import MarkerClusterGroup from "react-leaflet-cluster"
 
 function MapComponent({ locations, setLocations, locationsArea, documents, setSelectedLocation, propsDocument, selectedLocation, handleDocumentClick, numberofconnections, fetchLocationsArea }) {
+  const context = useContext(AppContext);
+  const navigate = useNavigate();
   const selectedDocument = useContext(AppContext).selectedDocument;
   const setSelectedDocument = useContext(AppContext).setSelectedDocument;
   const [selectedMarker, setSelectedMarker] = useState(selectedDocument);
@@ -24,8 +26,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   const [showCreateArea, setShowCreateArea] = useState(false);
   const [showAddConnection, setShowAddConnection] = useState(false);
   const [connectionType, setConnectionType] = useState('');
-  const navigate = useNavigate();
-  const context = useContext(AppContext);
   const isLogged = context.loginState.loggedIn;
   const [documentTypes, setDocumentTypes] = useState([]);
   const [stakeholders, setStakeholders] = useState([]);
@@ -42,6 +42,20 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
 
   const [newCoordinates, setNewCoordinates] = useState([]);
   const [icons, setIcons] = useState({});
+
+  //for setting the initial position of the draggable box (using Rnd) for creating a new document  
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const componentWidth = 300; // Width of your component in pixels
+  const initialXFromRight = 20; // Distance from the right edge in pixels
+
+  useEffect(() => {
+    // Update the window width on resize
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+  }, []);
+
+
+
   //const offsetDistance = 0.0020; //offset distance between markers
   useEffect(() => {
     // Define an async function inside useEffect
@@ -341,7 +355,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
       {loading == true ? (
         <Spinner animation="border" variant="primary" />
       ) : (
-        <div>
+        <div style={{maxHeight: '100%', maxWidth:'100%'}}>
           <MapContainer ref={mapRef} center={[67.8536, 20.2437]} zoomControl={false} zoom={15}  minZoom={8} maxBounds={ calculateBounds(geoJsonData)} // Constrain the map to Kiruna's bounding box
       maxBoundsViscosity={1.0} >
             {/* Location listener */}
@@ -371,7 +385,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
             <LayersControl position="topright" collapsed={false}>
               <LayersControl.Overlay name="Documents" checked>
                 <LayerGroup>
-                  <MarkerClusterGroup>
+                  <MarkerClusterGroup >
                   {documents.map((document, index) => {
                     // Determine the location of the document
                     const location =
@@ -675,9 +689,15 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
           {selectedDocument && (
             <div
               className='document-card overlay col-lg-3 col-md-6 col-sm-9'
-              style={{ marginLeft: '1%', bottom: '18%', width: '28%' }}
             >
-              <Rnd>
+              <Rnd 
+                default={{
+                  x: 60,
+                  y: -730
+                }}
+                minHeight={650}
+                minWidth={600}
+              >
                 <CardDocument
                   key={document?.IdDocument}
                   document={selectedMarker}
@@ -696,8 +716,16 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
           )}
           {/* Card location for creating new document */}
           {modifyMode &&
-            <div className='d-flex justify-content-end me-4'>
-              <Card className='text-start form overlay' style={{ bottom: '6%' }}>
+            <div>
+              <Rnd 
+                default={{
+                  x: windowWidth - componentWidth - initialXFromRight,
+                  y: -280,
+                  width: 280,
+                }}
+                bounds={'window'}                
+              >
+              <Card className='text-start form overlay' >
                 <Card.Header>
                   <Card.Title className='text.center mx-4 mt-1'>
                     <strong>Add New Document</strong>
@@ -779,6 +807,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                   </Button>
                 </div>
               </Card>
+              </Rnd>
             </div>
           }
           {/* Button enable */}
@@ -786,17 +815,18 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
             <>
               <div className='d-flex mt-2 align-items-center justify-content-between ms-3'>
                 <div className='d-flex align-items-center'>
-                  <Button variant='dark' className='rounded-pill mt-2 overlay px-4 mx-2 btn-document' style={{ bottom: '5%' }} onClick={() => {
+                  <Button variant='dark' size='sm' className='rounded-pill mt-2 overlay px-4 btn-document' style={{ left:'3.5%', bottom: '5%' }} onClick={() => {
                     if(modifyMode)
                       setSelectedArea(null);
                     setSelectedLocation(null);
+                    
                     setModifyMode((mode) => !mode)
                   }}>
                     <span className='h6' style={{ fontSize: '16px' }}>{modifyMode ? 'Disable' : 'Enable'} drag / add new location for a document</span>
                   </Button>
 
                   <div>
-                    {modifyMode && <span className='col text-end mx-5 mb-1' style={{ position: 'absolute', zIndex: 1000, textShadow: '#000000 0px 0px 20px', left: '3%', bottom: '9.5%', color: 'white' }}>Drag / Add new document enabled</span>}
+                    {modifyMode && <span className='col text-end mx-5 mb-1' style={{ position: 'absolute', zIndex: 1000, textShadow: '#000000 0px 0px 20px', left: '450px', bottom: '5%', color: 'white' }}>Drag / Add new document enabled</span>}
                   </div>
                 </div>
               </div>

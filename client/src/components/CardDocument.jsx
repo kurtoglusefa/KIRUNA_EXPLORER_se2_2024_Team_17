@@ -219,7 +219,11 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
     </Card>
     ) : (
 
-    <Card>
+    <Card               
+      style= {{
+          minHeight:'650px'
+        }}
+    >
       <Button 
         variant="close"
         onClick={() => {

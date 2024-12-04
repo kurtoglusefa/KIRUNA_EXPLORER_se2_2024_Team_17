@@ -6,8 +6,11 @@ import AppContext from '../AppContext';
 import API from '../API'; // Import API module
 import '../App.css'
 import '../WelcomePage.css';
+import { Rnd } from 'react-rnd';
 
-function Diagram({locations,setLocations,locationsArea,documents,setDocuments,selectedDocument,setSelectedDocument}) {
+function Diagram({locations,setLocations,locationsArea,documents,setDocuments}) {
+  const selectedDocument = useContext(AppContext).selectedDocument;
+  const setSelectedDocument = useContext(AppContext).setSelectedDocument;
   const [numberofconnections, setNumberofconnections] = useState(0);
   const [typeConnections, setTypeConnections] = useState([]);
   const [connections, setConnections] = useState([]);
@@ -465,8 +468,16 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments,se
     {selectedDocument && (
       <div
         className='document-card overlay col-lg-3 col-md-6 col-sm-9'
-        style={{ marginLeft: '1%', bottom: '12%', width: '30%' }}
+        
       >
+        <Rnd 
+          default={{
+            x: 60,
+            y: -730
+          }}
+          minHeight={650}
+          minWidth={600}
+        >
         <CardDocument
           document={selectedDocument}
           locationType={locationsArea[selectedDocument?.IdLocation] ? "Area" : "Point"}
@@ -479,6 +490,7 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments,se
           numberofconnections={numberofconnections}
           area={locationsArea[selectedDocument?.IdLocation]}
         />
+        </Rnd>
       </div>
     )}
 

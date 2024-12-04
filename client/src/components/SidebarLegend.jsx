@@ -56,6 +56,12 @@ function SidebarLegend ({loggedIn}) {
                   <label>Action</label>
                 </div>
               </div>
+              <div className='ms-3 mt-3'>
+                <div className='d-flex my-1'>
+                  <img src='/src/icon/000000/other.svg' style={{marginRight: '10px', width:'20px'}} />
+                  <label>Other</label>
+                </div>
+              </div>
             </div>
             {/* Stakeholders */}
             <div className='mb-4'>

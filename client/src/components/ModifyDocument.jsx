@@ -21,10 +21,11 @@ import Select from "react-select";
 import API from "../API";
 function ModifyDocument() {
   let { documentId } = useParams();
-  const [showAddConnection, setShowAddConnection] = useState(false);
-  const [message, setMessage] = useState("");
+  const navigate = useNavigate();
   const location = useLocation();
   const selectedLocation = location.state.location || {};
+  const [showAddConnection, setShowAddConnection] = useState(false);
+  const [message, setMessage] = useState("");
 
   console.log("selected location");
   console.log(selectedLocation);
@@ -53,7 +54,6 @@ function ModifyDocument() {
   const [selectedDocument, setSelectedDocument] = useState("");
   const [connectionType, setConnectionType] = useState("");
   const [connections, setConnections] = useState([]); // List of added connections
-  const navigate = useNavigate();
   const [document, setDocument] = useState(null);
   const [stakeholders, setStakeholders] = useState([]);
   const [types, setTypes] = useState([]);
@@ -83,7 +83,7 @@ function ModifyDocument() {
   const [locationType, setLocationType] = useState(selectedLocation.type);
   const [selectedArea, setSelectedArea] = useState(selectedLocation.area);
   const [loading, setLoading] = useState(false);
-
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   console.log("selected loc");
   console.log(selectedLocation.type);
@@ -299,6 +299,7 @@ function ModifyDocument() {
 
   const handleUpdate = async () => {
     console.log("sto aggiornando");
+    setFormSubmitted(true);
     if (
       !title ||
       !documentScale ||
@@ -309,6 +310,7 @@ function ModifyDocument() {
     ) {
       setMessage("Please complete all fields to add a document.");
     } else {
+      setFormSubmitted(false);
       let date;
       if (issuanceDate.year && issuanceDate.month && issuanceDate.day) {
         date = `${issuanceDate.year}/${issuanceDate.month}/${issuanceDate.day}`;
@@ -331,13 +333,25 @@ function ModifyDocument() {
         //dovrei controllare se è un documento con un area non posos aggiornare cosi ma devo crearmi un id location lui
         //e poi fare l'update
         let locationId;
-        if (locationType === "Point" && selectedArea==null) {
+        if (locationType === "Point" && !selectedArea) {
           await API.updateLocationDocument(
             document.IdLocation,
             "Point",
             latitude,
             longitude,
             ""
+          );
+          await API.updateDocument(
+            documentId,
+            title,
+            selectedStakeholders.map((stk) => stk.value),
+            documentScale.id,
+            date,
+            language,
+            pages,
+            description,
+            type.id ? type.id : type,
+            document.IdLocation
           );
         }
         else if (locationType === "Point" && selectedArea) {
@@ -372,18 +386,7 @@ function ModifyDocument() {
         }
         else
         {
-          await API.updateDocument(
-            documentId,
-            title,
-            selectedStakeholders.map((stk) => stk.value),
-            documentScale.id,
-            date,
-            language,
-            pages,
-            description,
-            type.id ? type.id : type,
-            document.IdLocation
-          );
+          alert('Unable to update');
 
         }
         
@@ -522,6 +525,7 @@ function ModifyDocument() {
               <Form.Group controlid="title" className="mb-2 text-start">
               <Form.Label as="strong">Title*</Form.Label>
                 <Form.Control
+                  className={formSubmitted && !title ? "blink" : ""}
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
@@ -538,7 +542,7 @@ function ModifyDocument() {
                     onChange={(event) =>
                       handleTypeScaleChange(event.target.value)
                     }
-                    className="font-size-20"
+                    className={formSubmitted && !scale ? "font-size-20 blink" : "font-size-20"}
                   >
                     <option value="0">Select scale</option>
                     {scales &&
@@ -610,7 +614,7 @@ function ModifyDocument() {
                           <strong className="me-3">Issuance Date</strong>
                           <Form.Control
                             controlid='year' 
-                            className='mx-1' 
+                            className={formSubmitted && !issuanceDate.year ? "mx-1 blink" : "mx-1"}
                             type='number' 
                             style={{width:'10ch'}}
                             maxLength={4} 
@@ -619,7 +623,7 @@ function ModifyDocument() {
                             value={issuanceDate.year}
                             onChange={(e)=>setIssuanceDate({year: e.target.value, month: issuanceDate.month, day: issuanceDate.day})} required
                           />
-                          /
+                          */
                           <Form.Control
                             controlid='month' 
                             className='mx-1' 
@@ -757,9 +761,10 @@ function ModifyDocument() {
                     }))}
                     isMulti
                     placeholder="Select Stakeholder"
+                    
                     value={selectedStakeholders}
                     onChange={(selected) => setSelectedStakeholders(selected)}
-                    className="col-9"
+                    className={formSubmitted && selectedStakeholders <= 0 ? "col-9 blink" : "col-9"}
                   />
                   <Button
                     variant="outline-secondary"
@@ -776,7 +781,7 @@ function ModifyDocument() {
                     <Form.Select
                       value={type.id}
                       onChange={(e) => setType(e.target.value)}
-                      className="col-8"
+                      className={formSubmitted && !title ? "col-8 blink" : "col-8"}
                     >
                       <option>Select Document Type</option>
                       {types.map((tp) => (
@@ -797,7 +802,7 @@ function ModifyDocument() {
                 <Form.Group controlid="description" className="mb-3">
                   <Form.Label as="strong">Description*</Form.Label>
                   <Form.Control
-                    className="mt-auto"
+                    className={formSubmitted && !title ? "mt-auto blink" : "mt-auto"}
                     as="textarea"
                     style={{ height: "150px" }}
                     value={description}
@@ -916,7 +921,7 @@ function ModifyDocument() {
               <Alert
                 variant="danger"
                 dismissible
-                onClick={() => setMessage("")}
+                onClick={() => {setMessage(""); setFormSubmitted(false)}}
               >
                 {message}
               </Alert>
