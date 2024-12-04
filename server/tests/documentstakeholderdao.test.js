@@ -3,16 +3,26 @@
 const documentStakeholderDao = require("../dao/document-stakeholder-dao");
 const db = require("../db/db");
 jest.mock("../db/db");
+
+const mockDbRun = (error = null, changes = 0) => {
+  db.run.mockImplementation((sql, params, callback) => {
+    callback.call({ changes }, error);
+  });
+};
+
+const mockDbAll = (error = null, result = []) => {
+  db.all.mockImplementation((sql, params, callback) => {
+    callback(error, result);
+  });
+};
+
 describe("documentStakeholderDao", () => {
   describe("addStakeholderToDocument", () => {
     const documentId = 1;
     const stakeholderId = 2;
 
     it("should add a stakeholder to a document successfully", async () => {
-      db.run.mockImplementation((sql, params, callback) => {
-        callback(null);
-      });
-
+      mockDbRun(null);
       const result = await documentStakeholderDao.addStakeholderToDocument(
         documentId,
         stakeholderId
@@ -21,10 +31,7 @@ describe("documentStakeholderDao", () => {
     });
 
     it("should reject if there is a database error", async () => {
-      db.run.mockImplementation((sql, params, callback) => {
-        callback(new Error("DB error"));
-      });
-
+      mockDbRun(new Error("DB error"));
       await expect(
         documentStakeholderDao.addStakeholderToDocument(
           documentId,
@@ -42,20 +49,14 @@ describe("documentStakeholderDao", () => {
     ];
 
     it("should return stakeholders for a given document", async () => {
-      db.all.mockImplementation((sql, params, callback) => {
-        callback(null, mockStakeholders);
-      });
-
+      mockDbAll(null, mockStakeholders);
       const stakeholders =
         await documentStakeholderDao.getStakeholdersByDocument(documentId);
       expect(stakeholders).toEqual(mockStakeholders);
     });
 
     it("should reject if there is a database error", async () => {
-      db.all.mockImplementation((sql, params, callback) => {
-        callback(new Error("DB error"));
-      });
-
+      mockDbAll(new Error("DB error"));
       await expect(
         documentStakeholderDao.getStakeholdersByDocument(documentId)
       ).rejects.toThrow("DB error");
@@ -82,10 +83,7 @@ describe("documentStakeholderDao", () => {
     ];
 
     it("should return documents for a given stakeholder", async () => {
-      db.all.mockImplementation((sql, params, callback) => {
-        callback(null, mockDocuments);
-      });
-
+      mockDbAll(null, mockDocuments);
       const documents = await documentStakeholderDao.getDocumentsByStakeholder(
         stakeholderId
       );
@@ -93,54 +91,37 @@ describe("documentStakeholderDao", () => {
     });
 
     it("should reject if there is a database error", async () => {
-      db.all.mockImplementation((sql, params, callback) => {
-        callback(new Error("DB error"));
-      });
-
+      mockDbAll(new Error("DB error"));
       await expect(
         documentStakeholderDao.getDocumentsByStakeholder(stakeholderId)
       ).rejects.toThrow("DB error");
     });
   });
 
-  //// describe f**king removing stakeholder from the duck!!!!!
   describe("clearStakeholdersFromDocument", () => {
-    describe("clearStakeholdersFromDocument", () => {
-      const documentId = 1;
+    const documentId = 1;
 
-      it("should successfully clear stakeholders when rows exist", async () => {
-        db.run.mockImplementation((sql, params, callback) => {
-          callback.call({ changes: 2 }, null);
-        });
+    it("should successfully clear stakeholders when rows exist", async () => {
+      mockDbRun(null, 2);
+      const result = await documentStakeholderDao.clearStakeholdersFromDocument(
+        documentId
+      );
+      expect(result).toBe(true);
+    });
 
-        const result =
-          await documentStakeholderDao.clearStakeholdersFromDocument(
-            documentId
-          );
-        expect(result).toBe(true);
-      });
+    it("should return false when no rows are deleted", async () => {
+      mockDbRun(null, 0);
+      const result = await documentStakeholderDao.clearStakeholdersFromDocument(
+        documentId
+      );
+      expect(result).toBe(false);
+    });
 
-      it("should return false when no rows are deleted", async () => {
-        db.run.mockImplementation((sql, params, callback) => {
-          callback.call({ changes: 0 }, null);
-        });
-
-        const result =
-          await documentStakeholderDao.clearStakeholdersFromDocument(
-            documentId
-          );
-        expect(result).toBe(false);
-      });
-
-      it("should reject if there is a database error", async () => {
-        db.run.mockImplementation((sql, params, callback) => {
-          callback(new Error("DB error"));
-        });
-
-        await expect(
-          documentStakeholderDao.clearStakeholdersFromDocument(documentId)
-        ).rejects.toThrow("DB error");
-      });
+    it("should reject if there is a database error", async () => {
+      mockDbRun(new Error("DB error"));
+      await expect(
+        documentStakeholderDao.clearStakeholdersFromDocument(documentId)
+      ).rejects.toThrow("DB error");
     });
   });
 });
