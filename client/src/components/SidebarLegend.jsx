@@ -19,7 +19,7 @@ function SidebarLegend ({loggedIn}) {
           onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'} 
           onMouseLeave={(e) => e.target.style.transform = 'scale(1)'} 
           onFocus={ () => {} } 
-          onKeyDown={(e) => handleKeyDown(e)} 
+          onKeyDown={() => {}} 
           aria-label='open sidebar for legend' 
         ></i>
 
