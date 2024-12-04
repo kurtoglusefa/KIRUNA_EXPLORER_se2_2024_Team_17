@@ -6,24 +6,23 @@ import { useEffect, useState } from 'react';
 function SidebarLegend ({loggedIn}) {
   const [infoOpened, setInfoOpened] = useState(false);
 
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      // want to open the sidebar pressing the 'i' key
-      if (e.key === 'i') {
-        setInfoOpened((prev) => !prev);
-      }
-    };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
+  
 
   return (
     <>
         {/* Info Button */}
-        <i className="bi bi-info-circle-fill h2 info-button" onClick={() => setInfoOpened(!infoOpened)} style={{color:'FDFDFD'}} onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'} onMouseLeave={(e) => e.target.style.transform = 'scale(1)'} ></i>
+        <i 
+          className="bi bi-info-circle-fill h2 info-button" 
+          onClick={() => setInfoOpened(!infoOpened)} 
+          style={{color:'FDFDFD'}} 
+          onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'} 
+          onMouseLeave={(e) => e.target.style.transform = 'scale(1)'} 
+          onFocus={ () => {} } 
+          onKeyDown={(e) => handleKeyDown(e)} 
+          aria-label='open sidebar for legend' 
+        ></i>
+
         {/* Sidebar */}
         <Collapse in={infoOpened} dimension={'width'} className='sidebar'>
           <Card className='p-3 pe-3 pt-4 text-start'>
