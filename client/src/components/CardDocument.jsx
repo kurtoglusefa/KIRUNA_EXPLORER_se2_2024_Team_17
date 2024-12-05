@@ -66,17 +66,18 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
       } 
     }; 
 
-    const fetchScales = async () => {
-      setLoading(true);
-      try {
-        const res = await API.getScales();
-        res.map(scale => scales[scale.IdScale] = { scale_text: scale.scale_text, scale_number: scale.scale_number });
-        console.log(res);
-        setScales(res);
-      } catch (err) {
-        console.error(err);
-      }
-      setLoading(false);
+    const fetchScales = async () => { 
+      try { 
+          
+          const res = await API.getScales(); 
+          const scalesArray = []; 
+          res.forEach(scale => { 
+          scalesArray[scale.id] = scale; 
+          }); 
+          setScales(scalesArray); 
+      } catch (err) { 
+          console.error(err); 
+      } 
     };
     const fetchDocumentConnections = async () => { 
       try { 
@@ -247,11 +248,11 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
           <div className='col-6 m-1'>
 
             <Card.Text style={{ fontSize: '16px' }}><strong>Date:</strong> {document?.Issuance_Date}</Card.Text>
-            <Card.Text style={{ fontSize: '16px' }}><strong>Scale Name:</strong> {scales[document?.IdScale-1] ? scales[document?.IdScale-1].scale_text : ""}</Card.Text>
+            <Card.Text style={{ fontSize: '16px' }}><strong>Scale Name:</strong> {scales[document?.IdScale] ? scales[document?.IdScale].scale_text : ""}</Card.Text>
             {scales[document?.IdScale] && scales[document?.IdScale].scale_number !== '' ? (
               <Card.Text style={{ fontSize: '16px' }}>
                 <strong>Scale Number: </strong>
-                {scales[document?.IdScale-1].scale_number}
+                {scales[document?.IdScale].scale_number}
               </Card.Text>
             ) : null}            
             {document?.Language && <Card.Text style={{ fontSize: '16px' }}><strong>Language:</strong> {document?.Language}</Card.Text>}

@@ -92,13 +92,18 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments}) 
       console.error(err);
     }
   };
-  const fetchScales = async () => {
-    try {
-        const res = await API.getScales();
-        setScales(res);
-    } catch (err) {
-        console.error(err);
-    }
+  const fetchScales = async () => { 
+    try { 
+        
+        const res = await API.getScales(); 
+        const scalesArray = []; 
+        res.forEach(scale => { 
+        scalesArray[scale.id] = scale; 
+        }); 
+        setScales(scalesArray); 
+    } catch (err) { 
+        console.error(err); 
+    } 
   };
   const fetchTypeConnections = async () => {
     try {
@@ -243,7 +248,7 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments}) 
       };
       const mapScaleToY = (Idscale) => {
 
-        const scale= scales[Idscale-1]?.scale_text;
+        const scale= scales[Idscale]?.scale_text;
         console.log(scale);
         if(scale === "Text"){
           return scaleRanges.Text.min;
@@ -256,10 +261,10 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments}) 
         }
         else{
           // this is scale type plan
-          console.log(scales[Idscale-1]);
-          console.log(scales[Idscale-1]?.scale_number);
+          console.log(scales[Idscale]);
+          console.log(scales[Idscale]?.scale_number);
           const maxScaleNumber = 100000; // The max scale number we need to handle
-          const scale_number= scales[Idscale-1]?.scale_number.split(":")[1];
+          const scale_number= scales[Idscale]?.scale_number.split(":")[1];
           const normalizedValue = (scale_number - 1) / (maxScaleNumber - 1); // Normalize scale_number to [0, 1]
 
           const scaledValue = scaleRanges.Plan.min + normalizedValue * (scaleRanges.Plan.max - scaleRanges.Plan.min);

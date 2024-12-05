@@ -478,6 +478,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
             </LayersControl>
             ) : (
               <LayerGroup>
+                <MarkerClusterGroup>
                   {documents.map((document, index) => {
                     // Determine the location of the document
                     const location =
@@ -533,6 +534,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                     }
                     return null; // Ensure that the map function returns null if location is not found
                   })}
+                  </MarkerClusterGroup>
                 </LayerGroup>
             )}
 
