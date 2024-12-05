@@ -30,8 +30,6 @@ sections:
 - Code present on VCS
 - End-to-End tests performed
 
-> Please refine your DoD 
-
 ### Detailed statistics
 
 | Story  | # Tasks | Points | Hours est. | Hours actual |
@@ -42,9 +40,13 @@ sections:
 | 20 - Cluster points/areas                    | 2       | 5      | 4h        | 4h30m      |
 | 14 - Click  on documents show on diagram          | 1      | 2      | 3h        | 2h      |
 
-> place technical tasks corresponding to story `#0` and leave out story points (not applicable in this case)
-
 - Hours per task (average, standard deviation)
+  - task average:
+    - estimated: 2.53 h
+    - actual: 2.50 h
+  - standard deviation:
+    - estimated: 1.90 h
+    - actual: 1.90 h
 - Total task estimation error ratio: sum of total hours estimation / sum of total hours spent -1
 
   
@@ -55,7 +57,7 @@ sections:
   - Total hours spent: 4h
   - Nr of automated unit test cases : 154 
   - Coverage (if available): around 90%
-![Coverage](../images/test_report/sprint3.png)
+    - ![Coverage](../images/test_report/sprint3.png)
 - E2E testing:
   - Total hours estimated: 2h
   - Total hours spent: 2h
@@ -63,15 +65,16 @@ sections:
   - Total hours estimated: 4h
   - Total hours spent: 3h
 - Technical Debt management
-  - Strategy adopted
-  - Total hours estimated estimated at sprint planning: 8h
+  - Strategy adopted: 
+    - We fixed technical debt issues after the implementation of the stories, right before the release date. We split in technical debt for frontend and technical debt for backend. We reached the quality gate level with not so much effort because everything was quite ok, no big problems.  
+  - Total hours estimated at sprint planning: 8h
   - Total hours spent: 7h
   
 
 
 ## ASSESSMENT
 
- -What caused your errors in estimation (if any)?
+- What caused your errors in estimation (if any)?
 
   - During this sprint, we did not encounter significant issues with task estimation. This success was largely due to our improved ability to clearly define and separate tasks. While we faced challenges in managing the diagram creation process, we accurately estimated the effort required to complete it.
 
