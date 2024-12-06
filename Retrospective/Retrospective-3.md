@@ -36,7 +36,7 @@ sections:
 |--------|---------|--------|------------|--------------|
 | _#0_                                            | 22      |        | 65h    | 64h      |
 | 19 - Select and existing area or point instead of creating new one     | 1       | 1      | 1h         | 1h           |
-| 10 - Visualize documents on diagram                          |    5    | 12      | 10h30m         | 8h 30m       |
+| 10 - Visualize documents on diagram                          |    5    | 13      | 10h30m         | 8h 30m       |
 | 20 - Cluster points/areas                    | 2       | 5      | 4h        | 4h30m      |
 | 14 - Click  on documents show on diagram          | 1      | 2      | 3h        | 2h      |
 
