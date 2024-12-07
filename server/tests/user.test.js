@@ -1,5 +1,5 @@
 import request from 'supertest'; // Import supertest for testing HTTP requests
-import {app,server} from '../index.js';
+import {app} from '../index.js';
 require('dotenv').config();
 describe('User API', () => {
     // Test for login

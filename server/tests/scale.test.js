@@ -1,6 +1,6 @@
 import request from "supertest";
 
-import {app,server} from '../index.js';
+import {app} from '../index.js';
 
 const scaleDao = require("../dao/scale-dao.js");
 jest.mock("../dao/scale-dao.js");

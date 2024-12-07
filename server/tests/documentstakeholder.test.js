@@ -1,5 +1,5 @@
 import request from "supertest";
-import { app, server } from "../index.js";
+import { app } from "../index.js";
 require("dotenv").config();
 
 const DocumentStakeholderDao = require("../dao/document-stakeholder-dao.js");

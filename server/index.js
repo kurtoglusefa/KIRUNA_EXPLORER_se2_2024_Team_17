@@ -17,9 +17,7 @@ const DocumentConnectionDao = require("./dao/document-connection-dao.js");
 const DocumentStakeholderDao = require("./dao/document-stakeholder-dao.js");
 const locationDao = require("./dao/location-dao.js");
 const scaleDao = require("./dao/scale-dao.js");
-const { fileURLToPath } = require("url");
 const net = require("net"); // Import the 'net' module
-const { dirname } = require("path"); // Import the 'path' module
 
 /*** Set up Passport ***/
 // set up the "username and password" login strategy
@@ -96,7 +94,6 @@ const storage = multer.diskStorage({
     }
   },
   filename: (req, file, cb) => {
-    const fileExtension = path.extname(file.originalname).toLowerCase();
     const newFilename = `${file.originalname}`;
     cb(null, newFilename);
   },
@@ -236,11 +233,10 @@ app.post("/api/documents", isUrbanPlanner, async (req, res) => {
       //here add the stakeholde to document after insert it
       console.log(document_new);
       if (document_new) {
-        for (let i = 0; i < document.idStakeholder.length; i++) {
-          console.log("prova");
+        for (const stakeholderId of document.idStakeholder) {
           await DocumentStakeholderDao.addStakeholderToDocument(
             document_new.idDocument,
-            document.idStakeholder[i]
+            stakeholderId
           );
         }
         res.status(201).json(document_new);

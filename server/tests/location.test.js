@@ -1,6 +1,6 @@
 import request from "supertest";
 
-import {app,server} from '../index.js';
+import {app} from '../index.js';
 
 const locationDao = require("../dao/location-dao.js");
 jest.mock("../dao/location-dao.js");

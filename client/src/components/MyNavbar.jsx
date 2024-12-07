@@ -5,8 +5,9 @@ import AppContext from '../AppContext';
 import '../App.css'
 import '../WelcomePage.css'
 import API from '../API';
+import PropTypes from 'prop-types';
 
-export function MyNavbar({ documents, setDocuments }) {
+function MyNavbar({ documents, setDocuments }) {
   const navigate = useNavigate();
   const context = useContext(AppContext);
   const location = useLocation();
@@ -351,4 +352,8 @@ export function MyNavbar({ documents, setDocuments }) {
 
   );
 }
+MyNavbar.propTypes = {
+  documents: PropTypes.array,
+  setDocuments: PropTypes.func,
+};
 export default MyNavbar;

@@ -1,5 +1,5 @@
 import request from "supertest";
-import { app, server } from "../index.js";
+import { app } from "../index.js";
 require('dotenv').config();
 describe("Document Type API", () => {
   let agent;
@@ -57,10 +57,6 @@ describe("Document Type API", () => {
       type: "Report",
       iconSrc: "report-icon.png",
     };
-
-    const mockResult = 1; // Mock the result of the addType function
-    //typeDocumentDao.addType.mockResolvedValue(mockResult);
-
     const response = await agent.post("/api/types").send(newType);
 
     expect(response.status).toBe(201);

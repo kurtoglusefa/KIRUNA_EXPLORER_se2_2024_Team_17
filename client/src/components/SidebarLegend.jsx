@@ -21,6 +21,7 @@ function SidebarLegend () {
           onFocus={ () => {} } 
           onKeyDown={() => {}} 
           aria-label='open sidebar for legend' 
+          role="button"
         ></i>
 
         {/* Sidebar */}
@@ -33,45 +34,45 @@ function SidebarLegend () {
               <h6>Node types</h6>
               <div className='ms-3 mt-3'>
                 <div className='d-flex my-1'>
-                  <img src='/src/icon/000000/design_doc.svg' style={{marginRight: '10px', width:'20px'}} />
+                  <img src='/src/icon/000000/design_doc.svg' alt="design_doc" style={{marginRight: '10px', width:'20px'}} />
                   <label>Design document</label>
                 </div>
                 <div className='d-flex my-1'>
-                  <img src='/src/icon/000000/informative_doc.svg' style={{marginRight: '10px', width:'20px'}} />
+                  <img src='/src/icon/000000/informative_doc.svg'  alt="informative document" style={{marginRight: '10px', width:'20px'}} />
                   <label>Informative document</label>
                 </div>
                 <div className='d-flex my-1'>
-                  <img src='/src/icon/000000/prescriptive_doc.svg' style={{marginRight: '10px', width:'20px'}} />
+                  <img src='/src/icon/000000/prescriptive_doc.svg' alt="prescriptive document"  style={{marginRight: '10px', width:'20px'}} />
                   <label>Prescriptive document</label>
                 </div>
                 <div className='d-flex my-1'>
-                  <img src='/src/icon/000000/technical_doc.svg' style={{marginRight: '10px', width:'20px'}} />
+                  <img src='/src/icon/000000/technical_doc.svg' alt="technical document"  style={{marginRight: '10px', width:'20px'}} />
                   <label>Technical document</label>
                 </div>
               </div>
               <div className='ms-3 mt-3'>
                 <div className='d-flex my-1'>
-                  <img src='/src/icon/000000/agreement.svg' style={{marginRight: '10px', width:'20px'}} />
+                  <img src='/src/icon/000000/agreement.svg' alt="agreement document" style={{marginRight: '10px', width:'20px'}} />
                   <label>Agreement</label>
                 </div>
                 <div className='d-flex my-1'>
-                  <img src='/src/icon/000000/conflict.svg' style={{marginRight: '10px', width:'20px'}} />
+                  <img src='/src/icon/000000/conflict.svg' alt="conflict document" style={{marginRight: '10px', width:'20px'}} />
                   <label>Conflict</label>
                 </div>
                 <div className='d-flex my-1'>
-                  <img src='/src/icon/000000/consultation.svg' style={{marginRight: '10px', width:'20px'}} />
+                  <img src='/src/icon/000000/consultation.svg' alt="consultation document" style={{marginRight: '10px', width:'20px'}} />
                   <label>Consultation</label>
                 </div>
               </div>
               <div className='ms-3 mt-3'>
                 <div className='d-flex my-1'>
-                  <img src='/src/icon/000000/action.svg' style={{marginRight: '10px', width:'20px'}} />
+                  <img src='/src/icon/000000/action.svg' alt="action document"  style={{marginRight: '10px', width:'20px'}} />
                   <label>Action</label>
                 </div>
               </div>
               <div className='ms-3 mt-3'>
                 <div className='d-flex my-1'>
-                  <img src='/src/icon/000000/other.svg' style={{marginRight: '10px', width:'20px'}} />
+                  <img src='/src/icon/000000/other.svg' alt="other document" style={{marginRight: '10px', width:'20px'}} />
                   <label>Other</label>
                 </div>
               </div>
