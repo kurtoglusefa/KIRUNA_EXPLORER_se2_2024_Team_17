@@ -85,8 +85,8 @@ function ModifyDocument() {
   const [loading, setLoading] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
 
-  console.log("selected loc");
-  console.log(selectedLocation.type);
+  const crypto = window.crypto || window.msCrypto;
+  var array = new Uint32Array(1);
   useEffect(() => {
     const fetchResources = async () => {
       try {
@@ -701,7 +701,7 @@ function ModifyDocument() {
                         <div style={{ overflowY: "auto", maxHeight: "100px", fontSize:'12px' }}>
                           {resources.map((res, index) => (
                             <ListGroup.Item
-                            key={index+Math.random()}
+                            key={index+crypto.getRandomValues(array)}
                               className="d-flex justify-content-between align-items-center"
                               >
                               {/* Resource Link */}
