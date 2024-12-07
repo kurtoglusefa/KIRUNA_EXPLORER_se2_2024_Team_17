@@ -1,10 +1,10 @@
 import { useContext, useState, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Polygon, useMap, LayersControl, LayerGroup, ZoomControl,GeoJSON  } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { Button, Card, Form, Spinner, Modal, CardFooter, Col, Overlay } from "react-bootstrap"; // Importing required components
-import { redirect, useLinkClickHandler, useNavigate } from "react-router-dom";
+import { Button, Card, Form, Spinner, Modal } from "react-bootstrap"; // Importing required components
+import {useNavigate } from "react-router-dom";
 import AppContext from '../AppContext';
-import L, { DivOverlay, popup } from 'leaflet';
+import L from 'leaflet';
 import API from '../API';
 import '../App.css';
 import CardDocument from './CardDocument';
@@ -15,16 +15,14 @@ import * as turf from "@turf/turf"; // Install this library for spatial operatio
 import geoJsonData from "../assets/kiruna.json"; // If the data is saved in a file
 import { Rnd } from 'react-rnd'
 import MarkerClusterGroup from "react-leaflet-cluster"
-
+import PropTypes from 'prop-types';
 function MapComponent({ locations, setLocations, locationsArea, documents, setSelectedLocation, propsDocument, selectedLocation, handleDocumentClick, numberofconnections, fetchLocationsArea }) {
   const context = useContext(AppContext);
   const navigate = useNavigate();
   const selectedDocument = useContext(AppContext).selectedDocument;
   const setSelectedDocument = useContext(AppContext).setSelectedDocument;
   const [selectedMarker, setSelectedMarker] = useState(selectedDocument);
-  const [showCard, setShowCard] = useState(false);
   const [showCreateArea, setShowCreateArea] = useState(false);
-  const [showAddConnection, setShowAddConnection] = useState(false);
   const [connectionType, setConnectionType] = useState('');
   const isLogged = context.loginState.loggedIn;
   const [documentTypes, setDocumentTypes] = useState([]);
@@ -33,7 +31,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   const [loading, setLoading] = useState(true);
   const offsetDistance = 0.0001; //offset distance between markers
   const mapRef = useRef(null); // To get a reference to the map instance
-  const markerRef = useRef(); // To get a reference to the marker instance
 
   const [areaCoordinates, setAreaCoordinates] = useState([]);
 
@@ -41,7 +38,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   const [selectedArea, setSelectedArea] = useState(null);
 
   const [newCoordinates, setNewCoordinates] = useState([]);
-  const [icons, setIcons] = useState({});
 
   //for setting the initial position of the draggable box (using Rnd) for creating a new document  
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -871,5 +867,18 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
     </>
   );
 }
+
+MapComponent.propTypes = {
+  locations: PropTypes.object,
+  setLocations: PropTypes.func,
+  locationsArea: PropTypes.object,
+  documents: PropTypes.array,
+  setSelectedLocation: PropTypes.func,
+  propsDocument: PropTypes.object,
+  selectedLocation: PropTypes.object,
+  handleDocumentClick: PropTypes.func,
+  numberofconnections: PropTypes.number,
+  fetchLocationsArea: PropTypes.func
+};
 
 export default MapComponent;

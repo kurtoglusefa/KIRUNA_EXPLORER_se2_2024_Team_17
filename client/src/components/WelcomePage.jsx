@@ -1,6 +1,4 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Breadcrumb, Button } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import '../WelcomePage.css';
 
 const WelcomePage = () => {

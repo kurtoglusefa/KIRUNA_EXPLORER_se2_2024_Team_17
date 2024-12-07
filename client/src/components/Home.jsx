@@ -1,9 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import MapComponent from './Map';
-import { Button, ToggleButtonGroup, ToggleButton, ListGroup, Spinner, Card, Row, Col, Container } from 'react-bootstrap';
+import { Button, ListGroup, Spinner, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Navigate, useNavigate } from 'react-router-dom';
-import { FaFileAlt } from 'react-icons/fa'; // Import document icon
 import API from '../API'; // Import API module
 import { Form } from 'react-bootstrap';
 import AppContext from '../AppContext';
@@ -12,11 +10,10 @@ import { Modal } from 'react-bootstrap';
 import CardDocument from './CardDocument';
 import Diagram from './Diagram';
 import SidebarLegend from './SidebarLegend';
-
+import PropTypes from 'prop-types';
 
 
 function Home(props) {
-  
   const context = useContext(AppContext);
   const isLogged = context.loginState.loggedIn;
   const viewMode = context.viewMode.viewMode;
@@ -310,5 +307,8 @@ function Home(props) {
     </>
   );
 }
-
+Home.propTypes= {
+  documents: PropTypes.array,
+  setDocuments: PropTypes.func
+}
 export default Home;

@@ -58,7 +58,6 @@ describe('Home page Flow', () => {
   
       // Verify all filters are cleared
       cy.get('select').eq(0).should('have.value', '');
-      //cy.get('input[type="number"]').should('have.value', '');
     });
     
  

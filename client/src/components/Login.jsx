@@ -6,7 +6,7 @@ import API from '../API';
 import AppContext from '../AppContext';
 import '../App.css';
 
-function LoginForm(props) {
+function LoginForm() {
     // state for username and password
     const [username, setUsername] = useState('mario@test.it');
     const [password, setPassword] = useState('pwd');

@@ -1,9 +1,9 @@
 import { Card, Collapse } from 'react-bootstrap';
 import '../App.css'
-import { useEffect, useState } from 'react';
+import {useState } from 'react';
 
 
-function SidebarLegend ({loggedIn}) {
+function SidebarLegend () {
   const [infoOpened, setInfoOpened] = useState(false);
 
 
@@ -152,8 +152,6 @@ function SidebarLegend ({loggedIn}) {
                 </div> 
               </div>
             </div>
-            {/* Connections */}
-            {loggedIn &&
             <div className='mb-4'>
               <h6>Connections</h6>
               <div className='ms-3 mt-3'>
@@ -215,7 +213,6 @@ function SidebarLegend ({loggedIn}) {
                 </div>
               </div>
             </div>
-            }
             </Card.Body>
           </Card>
         </Collapse>

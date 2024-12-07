@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Navbar, Container, Button, Nav, ToggleButtonGroup, ToggleButton, Form, InputGroup, Modal, Card, FormGroup, FloatingLabel, Badge, Breadcrumb, Tooltip, Collapse } from 'react-bootstrap';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Navbar, Button, Nav, ToggleButtonGroup, ToggleButton, Form, InputGroup, Card, Badge, Collapse } from 'react-bootstrap';
 import AppContext from '../AppContext';
 import '../App.css'
 import '../WelcomePage.css'
@@ -14,8 +14,6 @@ export function MyNavbar({ documents, setDocuments }) {
   const setViewMode = context.viewMode.setViewMode;
   const viewMode = context.viewMode.viewMode;
   const [searchTerm, setSearchTerm] = useState("");
-  const [showModal, setShowModal] = useState(false); //modal visibility
-  const selectedDocument = useContext(AppContext).selectedDocument;
   const setSelectedDocument = useContext(AppContext).setSelectedDocument;
   const [stakeholders, setStakeholders] = useState([]);
   const [typeDocuments, setTypeDocuments] = useState([]);
@@ -29,7 +27,6 @@ export function MyNavbar({ documents, setDocuments }) {
     try {
       const res = await API.getAllStakeholders();
       setStakeholders(res);
-      //setStakeholder(res[0].id);
     } catch (err) {
       console.error(err);
     }
@@ -38,7 +35,14 @@ export function MyNavbar({ documents, setDocuments }) {
     try {
       const res = await API.getAllTypesDocument();
       setTypeDocuments(res);
-      //setStakeholder(res[0].id);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  const fetchStakeholdersbyDocumentId = async (id) => {
+    try {
+      const res = await API.getStakeholderByDocumentId(id);
+      return res;
     } catch (err) {
       console.error(err);
     }
@@ -59,7 +63,6 @@ export function MyNavbar({ documents, setDocuments }) {
       // filter documents safely
       let filteredResults = allDocuments.filter((doc) => {
         const title = doc?.Title || ""; // default to an empty string
-        const description = doc?.Description || ""; // default to an empty string
         return (
           title.toLowerCase().includes(searchTerm.toLowerCase())
         );
@@ -67,10 +70,17 @@ export function MyNavbar({ documents, setDocuments }) {
       console.log("Filtered results:", stakeholder); // for debugging
       //filter by stakeholder
       if (stakeholder) {
-        const filteredResultsStakeholder = filteredResults.filter((doc) => {
-          return doc.IdStakeholder  == stakeholder;
-        });
-        filteredResults = filteredResultsStakeholder;
+        const filteredResultsStakeholder = await Promise.all(
+          filteredResults.map(async (doc) => {
+            const stakeholders = await fetchStakeholdersbyDocumentId(doc.IdDocument);
+            console.log("Stakeholders:", stakeholders); // for debugging
+            if (stakeholders.some((stk) => stk.IdStakeholder == stakeholder)) {
+              return doc;
+            }
+            return null;
+          })
+        );
+        filteredResults = filteredResultsStakeholder.filter((doc) => doc !== null);
       }
       if (issuanceYear) {
         console.log("Filtering by issuance year:", issuanceYear); // for debugging
@@ -118,10 +128,6 @@ export function MyNavbar({ documents, setDocuments }) {
       setDocuments(filteredResults); // store the filtered results
     }
   };
-
-  const handleCloseModal = () => setShowModal(false); // close modal
-
-
   const handleToggle = (value) => {
     setViewMode(value);
   };
@@ -185,7 +191,6 @@ export function MyNavbar({ documents, setDocuments }) {
                   >
                     List
                   </ToggleButton>
-                  {loginState.loggedIn &&
                   <ToggleButton
                     id="tbg-diagram"
                     value="diagram"
@@ -199,7 +204,6 @@ export function MyNavbar({ documents, setDocuments }) {
                   >
                     Diagram
                   </ToggleButton>
-                  }
                 </ToggleButtonGroup>
               </Nav>
             }
@@ -343,40 +347,7 @@ export function MyNavbar({ documents, setDocuments }) {
             )}
           </Nav>
       </Navbar>
-
-
-      {/* Modal for Search Results */}
-      {/* <Modal show={showModal} onHide={handleCloseModal} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Search Results</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {searchResults.length > 0 ? (
-            <div className="row">
-              {searchResults.map((doc) => (
-                <div className="col-md-12 mb-3" key={doc.IdDocument}>
-                  <Card>
-                    <Card.Body>
-                      <Card.Title>{doc.Title}</Card.Title>
-                      <Card.Text>{doc.Description || 'No description available'}</Card.Text>
-                    </Card.Body>
-                  </Card>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p>No results found for "{searchTerm}".</p>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
-      */}
     </>
-
 
   );
 }
