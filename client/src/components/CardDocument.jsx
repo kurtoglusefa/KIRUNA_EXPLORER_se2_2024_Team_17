@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
-import { Badge, Button, Card, Placeholder, PlaceholderButton, Spinner } from "react-bootstrap";
+import { Badge, Button, Card, Placeholder } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import API from "../API";
+import PropTypes from 'prop-types';
 
 function CardDocument ({document, locationType, latitude, longitude, setShowCard, setSelectedDocument, isLogged, viewMode, area, numberofconnections}) {
+
+  //check prototype
   const navigate = useNavigate();
   
   const [resource, setResource] = useState([]);
@@ -26,7 +29,7 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
         if(err === 404) {
           setResource([]);
         } else {
-          setMessage('Error fetching resources');
+          console.error(err);
         }
       }
       setLoading(false);
@@ -102,7 +105,6 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
  
   const handleModifyDocument = () => {
     if (document) {
-      //setShowCard(false);
       console.log(locationType);
       navigate(`/documents/modify-document/${document.IdDocument}`, { state: { document: document , location: (locationType=="Point") ? {lat: latitude, lng: longitude,type:locationType} : {area: area,type:locationType}, type:locationType } });
     }
@@ -340,5 +342,29 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
   ) 
   );
 } 
+
+CardDocument.propTypes = {
+  document: PropTypes.object.isRequired,
+  locationType: PropTypes.string.isRequired,
+  latitude: PropTypes.number.isRequired,
+  longitude: PropTypes.number.isRequired,
+  setShowCard: PropTypes.func.isRequired,
+  setSelectedDocument: PropTypes.func.isRequired,
+  isLogged: PropTypes.bool.isRequired,
+  viewMode: PropTypes.string,
+  area: PropTypes.string,
+  numberofconnections: PropTypes.number, // Ensure this matches the expected type
+};
+Document.propTypes = {  
+  IdDocument: PropTypes.number.isRequired,
+  Title: PropTypes.string.isRequired,
+  Issuance_Date: PropTypes.string.isRequired,
+  IdScale: PropTypes.number.isRequired,
+  Language: PropTypes.string,
+  IdStakeholder: PropTypes.array,
+  Pages: PropTypes.number,
+  Description: PropTypes.string.isRequired,
+  AreaName: PropTypes.string,
+};
  
 export default CardDocument;

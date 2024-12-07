@@ -1,5 +1,5 @@
-import React, { useEffect, useState,useRef,useContext } from 'react';
-import ReactFlow, { Background, Controls, Handle, useReactFlow, ReactFlowProvider, BackgroundVariant } from 'reactflow';
+import{ useEffect, useState,useContext } from 'react';
+import ReactFlow, { Background, Controls, Handle, ReactFlowProvider, BackgroundVariant } from 'reactflow';
 import 'reactflow/dist/style.css';
 import CardDocument from './CardDocument';
 import AppContext from '../AppContext';
@@ -7,6 +7,7 @@ import API from '../API'; // Import API module
 import '../App.css'
 import '../WelcomePage.css';
 import { Rnd } from 'react-rnd';
+import PropTypes from 'prop-types';
 
 function Diagram({locations,setLocations,locationsArea,documents,setDocuments}) {
   const selectedDocument = useContext(AppContext).selectedDocument;
@@ -33,7 +34,7 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments}) 
   const [dataReady, setDataReady] = useState(false); // Tracks when the necessary data is ready
   const [documentsReady, setDocumentsReady] = useState(false); // Tracks when documents are loaded
 
-  
+
   const OffsetEdge = ({ id, sourceX, sourceY, targetX, targetY, style, data }) => {
     const offset = data?.offset || 50; // Use offset from data (default: 50)
   
@@ -71,7 +72,15 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments}) 
       </g>
     );
   };
-  
+  OffsetEdge.propTypes = {
+    id: PropTypes.string.isRequired,  // id are string
+    sourceX: PropTypes.number.isRequired,
+    sourceY: PropTypes.number.isRequired, 
+    targetX: PropTypes.number.isRequired, 
+    targetY: PropTypes.number.isRequired, 
+    style: PropTypes.object,
+    data: PropTypes.object,
+  };
   const edgeTypes = {
     offsetEdge: OffsetEdge, // Register the custom edge type
   };
@@ -117,8 +126,8 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments}) 
         console.error(err);
     }
 };
-  const fetchConnections = async () => {
-    try {
+const fetchConnections = async () => {
+  try {
       const res = await API.getAllDocumentConnections();
       const offsetObjects =[];
       res.forEach((connection) => {
@@ -171,20 +180,14 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments}) 
     } catch (err) {
       console.error(err);
     }
-  };
-  const fetchDocuments = async () => {
-    try {
+};
+const fetchDocuments = async () => {
+  try {
   
       const startYear = 2000;
-      const endYear = 2024;
   
       // Define the x-coordinate range
       const minX = 50;  // Top position for the earliest date
-      const maxX = 800; // Bottom position for the latest date
-    
-
-      const minY= 50;
-      const maxY= 500;
 
       const scaleRanges = {
         Text: { min: -200, max: 0 },
@@ -273,7 +276,7 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments}) 
         }
       };
       // Convert documents into nodes
-      const nodes = documents.map((doc, index) => {
+      const nodes = documents.map((doc) => {
         const iconSrc = documentTypes[doc.IdType-1]?.iconsrc || 'other.svg'; // Fallback to a default icon
         const x= mapDateToX(doc.Issuance_Date);
         const y = mapScaleToY(doc.IdScale);
@@ -374,11 +377,7 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments}) 
 
 
   const SvgNode = ({ data ,selected }) => {
-    console.log(data);
-    //let path = `src/icon/${stakeholders[data.stakeholder - 1]?.color}/${data.iconSrc}`;
     let path = `src/icon/${data.stakeholder[0].Color ? data.stakeholder[0].Color: '8A9FA4'}/${data.iconSrc}`;
-    //iconPath = `src/icon/${document.IdStakeholder[0].Color ? document.IdStakeholder[0].Color : '8A9FA4'}/${documentTypes[document.IdType - 1]?.iconsrc ? documentTypes[document.IdType - 1]?.iconsrc : 'other.svg'}`;
-
     return (
       <div
       style={{
@@ -420,7 +419,6 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments}) 
             
           }}
         />
-  
         {/* Target handle inside the icon */}
         <Handle
           type="target" // Incoming edge
@@ -431,6 +429,11 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments}) 
       </div>
     );
   };
+  SvgNode.propTypes = {
+    data: PropTypes.object.isRequired,
+    selected: PropTypes.bool.isRequired,
+  };
+  
   
 
   return (
@@ -519,5 +522,13 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments}) 
   </>
   );
 }
+
+Diagram.propTypes = {
+  locations: PropTypes.arrayOf(PropTypes.object).isRequired,
+  setLocations: PropTypes.func.isRequired,
+  locationsArea: PropTypes.string.isRequired,
+  documents: PropTypes.arrayOf(PropTypes.object).isRequired,
+  setDocuments: PropTypes.func.isRequired,
+};
 
 export default Diagram;

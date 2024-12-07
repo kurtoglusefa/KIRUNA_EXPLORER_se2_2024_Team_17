@@ -223,44 +223,6 @@ const getTypeDocument = async (id) => {
   }
 };
 
-// // Create a new document type
-// const createTypeDocument = (typeName, iconUrl) => {
-//   return new Promise((resolve, reject) => {
-//     fetch(URL + "/document-type", {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       credentials: "include", // send cookies if necessary
-//       body: JSON.stringify({
-//         type: typeName,
-//         iconSrc: iconUrl,
-//       }),
-//     })
-//       .then((response) => {
-//         if (response.ok) {
-//           response.json().then((newType) => {
-//             resolve(newType); // returns the newly created type
-//           });
-//         } else {
-//           response
-//             .json()
-//             .then((message) => {
-//               reject(message); 
-//             })
-//             .catch(() => {
-//               reject({ error: "Cannot parse server response." });
-//             });
-//         }
-//       })
-//       .catch(() => {
-//         reject({ error: "Cannot communicate with the server." });
-//       });
-//   });
-// };
-
-
-// Create a new document type -- without considering the icon
 const createTypeDocument = (typeName,iconsrc) => {
   return new Promise((resolve, reject) => {
     fetch(URL + "/types", {
@@ -646,7 +608,7 @@ const getDocumentResources = async (id) => {
           resolve(files);
         });
       } else {
-        resolve(res.status);
+        reject(res.status);
       }
     });
   });
