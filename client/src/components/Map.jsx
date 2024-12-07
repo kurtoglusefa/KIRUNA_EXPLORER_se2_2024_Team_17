@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Polygon, useMap, LayersControl, LayerGroup, ZoomControl,GeoJSON  } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Polygon, useMap, LayersControl, LayerGroup, ZoomControl,GeoJSON,FeatureGroup  } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { Button, Card, Form, Spinner, Modal } from "react-bootstrap"; // Importing required components
 import {useNavigate } from "react-router-dom";
@@ -10,7 +10,6 @@ import '../App.css';
 import CardDocument from './CardDocument';
 import "leaflet-draw/dist/leaflet.draw.css";
 import { EditControl } from "react-leaflet-draw"; // Import for the drawing tool
-import { FeatureGroup } from "react-leaflet"; // Import for the drawing tool
 import * as turf from "@turf/turf"; // Install this library for spatial operations
 import geoJsonData from "../assets/kiruna.json"; // If the data is saved in a file
 import { Rnd } from 'react-rnd'
@@ -49,10 +48,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
   }, []);
-
-
-
-  //const offsetDistance = 0.0020; //offset distance between markers
   useEffect(() => {
     // Define an async function inside useEffect
     const updateArea = async () => {
@@ -173,8 +168,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
         .catch((err) => {
           console.error("Error adding area:", err);
         });
-      //setAreaName('');
-      //await fetchLocationsArea();
       setConnectionType("");
       setShowCreateArea(false);
     } else {
@@ -406,7 +399,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                       }
                       return (
                         <Marker
-                          key={index}
+                          key={index+Math.random()}
                           position={position}
                           icon={
                             new L.Icon({
@@ -451,7 +444,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
 
                       return (
                         <Polygon
-                          key={index}
+                          key={index+Math.random()}
                           positions={coordinates} // Use the parsed array as positions
                           pathOptions={{
                             color: "blue",
@@ -504,7 +497,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                       
                       return (
                         <Marker
-                          key={index}
+                          key={index+Math.random()}
                           position={position}
                           icon={
                             new L.Icon({
@@ -585,7 +578,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                     : JSON.parse(area.Area_Coordinates); // If Area_Coordinates is a string, parse it
                   return (
                     <Polygon
-                      key={index}
+                      key={index+Math.random()}
                       positions={coordinates} // Use the parsed array as positions
                       pathOptions={{
                         color: "blue",
@@ -616,58 +609,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
             ) : (
               selectedDocument && <MarkerFocus position={locationsArea[selectedDocument?.IdLocation] ? {lat: locationsArea[selectedDocument?.IdLocation].Latitude, lng:locationsArea[selectedDocument?.IdLocation].Longitude} : {lat:locations[selectedDocument?.IdLocation]?.Latitude, lng: locations[selectedDocument?.IdLocation]?.Longitude}} />
             )}
-            
-            {/* setView on selected Marker*/}
-            
-            {/*(!loading && locations && locationsArea && selectedMarker && selectedDocument) ? <MarkerFocus position={locationsArea[selectedMarker?.IdLocation] ? {lat: locationsArea[selectedMarker?.IdLocation].Latitude, lng:locationsArea[selectedMarker?.IdLocation].Longitude} : {lat:locations[selectedMarker?.IdLocation]?.Latitude, lng: locations[selectedMarker?.IdLocation]?.Longitude}} /> : <MarkerFocus position={{lat:67.8400,lng: 20.2253}}/>*/}
-            {/* Markers 
-            {documents.map((document, index) => {
-              //used to not overleap the documents
-              const offsetIndex = index * offsetDistance;
-              const location = locationsArea[document.IdLocation] ? locationsArea[document.IdLocation] : locations[document.IdLocation];
-              if (location) {
-                let position = [];
-                if (location.Location_Type === "Point") {
-                  position = [
-                    location.Latitude,
-                    location.Longitude,
-                  ];
-                }
-                else {
-                  position = [
-                    location.Latitude + (index % 2 === 0 ? offsetIndex : -offsetIndex),
-                    location.Longitude + (index % 2 === 0 ? -offsetIndex : offsetIndex),
-                  ];
-                }
-                return (
-                  <Marker
-                    icon={
-                      new L.Icon({
-                        iconUrl: `src/icon/${stakeholders[document.IdStakeholder-1]?.color}/${documentTypes[document.IdType - 1]?.iconsrc}`,
-                        iconSize: [32, 32],
-                        iconAnchor: [16, 32],
-                        popupAnchor: [0, -32],
-                      })
-                    }
-                    draggable={
-                      modifyMode
-                    } // Only make draggable if logged in
-                    eventHandlers={{
-                      dragend: (e) => {
-                        if (isLogged) {
-                          handleDragEnd(document, e); // Only call dragend if logged in
-                        }
-                      },
-                      click: () => handleMarkerClick(document),
-                    }}
-                    key={index}
-                    position={position}
-                  >
-                    <Popup>{document.Title}</Popup>
-                  </Marker>
-                );
-              }
-            })*/}
             <GeoJSON
               data={geoJsonData}
               style={() => ({

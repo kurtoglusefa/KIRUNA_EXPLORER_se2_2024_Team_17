@@ -186,9 +186,6 @@ function ModifyDocument() {
         const scaleObj = scalesResponse.find((s) => s.id === res.IdScale);
         setDocumentScale(scaleObj);
         setOldScale_number(scaleObj.scale_number.split(":")[1]);
-
-        /*const stakeholder = await API.getStakeholder(res.IdStakeholder);
-                setStakeholder(stakeholder);*/ //multiple stakeholders
         const type = await API.getTypeDocument(res.IdType);
         setType(type);
       } catch (err) {
@@ -285,8 +282,6 @@ function ModifyDocument() {
       try {
         // Send FormData to your API function
         await API.addResourcesToDocument(documentId, addResources);
-        // Optionally, fetch the updated resources list
-        const res = await API.getDocumentResources(documentId);
         setAddResources([]);
         setMessage("");
       } catch (err) {
@@ -411,13 +406,10 @@ function ModifyDocument() {
             longitude,
             ""
           );
-          //console.log(result);
           result = await result.idDocument;
           documentId = result;
         } else{
           //insert the document inside an area
-
-          console.log("sto inserendo un documento in un area");
           let result = await API.addDocumentArea(
             title,
             selectedStakeholders.map((stk) => stk.value),
@@ -709,7 +701,7 @@ function ModifyDocument() {
                         <div style={{ overflowY: "auto", maxHeight: "100px", fontSize:'12px' }}>
                           {resources.map((res, index) => (
                             <ListGroup.Item
-                            key={index}
+                            key={index+Math.random()}
                               className="d-flex justify-content-between align-items-center"
                               >
                               {/* Resource Link */}

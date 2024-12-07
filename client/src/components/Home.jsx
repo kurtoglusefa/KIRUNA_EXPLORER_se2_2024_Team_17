@@ -1,12 +1,10 @@
 import { useState, useEffect, useContext } from 'react';
 import MapComponent from './Map';
-import { Button, ListGroup, Spinner, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import API from '../API'; // Import API module
-import { Form } from 'react-bootstrap';
+import { Form,Modal,Button, ListGroup, Spinner, Card } from 'react-bootstrap';
 import AppContext from '../AppContext';
 import '../App.css';
-import { Modal } from 'react-bootstrap';
 import CardDocument from './CardDocument';
 import Diagram from './Diagram';
 import SidebarLegend from './SidebarLegend';
@@ -26,7 +24,6 @@ function Home(props) {
   const [numberofconnections, setNumberofconnections] = useState(0);
   const [documentTypes, setDocumentTypes] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
-  const [srcicon, setSrcicon] = useState("");
   const [showAddConnection, setShowAddConnection] = useState(false);
   const [filteredDocuments, setFilteredDocuments] = useState([]);
   const [connectionType, setConnectionType] = useState('');
@@ -53,8 +50,6 @@ function Home(props) {
   const fetchDocumentTypes = async () => {
     try {
       const res = await API.getAllTypesDocument();
-      //console.log('Document Types:', res);
-
       setDocumentTypes(res);
     } catch (err) {
       console.error(err);
@@ -134,15 +129,12 @@ function Home(props) {
     const res = await API.getDocumentConnection(doc.IdDocument);
     setNumberofconnections(res.length);
     setSelectedDocument(doc);
-    setSrcicon("src/icon/" + documentTypes[doc.IdType].iconsrc);
 
   };
 
   const handleAddConnection = async () => {
     if (selectedDocument && connectionType) {
       await API.createDocumentConnection(selectedDocument.IdDocument, selectDocumentSearch.IdDocument, connectionType);
-      // now i have to call again the document to update the connections
-      const res = await API.getDocumentConnection(selectedDocument.IdDocument);
       setSelectedDocument('');
       setConnectionType('');
       setShowAddConnection(false);

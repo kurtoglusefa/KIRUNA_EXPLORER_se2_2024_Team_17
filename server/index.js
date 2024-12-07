@@ -826,10 +826,9 @@ const isPortInUse = (port) => {
 const server = async () => {
   const isInUse = await isPortInUse(port);
   if (isInUse) {
-    //console.log(`Port ${port} is already in use. Server not started.`);
   } else {
     const server = app.listen(port, () => {
-      //console.log(`Server listening at http://localhost:${port}`);
+      console.log(`Server listening at http://localhost:${port}`);
     });
     return server;
   }
