@@ -43,6 +43,10 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   const componentWidth = 300; // Width of your component in pixels
   const initialXFromRight = 20; // Distance from the right edge in pixels
 
+  const crypto = window.crypto || window.msCrypto;
+  var array = new Uint32Array(1);
+  
+
   useEffect(() => {
     // Update the window width on resize
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -399,7 +403,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                       }
                       return (
                         <Marker
-                          key={index+Math.random()}
+                          key={index+crypto.getRandomValues(array)}
                           position={position}
                           icon={
                             new L.Icon({
@@ -444,7 +448,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
 
                       return (
                         <Polygon
-                          key={index+Math.random()}
+                        key={index+crypto.getRandomValues(array)}
                           positions={coordinates} // Use the parsed array as positions
                           pathOptions={{
                             color: "blue",
@@ -497,7 +501,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                       
                       return (
                         <Marker
-                          key={index+Math.random()}
+                          key={index+crypto.getRandomValues(array)}
                           position={position}
                           icon={
                             new L.Icon({
@@ -578,7 +582,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                     : JSON.parse(area.Area_Coordinates); // If Area_Coordinates is a string, parse it
                   return (
                     <Polygon
-                      key={index+Math.random()}
+                      key={index+crypto.getRandomValues(array)}
                       positions={coordinates} // Use the parsed array as positions
                       pathOptions={{
                         color: "blue",
