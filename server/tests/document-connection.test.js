@@ -7,7 +7,6 @@ const UserDao = require("../dao/user-dao.js");
 jest.mock("../dao/document-connection-dao.js");
 require("dotenv").config();
 
-
 describe("Document Connections API", () => {
   let agent;
 
@@ -15,9 +14,10 @@ describe("Document Connections API", () => {
     agent = request.agent(app);
 
     // Simulate login to maintain session state for future requests
-    await agent
-      .post("/api/sessions")
-      .send({ username: "mario@test.it", password: process.env.TEST_USER_PASSWORD });
+    await agent.post("/api/sessions").send({
+      username: "mario@test.it",
+      password: process.env.TEST_USER_PASSWORD,
+    });
   });
 
   describe("GET /api/document-connections", () => {
@@ -252,6 +252,145 @@ describe("Document Connections API", () => {
       expect(response.status).toBe(500);
       expect(response.body).toEqual({ error: "Internal server error" });
       expect(DocumentConnectionDao.getAllConnectionsType).toHaveBeenCalled();
+    });
+  });
+
+  describe("DELETE /api/document-connections/:connectionId", () => {
+    it("should delete the document connection successfully", async () => {
+      const connectionId = 1;
+
+      DocumentConnectionDao.deleteConnection.mockResolvedValue(true);
+
+      const response = await agent.delete(
+        `/api/document-connections/${connectionId}`
+      );
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({
+        message: "Connection deleted successfully.",
+      });
+    });
+
+    it("should return 500 if the DAO fails to delete the connection", async () => {
+      const connectionId = 1;
+
+      DocumentConnectionDao.deleteConnection.mockResolvedValue(false);
+
+      const response = await agent.delete(
+        `/api/document-connections/${connectionId}`
+      );
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({ error: "Failed to delete connection." });
+    });
+
+    it("should return 500 for database errors", async () => {
+      const connectionId = 1;
+
+      DocumentConnectionDao.deleteConnection.mockRejectedValue(
+        new Error("Database error")
+      );
+
+      const response = await agent.delete(
+        `/api/document-connections/${connectionId}`
+      );
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({ error: "Database error" });
+    });
+  });
+
+  describe("PATCH /api/document-connections/:connectionId", () => {
+    it("should update the document connection successfully", async () => {
+      const connectionId = 1;
+      const requestBody = {
+        IdDocument1: 1,
+        IdDocument2: 2,
+        IdConnection: 3,
+      };
+
+      DocumentConnectionDao.updateConnection.mockResolvedValue(true);
+
+      const response = await agent
+        .patch(`/api/document-connections/${connectionId}`)
+        .send(requestBody);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({
+        message: "Connection updated successfully.",
+      });
+    });
+
+    it("should return 400 if required fields are missing", async () => {
+      const connectionId = 1;
+      const incompleteRequestBody = {
+        IdDocument1: 1,
+      }; // Missing IdDocument2 and IdConnection
+
+      const response = await agent
+        .patch(`/api/document-connections/${connectionId}`)
+        .send(incompleteRequestBody);
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({
+        error: "Missing required fields",
+      });
+    });
+
+    it("should return 400 if a document tries to connect to itself", async () => {
+      const connectionId = 1;
+      const invalidRequestBody = {
+        IdDocument1: 1,
+        IdDocument2: 1, // Same document
+        IdConnection: 3,
+      };
+
+      const response = await agent
+        .patch(`/api/document-connections/${connectionId}`)
+        .send(invalidRequestBody);
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({
+        error: "A document cannot be connected to itself",
+      });
+    });
+
+    it("should return 404 if the connection is not found", async () => {
+      const connectionId = 1;
+      const validRequestBody = {
+        IdDocument1: 1,
+        IdDocument2: 2,
+        IdConnection: 3,
+      };
+
+      DocumentConnectionDao.updateConnection.mockResolvedValue(false);
+
+      const response = await agent
+        .patch(`/api/document-connections/${connectionId}`)
+        .send(validRequestBody);
+
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({ error: "Connection not found." });
+    });
+
+    it("should return 500 for database errors", async () => {
+      const connectionId = 1;
+      const validRequestBody = {
+        IdDocument1: 1,
+        IdDocument2: 2,
+        IdConnection: 3,
+      };
+
+      DocumentConnectionDao.updateConnection.mockRejectedValue(
+        new Error("Database error")
+      );
+
+      const response = await agent
+        .patch(`/api/document-connections/${connectionId}`)
+        .send(validRequestBody);
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({ error: "Database error" });
     });
   });
 });
