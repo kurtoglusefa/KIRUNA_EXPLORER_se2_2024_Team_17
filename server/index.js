@@ -102,7 +102,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   limits: {
-    fileSize: 10 * 1024 * 1024* 10, // Limit to 100MB
+    fileSize: 10 * 1024 * 1024 * 10, // Limit to 100MB
   },
 });
 
@@ -561,6 +561,7 @@ app.patch("/api/scales/:scaleId", isUrbanPlanner, async (req, res) => {
 
 // API CONNECTIONS
 
+// GET /api/connections
 app.get("/api/connections", (req, res) => {
   DocumentConnectionDao.getAllConnectionsType()
     .then((connections) => res.status(200).json(connections))
@@ -614,6 +615,68 @@ app.post("/api/document-connections", isUrbanPlanner, (req, res) => {
     .then((newConnection) => res.status(201).json(newConnection))
     .catch(() => res.status(500).end());
 });
+
+// DELETE /api/document-connections/:connectionId
+app.delete(
+  "/api/document-connections/:connectionId",
+  isUrbanPlanner,
+  async (req, res) => {
+    const connectionId = parseInt(req.params.connectionId);
+    try {
+      const result = await DocumentConnectionDao.deleteConnection(connectionId);
+      if (result) {
+        res.status(200).json({ message: "Connection deleted successfully." });
+      } else {
+        res.status(500).json({ error: "Failed to delete connection." });
+      }
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+);
+
+// PATCH /api/document-connections/:connectionId
+app.patch(
+  "/api/document-connections/:connectionId",
+  isUrbanPlanner,
+  async (req, res) => {
+    const connectionId = parseInt(req.params.connectionId);
+    const connection = req.body;
+
+    if (
+      !connection.IdDocument1 ||
+      !connection.IdDocument2 ||
+      !connection.IdConnection
+    ) {
+      res.status(400).json({ error: "Missing required fields" });
+      return;
+    }
+
+    // checking documents are not the same
+    if (connection.IdDocument1 === connection.IdDocument2) {
+      res
+        .status(400)
+        .json({ error: "A document cannot be connected to itself" });
+      return;
+    }
+
+    try {
+      const result = await DocumentConnectionDao.updateConnection(
+        connectionId,
+        connection.IdDocument1,
+        connection.IdDocument2,
+        connection.IdConnection
+      );
+      if (result) {
+        res.status(200).json({ message: "Connection updated successfully." });
+      } else {
+        res.status(404).json({ error: "Connection not found." });
+      }
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+);
 
 ////// API LOCATION  //////
 app.get("/api/locations", (req, res) => {
