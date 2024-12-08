@@ -243,6 +243,8 @@ GET http://localhost:3001/api/document-connections
 ### test to get all document-connections of a document id
 GET http://localhost:3001/api/document-connections/1
 
+### test to delete a connection for a document
+DELETE http://localhost:3001/api/document-connections/7
 
 
 ### TEST LOCATION API
