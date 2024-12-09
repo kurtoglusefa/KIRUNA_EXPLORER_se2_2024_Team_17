@@ -8,8 +8,14 @@ import '../App.css'
 import '../WelcomePage.css';
 import { Rnd } from 'react-rnd';
 import PropTypes from 'prop-types';
+import {
+  Form,
+  Button,
+  Modal,
+  ListGroup,
+} from "react-bootstrap";
 
-function Diagram({locations,setLocations,locationsArea,documents,setDocuments}) {
+function Diagram({locations,setLocations,locationsArea,documents,setDocuments,fetchDocumentsData}) {
   const selectedDocument = useContext(AppContext).selectedDocument;
   const setSelectedDocument = useContext(AppContext).setSelectedDocument;
   const [numberofconnections, setNumberofconnections] = useState(0);
@@ -22,6 +28,10 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments}) 
 
   const context = useContext(AppContext);
   const isLogged = context.loginState.loggedIn;
+  const [showAddConnection, setShowAddConnection] = useState(false);
+  const [selectConnectionType, setSelectConnectionType] = useState("");
+  
+ 
 
 
   const [nodes, setNodes] = useState([]);
@@ -33,6 +43,107 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments}) 
 
   const [dataReady, setDataReady] = useState(false); // Tracks when the necessary data is ready
   const [documentsReady, setDocumentsReady] = useState(false); // Tracks when documents are loaded
+
+  const [modifyMode,setModifyMode] = useState(false); // if false i can only on the document, if true i can move the document
+
+  const [filteredDocuments, setFilteredDocuments] = useState([]); // Filtered list of documents for search
+  const [selectedDestinationDocument, setSelectedDestinationDocument] = useState(null); // Selected destination document for connection
+  const [newConnection, setNewConnection] = useState(false); // New connection object to create
+
+  const updateConnection = async () => {
+    
+    try {
+      if(newConnection==true){
+        await API.createDocumentConnection(
+          selectedDocument.IdDocument,
+          selectedDestinationDocument.IdDocument,
+          parseInt(selectConnectionType)
+        );
+      }
+      else
+      {
+        // Call updateConnection API with the new values
+        await API.updateDocumentConnection(
+          selectedEdge.IdConnectionDocuments,
+          selectedEdge.IdDocument1,
+          selectedDestinationDocument.IdDocument,
+          parseInt(selectConnectionType)
+        );
+      }
+      // Update the connections after the API call
+      await fetchConnections();
+  
+      // Close the modal after successful update
+      setSelectedEdge(null);
+      setShowAddConnection(false);
+      setNewConnection(false);
+    } catch (error) {
+      console.error("Error during connection update:", error);
+    }
+  };
+  const handleSearchChange = (e) => {
+    const searchValue = e.target.value;
+    setSelectedDestinationDocument(null); // Reset the selected document
+    // Filter documents that match the input
+    if (searchValue.length > 0) {
+      const filtered = documents.filter(
+        (doc) =>
+          doc.Title.toLowerCase().includes(searchValue.toLowerCase()) &&
+          doc.IdDocument != 1
+      );
+      setFilteredDocuments(filtered);
+    } else {
+      setFilteredDocuments([]);
+    }
+  };
+  const handleSelectDocument = (doc) => {
+    setSelectedDestinationDocument(doc);
+    setFilteredDocuments([]); // Clear suggestions after selection
+  };
+  
+  const scaleRanges = {
+    Text: { min: -200, max: 0 },
+    Concept: { min: 0, max: 200 },
+    Plan: { min: 200, max: 600 },
+    "Blueprints/Effects": { min: 600, max: 800 },
+  };
+
+  // function used to convert position of the node in the diagram to the position in the database
+  const mapXToDate = (x) => {
+    const yearDifference = Math.floor((x - 0) / gapx); // Calculate the year offset from the start year
+    const year = 2000 + yearDifference;
+  
+    const monthFraction = (x - 0 - yearDifference * gapx) / gapx; // Remaining part for months and days
+    const month = Math.floor(monthFraction * 12) + 1; // Fraction to month (1-12)
+  
+  
+    // Format the date string as YYYY/MM/DD
+    const dateStr = `${String(month).padStart(2, '0')}/${year}`;
+    console.log(dateStr);
+    return dateStr;
+    
+  };
+  const mapYToScale = (y) => {
+    
+    if(y<=scaleRanges.Text.max){
+      return 1;
+    }
+    else if(y<=scaleRanges.Concept.max){
+      return 2;
+    }
+    else if (y<=scaleRanges.Plan.max){
+      // inside the architecture scale plan
+      const maxScaleNumber = 100000; // The max scale number we need to handle
+      const normalizedValue = (y - scaleRanges.Plan.min) / (scaleRanges.Plan.max - scaleRanges.Plan.min); // Normalize y to [0, 1]
+      const scale_number = Math.round(normalizedValue * (maxScaleNumber - 1)) + 1; // Convert normalized value back to scale number
+      return scale_number;
+
+    }
+    else if(y<=scaleRanges["Blueprints/Effects"].max){
+      return 3;
+    }
+  };
+
 
 
   const OffsetEdge = ({ id, sourceX, sourceY, targetX, targetY, style, data }) => {
@@ -264,8 +375,6 @@ const fetchDocuments = async () => {
         }
         else{
           // this is scale type plan
-          console.log(scales[Idscale]);
-          console.log(scales[Idscale]?.scale_number);
           const maxScaleNumber = 100000; // The max scale number we need to handle
           const scale_number= scales[Idscale]?.scale_number.split(":")[1];
           const normalizedValue = (scale_number - 1) / (maxScaleNumber - 1); // Normalize scale_number to [0, 1]
@@ -280,7 +389,6 @@ const fetchDocuments = async () => {
         const iconSrc = documentTypes[doc.IdType-1]?.iconsrc || 'other.svg'; // Fallback to a default icon
         const x= mapDateToX(doc.Issuance_Date);
         const y = mapScaleToY(doc.IdScale);
-        console.log("ciao"+doc.IdStakeholder);
         return {
           id: doc.IdDocument.toString(), // Ensure `id` is a string
           position: { x: x, y: y }, // Stagger nodes horizontally
@@ -374,10 +482,27 @@ const fetchDocuments = async () => {
     );
     setSelectedEdge(null);
   };
+  const handleConnect = (params) => {
+   console.log("PARAMS");
+   console.log(params);
+   setSelectedDestinationDocument(documents.find((doc) => doc.IdDocument === parseInt(params.target)));
+   setSelectedDocument(documents.find((doc) => doc.IdDocument === parseInt(params.source)));
+   setShowAddConnection(true);
+   setNewConnection(true);
+  };
 
 
   const SvgNode = ({ data ,selected }) => {
-    let path = `src/icon/${data.stakeholder[0].Color ? data.stakeholder[0].Color: '8A9FA4'}/${data.iconSrc}`;
+    if(!data) return null;
+    console.log("DATA");
+    console.log(data);
+    let path="";
+    if(data.stakeholder.lenght>0 && data.stakeholder[0].Color){
+      path = `src/icon/${data.stakeholder[0].Color}/${data.iconSrc}`;
+    }
+    else{   
+      path = `src/icon/8A9FA4/${data.iconSrc}`;
+    }
     return (
       <div
       style={{
@@ -407,7 +532,7 @@ const fetchDocuments = async () => {
           type="source" // Outgoing edge
           position="right" // Position at the top of the node
           id="source" // Unique ID for the source handle
-          style={{ opacity: 0 }} // Make it invisible
+          
         />
   
         <img
@@ -424,7 +549,7 @@ const fetchDocuments = async () => {
           type="target" // Incoming edge
           position="left" // Position at the bottom of the node
           id="target" // Unique ID for the target handle
-          style={{ opacity: 0 }} // Make it invisible
+          
         />
       </div>
     );
@@ -433,7 +558,98 @@ const fetchDocuments = async () => {
     data: PropTypes.object.isRequired,
     selected: PropTypes.bool.isRequired,
   };
+
+  const onNodeDrag = (event, node) => {
+    console.log('Node is being dragged', node);
+    setNodes((prevNodes) =>
+      prevNodes.map((n) =>
+        n.id === node.id
+          ? {
+              ...n,
+              position: {
+                x: node.position.x,
+                y: node.position.y,
+              },
+            }
+          : n
+      )
+    );
+  };
   
+  const onNodeDragStop = async (event, node) => {
+    try {
+      console.log('Node is being dragged', node);
+  
+      // Update the position of the dragged node in the state
+      setNodes((prevNodes) =>
+        prevNodes.map((n) =>
+          n.id === node.id
+            ? {
+                ...n,
+                position: {
+                  x: node.position.x,
+                  y: node.position.y,
+                },
+              }
+            : n
+        )
+      );
+  
+      // Map X to Date (check in the same year of doc.Issuance_Date) and Y to Scale
+      let x = mapXToDate(node.position.x);
+      
+      console.log("Mapped X (Date):", x);
+  
+      let y = mapYToScale(node.position.y);
+      console.log("Mapped Y (Scale):", y);
+  
+      // If the scale is greater than 4, add a new scale and update `y`
+      if (y > 4) {
+        console.log("Updating scale...");
+        let result = await API.addScale("new scale", "1:" + y);
+        
+        // Ensure the scaleId is returned correctly
+        if (result && result.scaleId) {
+          y = result.scaleId;
+          console.log("Updated scaleId:", y);
+        } else {
+          console.error("Error: API.addScale did not return a valid scaleId.");
+        }
+      }
+  
+      // Find the document to update
+      let d = documents.find((doc) => doc.IdDocument === parseInt(node.id));
+      console.log("Document found:", d);
+      
+      // Call updateDocument API with the new values
+      if (d.Issuance_Date.substring(0,3) === x.substring(0,3)) {
+        // Call updateDocument API with the new values
+        await API.updateDocument(
+          d.IdDocument,
+          d.Title,
+          d.IdStakeholder,
+          y,  // Updated scale (y)
+          x,  // Mapped date (x)
+          d.Language,
+          d.Pages,
+          d.Description,
+          d.IdType,
+          d.IdLocation
+        );
+        await fetchDocumentsData();
+        await fetchDocuments();
+      } else {
+        alert("You can only move the document in the same year of the document");
+        console.log(d.Issuance_Date.substring(0,3));
+        console.log(x.substring(0,3));
+
+        await fetchDocumentsData();
+        await fetchDocuments();
+      }
+    } catch (error) {
+      console.error("Error during drag stop:", error);
+    }
+  };
   
 
   return (
@@ -441,8 +657,6 @@ const fetchDocuments = async () => {
     <div style={{display:'flex'}}>
       {/* React Flow Diagram*/}
       <div style={{padding: '15px',height: '89vh', width:'100vw', backgroundColor:'#FDFDFD'}}>
-        
-        
         {/* Diagram */}
         <ReactFlowProvider>
           <ReactFlow
@@ -454,10 +668,12 @@ const fetchDocuments = async () => {
             edges={edges}
             edgeTypes={edgeTypes} // Use custom edge types
             fitView={true}
-            
             nodeTypes={{ svgNode: SvgNode }}
+            onConnect={handleConnect}
             onNodeClick={handleNodeClick} 
             onEdgeClick={handleEdgeClick}
+            onNodeDrag={modifyMode ? onNodeDrag : null} // Only enable drag if modifyMode is true
+            onNodeDragStop={modifyMode ? onNodeDragStop : null} // Only enable drag if modifyMode is true
             onNodeMouseEnter={(e) => e.target.style.cursor = 'pointer'}
             onNodeMouseLeave={(e) => e.target.style.cursor = 'drag'}
             style={{ background: "#FDFDFD" }}>
@@ -465,6 +681,24 @@ const fetchDocuments = async () => {
             <Controls  showZoom={false} showInteractive={false} showFitView={true}/>
           </ReactFlow>
         </ReactFlowProvider>
+        {isLogged &&
+            <>
+              <div className='d-flex mt-2 align-items-center justify-content-between ms-3'>
+                <div className='d-flex align-items-center'>
+                  <Button variant='dark' size='sm' className='rounded-pill mt-2 overlay px-4 btn-document' style={{ left:'3.5%', bottom: '5%' }} onClick={() => {
+                    setModifyMode((mode) => !mode)
+                  }}>
+                    <span className='h6' style={{ fontSize: '16px' }}>{modifyMode ? 'Disable' : 'Enable'} drag document</span>
+                  </Button>
+
+                  <div>
+                    {modifyMode && <span className='col text-end mx-5 mb-1' style={{ position: 'absolute', zIndex: 1000, textShadow: '#000000 0px 0px 20px', left: '450px', bottom: '5%', color: 'white' }}>Drag  document enabled</span>}
+                  </div>
+                </div>
+              </div>
+
+            </>
+          }
       </div>
     
       
@@ -517,9 +751,103 @@ const fetchDocuments = async () => {
           <button onClick={() => {CloseVisualizeEdge()}} className="mx-2 rounded-pill btn-logout btn btn-sm">
             Close
           </button>
+          
+          {isLogged ? (
+          <button onClick={() => {
+            setSelectedDestinationDocument(documents.find((doc) => selectedDocument?.IdDocument != doc.IdDocument &&  doc.IdDocument === parseInt(selectedEdge.IdDocument2)));
+            setShowAddConnection(!showAddConnection);
+            setSelectConnectionType(typeConnections[selectedEdge.IdConnection]?.IdConnection);
+            }} className="mx-2 rounded-pill btn-logout btn btn-sm">
+            Modify
+          </button>
+          ) : null}
+           {isLogged ? (
+          <button onClick={async() => {
+            //API.deleteof id
+            setSelectConnectionType(typeConnections[selectedEdge.IdConnection]?.IdConnection);
+            await API.deleteDocumentConnection(selectedEdge.IdConnectionDocuments);
+            await fetchConnections();
+            setSelectedEdge(null);
+            }} className="mx-2 rounded-pill btn-logout btn btn-sm">
+            Delete
+          </button>
+          ) : null}
         </div>
       </div>
     )}
+    <Modal
+        show={showAddConnection}
+        centered
+        onHide={() => setShowAddConnection(false)}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>{newConnection == false?   "Update Connection": "New Connection" }</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+        <Form.Group controlid="formDocument" style={{ position: "relative" }}>
+            <Form.Label>Document</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Search for a document"
+              value={selectedDestinationDocument?.Title}
+              onChange={handleSearchChange}
+              autoComplete="off" // Prevents browser autocomplete
+            />
+
+            {/* Render the dropdown list of suggestions */}
+            {filteredDocuments.length > 0 && (
+              <ListGroup
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  zIndex: 1,
+                  width: "100%",
+                }}
+              >
+                {filteredDocuments.map((doc) => (
+                  <ListGroup.Item
+                    key={doc.IdDocument}
+                    action
+                    onClick={() => handleSelectDocument(doc)}
+                  >
+                    {doc.Title}
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
+            )}
+          </Form.Group>
+          <Form.Group controlid="connectionTypeSelect" className="mb-3">
+            <Form.Label>Connection Type</Form.Label>
+            <Form.Select
+              value={typeConnections[selectedEdge?.IdConnection]?.IdConnection}
+              onChange={(e) => setSelectConnectionType(e.target.value)}
+            >
+              <option value="">Select connection type</option>
+              {Object.values(typeConnections).map((type) => (
+                <option key={type.IdConnection} value={type.IdConnection}>
+                  {type.Type}
+                </option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="outline-secondary"
+            onClick={() => setShowAddConnection(false)}
+          >
+            Cancel
+          </Button>
+         
+          <Button
+            variant=""
+            className="btn-document"
+            onClick={updateConnection}
+          >
+            Update Connection
+          </Button>
+        </Modal.Footer>
+      </Modal>
   </>
   );
 }

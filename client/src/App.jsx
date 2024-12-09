@@ -16,7 +16,7 @@ import WelcomePage from './components/WelcomePage';
 function App() {
   const [user, setUser] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
-  const [viewMode, setViewMode] = useState('map');
+  const [viewMode, setViewMode] = useState("map"); // list or grid
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [documents, setDocuments] = useState([]);
 

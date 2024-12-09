@@ -323,6 +323,46 @@ const createDocumentConnection = (IdDocument1, IdDocument2, connection_type) => 
     });
   });
 };
+const updateDocumentConnection = (Id_documents_connection,IdDocument1, IdDocument2, connection_type) => {
+  return new Promise((resolve, reject) => {
+    fetch(URL + "/document-connections/"+Id_documents_connection, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ IdDocument1: IdDocument1, IdDocument2: IdDocument2, IdConnection: connection_type }),
+      credentials: "include",
+
+    }).then((response) => {
+      if (response.ok) {
+        resolve(response.json());
+      } else {
+        response.json().then((message) => {
+          reject(message);
+        });
+      }
+    }).catch(() => {
+      reject({ error: "Cannot communicate with the server!" });
+    });
+  });
+};
+const deleteDocumentConnection = (Id_documents_connection) => {
+  return new Promise((resolve, reject) => {
+    fetch(URL + "/document-connections/" + Id_documents_connection, {
+      method: "DELETE",
+      credentials: "include",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          return response.json().then((message) => reject(message));
+        }
+        resolve();
+      })
+      .catch(() => {
+        reject({ error: "Cannot communicate with the server." });
+      });
+  });
+};
 
 const updateDocument = (Id_document,title,idStakeholder, scale, issuance_Date,language,pages,description, idtype,idLocation ) => { 
   return new Promise((resolve, reject) => { 
@@ -786,6 +826,6 @@ const updateScale = (id, scale_number) => {
   });
 };
 
-const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, createDocumentConnection, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea, getDocumentResources, addResourcesToDocument, addArea,deleteResource,getScales,addScale,updateScale,addStakeholder,getStakeholderByDocumentId,createTypeDocument,addLocationPoint};
+const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, createDocumentConnection, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea, getDocumentResources, addResourcesToDocument, addArea,deleteResource,getScales,addScale,updateScale,addStakeholder,getStakeholderByDocumentId,createTypeDocument,addLocationPoint,updateDocumentConnection,deleteDocumentConnection};
 
 export default API;
