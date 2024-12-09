@@ -214,6 +214,7 @@ function Home(props) {
                         setSelectedDocument={setSelectedDocument}
                         isLogged={isLogged}
                         viewMode={viewMode}
+                        handleMarkerClick={setSelectedDocument}
                         numberofconnections={numberofconnections}
                         area={locationsArea[selectedDocument?.IdLocation]}
                         stakeholders={stakeholders}

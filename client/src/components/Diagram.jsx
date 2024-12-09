@@ -493,6 +493,7 @@ const fetchDocuments = async () => {
           longitude={locations[selectedDocument?.IdLocation]?.Longitude.toFixed(4)}
           setShowCard={setSelectedDocument}
           setSelectedDocument={setSelectedDocument}
+          setSelectedMarker={setSelectedDocument}
           viewMode='map'
           isLogged={isLogged}
           numberofconnections={numberofconnections}

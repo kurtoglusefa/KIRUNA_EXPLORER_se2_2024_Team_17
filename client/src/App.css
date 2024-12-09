@@ -147,3 +147,12 @@
 .document-icon:hover {
   stroke: darkblue;
 }
+
+.link {
+  color: blue;
+}
+
+.link:hover {
+  text-decoration: underline;
+  cursor: pointer ;
+}

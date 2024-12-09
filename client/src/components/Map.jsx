@@ -176,8 +176,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
       alert("Please fill in all fields.");
     }
   };
-  const handleMarkerClick = (marker, event) => {
-    event.target.openPopup();
+  const handleMarkerClick = (marker) => {
     setSelectedMarker(marker);
     setSelectedDocument(marker);
     setSelectedLocation(null);
@@ -426,8 +425,8 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                                 handleDragEnd(document, e);
                               }
                             },
-                            click: (e) => {
-                              handleMarkerClick(document, e);
+                            click: () => {
+                              handleMarkerClick(document);
                             },
                             mouseover: (e) => {
                               selectedDocument?.IdDocument !== document.IdDocument && e.target.openPopup();
@@ -544,8 +543,8 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                                 handleDragEnd(document, e);
                               }
                             },
-                            click: (e) => {
-                              handleMarkerClick(document, e);
+                            click: () => {
+                              handleMarkerClick(document);
                             },
                             mouseover: (e) => {
                               selectedDocument?.IdDocument !== document.IdDocument && e.target.openPopup();
@@ -681,8 +680,8 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                   locationType={locationsArea[selectedMarker?.IdLocation] ? "Area" : "Point"}
                   latitude={locations[selectedMarker?.IdLocation]?.Latitude.toFixed(4)}
                   longitude={locations[selectedMarker?.IdLocation]?.Longitude.toFixed(4)}
-                  setShowCard={setSelectedDocument}
                   setSelectedDocument={setSelectedDocument}
+                  handleMarkerClick={handleMarkerClick}
                   isLogged={isLogged}
                   viewMode='map'
                   numberofconnections={numberofconnections}
@@ -725,11 +724,16 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                       </>
                     ) : (
                       selectedDocument ? (
+                        locationsArea[selectedDocument.IdLocation] ? (
+                          <>
+                          <h6><strong>Area:</strong> {locationsArea[selectedDocument.IdLocation]?.Area_Name}</h6>
+                        </>                          
+                        ) : (
                         <>
                           <h6><strong>Latitude:</strong> {locations[selectedDocument.IdLocation]?.Latitude.toFixed(4)}<br></br>
                             <strong>Longitude:</strong> {locations[selectedDocument.IdLocation]?.Longitude.toFixed(4)}</h6>
                         </>
-
+                        )
                       ) : (
                       <Form.Group>
                         <Form.Label>
@@ -773,7 +777,11 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                       }
                       else {
                         if(selectedDocument) {
-                          navigate(`../documents/create-document`, { state: { location: {lat: locations[selectedDocument.IdLocation]?.Latitude.toFixed(4), lng: locations[selectedDocument.IdLocation]?.Longitude.toFixed(4),type: 'Point' }}, relative: 'path' })
+                          if(locationsArea[selectedDocument.IdLocation]) {
+                            navigate(`../documents/create-document`, { state: { location:{ area: locationsArea[selectedDocument.IdLocation], type: 'Area' }}, relative: 'path' })
+                          } else {
+                            navigate(`../documents/create-document`, { state: { location: {lat: locations[selectedDocument.IdLocation]?.Latitude.toFixed(4), lng: locations[selectedDocument.IdLocation]?.Longitude.toFixed(4),type: 'Point' }}, relative: 'path' })
+                          }
                         }
 
                         navigate(`../documents/create-document`, { state: { location: {lat: selectedLocation.lat.toFixed(4), lng: selectedLocation.lng.toFixed(4),type: 'Point' }}, relative: 'path' })
