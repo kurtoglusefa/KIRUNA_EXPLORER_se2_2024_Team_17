@@ -16,5 +16,6 @@ SELECT * FROM DocumentConnection
 ALTER TABLE LOCATION
 ADD COLUMN Area_Name VARCHAR(255);
 
-select * from Document
-delete from Document where IdDocument = 138;
+select * from Document 
+select * from Document where IdDocument = 133;
+select * from DocumentStakeholder  where IdDocument = 133;

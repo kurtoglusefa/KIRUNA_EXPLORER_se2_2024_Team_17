@@ -116,9 +116,12 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments,fe
     const monthFraction = (x - 0 - yearDifference * gapx) / gapx; // Remaining part for months and days
     const month = Math.floor(monthFraction * 12) + 1; // Fraction to month (1-12)
   
+    const dayFraction = (monthFraction * 12 - Math.floor(monthFraction * 12)) * 30; // Remaining part for days
+    const day = Math.floor(dayFraction) + 1; // Fraction to day (1-30)
+
   
     // Format the date string as YYYY/MM/DD
-    const dateStr = `${year}/${String(month).padStart(2, '0')}`;
+    const dateStr = `${year}/${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
     console.log(dateStr);
     return dateStr;
     
@@ -498,6 +501,8 @@ const fetchDocuments = async () => {
   const SvgNode = ({ data ,selected }) => {
     if(!data) return null;
     let path="";
+    console.log("quello che passo",data);
+    
     if(data.stakeholder){
       path = `src/icon/${data.stakeholder[0].Color}/${data.iconSrc}`;
     }
@@ -594,7 +599,7 @@ const fetchDocuments = async () => {
             : n
         )
       );
-      /*
+      
       // Map X to Date (check in the same year of doc.Issuance_Date) and Y to Scale
       let x = mapXToDate(node.position.x);
       
@@ -616,39 +621,36 @@ const fetchDocuments = async () => {
           console.error("Error: API.addScale did not return a valid scaleId.");
         }
       }
-  
+      try {
       // Find the document to update
-      let d = documents.find((doc) => doc.IdDocument === parseInt(node.id));
-      console.log("Document found:", d);
-      
-      // Call updateDocument API with the new values
-      if (d.Issuance_Date.substring(0,3) === x.substring(0,3)) {
+        let d = documents.find((doc) => doc.IdDocument === parseInt(node.id));
+        console.log("Document found:", d);
+        
         // Call updateDocument API with the new values
-        await API.updateDocument(
-          d.IdDocument,
-          d.Title,
-          await API.getStakeholderByDocumentId(d.IdDocument),
-          y,  // Updated scale (y)
-          x,  // Mapped date (x)
-          d.Language,
-          d.Pages,
-          d.Description,
-          d.IdType,
-          d.IdLocation
-        );
-        await fetchDocumentsData();
-        await fetchDocuments();
-      } else {
-        alert("You can only move the document in the same year of the document");
-        console.log(d.Issuance_Date.substring(0,3));
-        console.log(x.substring(0,3));
-
-        await fetchDocumentsData();
-        await fetchDocuments();
-      }
+        if (d.Issuance_Date.substring(0,4) === x.substring(0,4)) {
+          // Call updateDocument API with the new values
+          await API.updateDocument(
+            d.IdDocument,
+            d.Title,
+            d.IdStakeholder.map((stk) => stk.IdStakeholder),
+            y,  // Updated scale (y)
+            x,  // Mapped date (x)
+            d.Language,
+            d.Pages,
+            d.Description,
+            d.IdType,
+            d.IdLocation
+          );
+          await fetchDocumentsData();
+          await fetchDocuments();
+        } else {
+          alert("You can only move the document in the same year of the document");
+          await fetchDocumentsData();
+          await fetchDocuments();
+        }
     } catch (error) {
       console.error("Error during drag stop:", error);
-    }*/
+    }
   };
   
 
@@ -692,7 +694,7 @@ const fetchDocuments = async () => {
                   </Button>
 
                   <div>
-                    {modifyMode && <span className='col text-end mx-5 mb-1' style={{ position: 'absolute', zIndex: 1000, textShadow: '#000000 0px 0px 20px', left: '450px', bottom: '5%', color: 'white' }}>Drag  document enabled</span>}
+                    {modifyMode && <span className='col text-end mx-5 mb-1' style={{ position: 'absolute', zIndex: 1000, textShadow: '#000000 0px 0px 20px', left: '450px', bottom: '5%', color: 'black' }}>Drag  document enabled</span>}
                   </div>
                 </div>
               </div>

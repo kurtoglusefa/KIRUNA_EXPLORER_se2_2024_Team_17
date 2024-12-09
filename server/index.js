@@ -281,7 +281,8 @@ app.get("/api/documents/title/:title", (req, res) => {
 app.patch("/api/documents/:documentid", isUrbanPlanner, async (req, res) => {
   const documentId = parseInt(req.params.documentid);
   const document = req.body;
-  if (!document.title || !document.idStakeholder) {
+  console.log(document);
+  if (!document.title) {
     res
       .status(400)
       .json({ error: "The request body must contain all the fields" });
