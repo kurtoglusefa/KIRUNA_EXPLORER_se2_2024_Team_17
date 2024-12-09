@@ -48,29 +48,35 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments,fe
 
   const [filteredDocuments, setFilteredDocuments] = useState([]); // Filtered list of documents for search
   const [selectedDestinationDocument, setSelectedDestinationDocument] = useState(null); // Selected destination document for connection
+  const [newConnection, setNewConnection] = useState(false); // New connection object to create
 
   const updateConnection = async () => {
     
     try {
-      if (!selectedEdge.IdConnectionDocuments || !selectedDestinationDocument) {
-        console.error("Error: Missing required fields for connection update.");
-        return;
+      if(newConnection==true){
+        await API.createDocumentConnection(
+          selectedDocument.IdDocument,
+          selectedDestinationDocument.IdDocument,
+          parseInt(selectConnectionType)
+        );
       }
-  
-      // Call updateConnection API with the new values
-      await API.updateDocumentConnection(
-        selectedEdge.IdConnectionDocuments,
-        selectedEdge.IdDocument1,
-        selectedDestinationDocument.IdDocument,
-        parseInt(selectConnectionType)
-      );
-  
+      else
+      {
+        // Call updateConnection API with the new values
+        await API.updateDocumentConnection(
+          selectedEdge.IdConnectionDocuments,
+          selectedEdge.IdDocument1,
+          selectedDestinationDocument.IdDocument,
+          parseInt(selectConnectionType)
+        );
+      }
       // Update the connections after the API call
       await fetchConnections();
   
       // Close the modal after successful update
       setSelectedEdge(null);
       setShowAddConnection(false);
+      setNewConnection(false);
     } catch (error) {
       console.error("Error during connection update:", error);
     }
@@ -478,6 +484,14 @@ const fetchDocuments = async () => {
     );
     setSelectedEdge(null);
   };
+  const handleConnect = (params) => {
+   console.log("PARAMS");
+   console.log(params);
+   setSelectedDestinationDocument(documents.find((doc) => doc.IdDocument === parseInt(params.target)));
+   setSelectedDocument(documents.find((doc) => doc.IdDocument === parseInt(params.source)));
+   setShowAddConnection(true);
+   setNewConnection(true);
+  };
 
 
   const SvgNode = ({ data ,selected }) => {
@@ -520,7 +534,7 @@ const fetchDocuments = async () => {
           type="source" // Outgoing edge
           position="right" // Position at the top of the node
           id="source" // Unique ID for the source handle
-          style={{ opacity: 0 }} // Make it invisible
+          
         />
   
         <img
@@ -537,7 +551,7 @@ const fetchDocuments = async () => {
           type="target" // Incoming edge
           position="left" // Position at the bottom of the node
           id="target" // Unique ID for the target handle
-          style={{ opacity: 0 }} // Make it invisible
+          
         />
       </div>
     );
@@ -647,7 +661,7 @@ const fetchDocuments = async () => {
             edgeTypes={edgeTypes} // Use custom edge types
             fitView={true}
             nodeTypes={{ svgNode: SvgNode }}
-
+            onConnect={handleConnect}
             onNodeClick={handleNodeClick} 
             onEdgeClick={handleEdgeClick}
             onNodeDrag={modifyMode ? onNodeDrag : null} // Only enable drag if modifyMode is true
@@ -758,7 +772,7 @@ const fetchDocuments = async () => {
         onHide={() => setShowAddConnection(false)}
       >
         <Modal.Header closeButton>
-          <Modal.Title>Update Connection</Modal.Title>
+          <Modal.Title>{newConnection == false?   "Update Connection": "New Connection" }</Modal.Title>
         </Modal.Header>
         <Modal.Body>
         <Form.Group controlid="formDocument" style={{ position: "relative" }}>
