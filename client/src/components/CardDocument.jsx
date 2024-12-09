@@ -28,6 +28,7 @@ function CardDocument ({document, locationType, latitude, longitude, handleMarke
     } else {
         iconPath = `src/icon/${stakeholders[document?.IdStakeholder-1]?.color}/${documentTypes[document?.IdType - 1]?.iconsrc}`;
     }
+    console.log(documents);
     console.log(document);
     console.log(stakeholders);
     console.log(iconPath);
@@ -36,7 +37,9 @@ function CardDocument ({document, locationType, latitude, longitude, handleMarke
 
   const handleConnectedDocument = async (id) => {
     const doc = await API.getDocumentById(id);
-    handleMarkerClick(doc);
+    console.log(doc);
+    const stakeholders = await API.getStakeholderByDocumentId(doc.IdDocument);
+    handleMarkerClick({...doc, IdStakeholder: stakeholders});
   };
 
 
@@ -298,7 +301,9 @@ function CardDocument ({document, locationType, latitude, longitude, handleMarke
               <strong>Language: </strong>{document?.Language}
             </Card.Text>}
             
-            {document?.IdStakeholder && stakeholders && <Card.Text style={{ fontSize: '16px' }}><strong>Stakeholders: </strong> {
+            {document?.IdStakeholder && stakeholders && 
+            <Card.Text style={{ fontSize: '16px' }}>
+              <strong>Stakeholders: </strong> {
               document.IdStakeholder && Array.isArray(document.IdStakeholder)
               ? document.IdStakeholder
                   .map((stakeholder) => stakeholder.Name || "Unknown")

@@ -195,7 +195,7 @@ function Home(props) {
                             <ListGroup.Item
                               key={index}
                               onClick={() => handleDocumentClick(doc)}
-                              style={{ cursor: 'pointer', fontWeight: selectedDocument === doc ? 'bold' : 'normal' }}
+                              style={{ cursor: 'pointer', fontWeight: selectedDocument?.IdDocument === doc?.IdDocument ? 'bold' : 'normal' }}
                             >
                               {doc.Title}
                             </ListGroup.Item>
