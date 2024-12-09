@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Badge, Button, Card, Placeholder } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import API from "../API";
 import PropTypes from 'prop-types';
 
@@ -9,16 +9,39 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
   //check prototype
   const navigate = useNavigate();
   
+  
   const [resource, setResource] = useState([]);
   const [stakeholders, setStakeholders] = useState([]);
   const [scales, setScales] = useState([]);
   const [documents, setDocuments] = useState([]); 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [connections, setConnections] = useState([]); 
   const [typeConnections, setTypeConnections] = useState({}); 
+  const [documentTypes, setDocumentTypes] = useState([]);
   
+  const getIcon = () => {
+    let iconPath = '';
+    if (Array.isArray(document?.IdStakeholder) && document?.IdStakeholder.length > 0) {
+      iconPath = `src/icon/${document?.IdStakeholder[0].Color ? document?.IdStakeholder[0].Color : '8A9FA4'}/${documentTypes[document?.IdType - 1]?.iconsrc ? documentTypes[document?.IdType - 1]?.iconsrc : 'other.svg'}`;
+    } else {
+        iconPath = `src/icon/${stakeholders[document?.IdStakeholder-1]?.color}/${documentTypes[document?.IdType - 1]?.iconsrc}`;
+    }
+    console.log(iconPath);
+    return iconPath;
+  };
+
 
   useEffect(() => {
+    const fetchDocumentTypes = async () => {
+      try {
+        const types = await API.getAllTypesDocument();
+        setDocumentTypes(types);
+        const stakeholders = await API.getAllStakeholders();
+        setStakeholders(stakeholders);
+      } catch (err) {
+        console.error(err);
+      }
+    };
     const fetchResources = async () => {
       setLoading(true);
       try {
@@ -34,17 +57,7 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
       }
       setLoading(false);
     };
-    const fetchStakeholders = async () => {
-      setLoading(true);
-      try {
-        const res = await API.getAllStakeholders();
-        setStakeholders(res);
-        console.log(res);
-      } catch (err) {
-        console.error(err);
-      }
-      setLoading(false);
-    };
+
     const fetchDocuments = async () => { 
       try { 
         const res = await API.getAllDocuments(); 
@@ -95,11 +108,11 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
     }; 
     fetchDocumentConnections();
     fetchResources();
-    fetchStakeholders();
     fetchScales();
     fetchDocuments(); 
     getAllTypeConnections();
-  }, [document?.IdDocument]);
+    fetchDocumentTypes();
+  }, []);
 
   
  
@@ -241,10 +254,11 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
           right: '2%' 
           }} 
           />
-      <Card.Header className='document px-4'>
-        <Card.Title><strong>{document?.Title}</strong></Card.Title>
+      <Card.Header className='px-4 d-flex align-items-center'>
+      <img src={getIcon()} style={{height:'50px'}}/>
+      <Card.Title className="my-3 mx-5 col"><strong>{document?.Title}</strong></Card.Title>
       </Card.Header>
-      <Card.Body className='document-card text-start'>
+      <Card.Body className='document-card text-start' style={{overflowY:'auto', maxHeight: '520px'}}>
         <div className='d-flex'>
 
           <div className='col-6 m-1'>
@@ -305,7 +319,14 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
                 )} 
               </div> 
               </Card.Text> 
+          </div> 
+          <div className="m-1 col">  
+            {/* Description */}
+            <strong style={{fontSize:'16px'}}>Description:</strong> 
+            <Card.Text style={{marginTop:'5px',height: '300px', overflowY: 'auto' , fontSize: '16px' }}>{document?.Description}</Card.Text> 
+            {/* Location Badge */}
             {isLogged && 
+            <div className="d-flex justify-content-center">
               <Badge bg='light' className="p-3 mt-4" style={{color:'black', fontWeight:'normal'}}> 
               {locationType == 'Point' ? ( 
               <> 
@@ -324,12 +345,9 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
                 </> 
                 )  
               } 
-              </Badge> 
+              </Badge>
+              </div> 
             } 
-          </div> 
-          <div className="m-1">  
-            <strong style={{fontSize:'16px'}}>Description:</strong> 
-            <Card.Text style={{marginTop:'5px',height: '300px', overflowY: 'auto' , fontSize: '16px' }}>{document?.Description}</Card.Text> 
           </div> 
         </div> 
       </Card.Body> 
