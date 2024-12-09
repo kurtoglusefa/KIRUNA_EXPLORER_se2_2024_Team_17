@@ -118,7 +118,7 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments,fe
   
   
     // Format the date string as YYYY/MM/DD
-    const dateStr = `${String(month).padStart(2, '0')}/${year}`;
+    const dateStr = `${year}/${String(month).padStart(2, '0')}`;
     console.log(dateStr);
     return dateStr;
     
@@ -319,18 +319,19 @@ const fetchDocuments = async () => {
           return { year, month: null, day: null };
         }
       
-        // Case 2: Month and Year (e.g., "05/2004")
+        // Case 2: Month and Year (e.g., "2004/05")
         if (parts.length === 2) {
-          const month = parseInt(parts[0], 10);
-          const year = parseInt(parts[1], 10);
+          const year = parseInt(parts[0], 10);
+          const month = parseInt(parts[1], 10);
+
           return { year, month, day: null };
         }
       
-        // Case 3: Full Date (e.g., "27/11/2000")
+        // Case 3: Full Date (e.g., "2000/11/27")
         if (parts.length === 3) {
-          const day = parseInt(parts[0], 10);
+          const day = parseInt(parts[2], 10);
           const month = parseInt(parts[1], 10);
-          const year = parseInt(parts[2], 10);
+          const year = parseInt(parts[0], 10);
           return { year, month, day };
         }
       
@@ -340,6 +341,7 @@ const fetchDocuments = async () => {
 
       const mapDateToX = (dateStr) => {
         const { year, month, day } = parseDate(dateStr);
+        console.log("dateStr",parseDate(dateStr));
         if (!year || isNaN(year)) return minX; // Default to minX if year is invalid
     
         // Calculate the year offset from the start year
@@ -388,6 +390,7 @@ const fetchDocuments = async () => {
       const nodes = documents.map((doc) => {
         const iconSrc = documentTypes[doc.IdType-1]?.iconsrc || 'other.svg'; // Fallback to a default icon
         const x= mapDateToX(doc.Issuance_Date);
+        console.log("asse x",x);
         const y = mapScaleToY(doc.IdScale);
         return {
           id: doc.IdDocument.toString(), // Ensure `id` is a string
@@ -494,10 +497,8 @@ const fetchDocuments = async () => {
 
   const SvgNode = ({ data ,selected }) => {
     if(!data) return null;
-    console.log("DATA");
-    console.log(data);
     let path="";
-    if(data.stakeholder.lenght>0 && data.stakeholder[0].Color){
+    if(data.stakeholder){
       path = `src/icon/${data.stakeholder[0].Color}/${data.iconSrc}`;
     }
     else{   
@@ -577,7 +578,6 @@ const fetchDocuments = async () => {
   };
   
   const onNodeDragStop = async (event, node) => {
-    try {
       console.log('Node is being dragged', node);
   
       // Update the position of the dragged node in the state
@@ -594,7 +594,7 @@ const fetchDocuments = async () => {
             : n
         )
       );
-  
+      /*
       // Map X to Date (check in the same year of doc.Issuance_Date) and Y to Scale
       let x = mapXToDate(node.position.x);
       
@@ -627,7 +627,7 @@ const fetchDocuments = async () => {
         await API.updateDocument(
           d.IdDocument,
           d.Title,
-          d.IdStakeholder,
+          await API.getStakeholderByDocumentId(d.IdDocument),
           y,  // Updated scale (y)
           x,  // Mapped date (x)
           d.Language,
@@ -648,7 +648,7 @@ const fetchDocuments = async () => {
       }
     } catch (error) {
       console.error("Error during drag stop:", error);
-    }
+    }*/
   };
   
 

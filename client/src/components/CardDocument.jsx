@@ -346,6 +346,8 @@ function CardDocument ({document, locationType, latitude, longitude, handleMarke
                           ? handleConnectedDocument(conn.IdDocument2)
                           : handleConnectedDocument(conn.IdDocument1)
                       }
+                      onKeyDown={()=>{}}
+                      onFocus={()=>{}}
                     >
                       {documents.find((doc) =>
                         conn.IdDocument1 === document?.IdDocument
