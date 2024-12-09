@@ -1,29 +1,73 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Badge, Button, Card, Placeholder } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import API from "../API";
 import PropTypes from 'prop-types';
+import AppContext from "../AppContext";
 
-function CardDocument ({document, locationType, latitude, longitude, setShowCard, setSelectedDocument, isLogged, viewMode, area, numberofconnections}) {
+function CardDocument ({document, locationType, latitude, longitude, handleMarkerClick, setSelectedDocument, isLogged, area, numberofconnections}) {
 
   //check prototype
   const navigate = useNavigate();
+  const viewMode = useContext(AppContext).viewMode.viewMode;
+  const setViewMode = useContext(AppContext).viewMode.setViewMode; 
   
   const [resource, setResource] = useState([]);
   const [stakeholders, setStakeholders] = useState([]);
   const [scales, setScales] = useState([]);
   const [documents, setDocuments] = useState([]); 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [connections, setConnections] = useState([]); 
   const [typeConnections, setTypeConnections] = useState({}); 
+  const [documentTypes, setDocumentTypes] = useState([]);
   
+  const getIcon = () => {
+    let iconPath = '';
+    if (Array.isArray(document?.IdStakeholder) && document?.IdStakeholder.length > 0) {
+      iconPath = `src/icon/${document?.IdStakeholder[0].Color ? document?.IdStakeholder[0].Color : '8A9FA4'}/${documentTypes[document?.IdType - 1]?.iconsrc ? documentTypes[document?.IdType - 1]?.iconsrc : 'other.svg'}`;
+    } else {
+        iconPath = `src/icon/${stakeholders[document?.IdStakeholder-1]?.color}/${documentTypes[document?.IdType - 1]?.iconsrc}`;
+    }
+    console.log(documents);
+    console.log(document);
+    console.log(stakeholders);
+    console.log(iconPath);
+    return iconPath;
+  };
+
+  const handleConnectedDocument = async (id) => {
+    const doc = await API.getDocumentById(id);
+    console.log(doc);
+    const stakeholders = await API.getStakeholderByDocumentId(doc.IdDocument);
+    handleMarkerClick({...doc, IdStakeholder: stakeholders});
+  };
+
 
   useEffect(() => {
+    const fetchDocumentTypes = async () => {
+      try {
+        const types = await API.getAllTypesDocument();
+        setDocumentTypes(types);
+        setLoading(false);
+
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    const fetchStakeholders = async () => {
+      try {
+        const stakeholders = await API.getAllStakeholders();
+        setStakeholders(stakeholders);
+        setLoading(false);
+      } catch (err) {
+        console.error(err);
+      }
+    };
     const fetchResources = async () => {
-      setLoading(true);
       try {
           const res = await API.getDocumentResources(document.IdDocument);
           setResource(res);
+          setLoading(false);
       } catch (err) {
         console.log(err);
         if(err === 404) {
@@ -32,28 +76,18 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
           console.error(err);
         }
       }
-      setLoading(false);
     };
-    const fetchStakeholders = async () => {
-      setLoading(true);
-      try {
-        const res = await API.getAllStakeholders();
-        setStakeholders(res);
-        console.log(res);
-      } catch (err) {
-        console.error(err);
-      }
-      setLoading(false);
-    };
-    const fetchDocuments = async () => { 
+
+    const fetchDocuments = async () => {
       try { 
         const res = await API.getAllDocuments(); 
-        setDocuments(res); 
+        setDocuments(res);
+        setLoading(false);
       } catch (err) { 
         console.error(err); 
       } 
     }; 
-    const getAllTypeConnections = async () => { 
+    const getAllTypeConnections = async () => {
       try { 
         console.log("get all type connections"); 
         const res = await API.getAllTypeConnections(); 
@@ -63,42 +97,52 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
           acc[conn.IdConnection] = conn; 
           return acc; 
         }, {}); 
-        setTypeConnections(typeConnectionId); 
+        setTypeConnections(typeConnectionId);
+        setLoading(false);
       } catch (err) { 
         console.error(err); 
       } 
     }; 
 
-    const fetchScales = async () => { 
+    const fetchScales = async () => {
       try { 
-          
           const res = await API.getScales(); 
           const scalesArray = []; 
           res.forEach(scale => { 
           scalesArray[scale.id] = scale; 
           }); 
-          setScales(scalesArray); 
+          setScales(scalesArray);
+          setLoading(false);
       } catch (err) { 
           console.error(err); 
       } 
     };
-    const fetchDocumentConnections = async () => { 
+    const fetchDocumentConnections = async () => {
       try { 
         const res = await API.getDocumentConnection(document.IdDocument); 
         console.log("Document connections"); 
         console.log(res); 
-        setConnections(res); 
+        setConnections(res);
+        setLoading(false); 
       } 
       catch (err) { 
         console.error(err); 
       } 
     }; 
-    fetchDocumentConnections();
-    fetchResources();
+    setLoading(true);
     fetchStakeholders();
+    setLoading(true);
+    fetchDocumentConnections();
+    setLoading(true);
+    fetchResources();
+    setLoading(true);
     fetchScales();
+    setLoading(true);
     fetchDocuments(); 
+    setLoading(true);
     getAllTypeConnections();
+    setLoading(true);
+    fetchDocumentTypes();
   }, [document?.IdDocument]);
 
   
@@ -116,12 +160,7 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
       <Card>
       <Button 
         variant="close"
-        onClick={() => {
-          if(viewMode == 'map') {
-          setShowCard(false);
-          }
-          setSelectedDocument(null);
-        }} 
+        onClick={() => setSelectedDocument(null)} 
         style={{ 
           position: 'absolute', 
           top: '2%', 
@@ -230,9 +269,6 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
       <Button 
         variant="close"
         onClick={() => {
-          if(viewMode == 'map') {
-          setShowCard(false);
-          }
           setSelectedDocument(null);
         }} 
         style={{ 
@@ -241,15 +277,17 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
           right: '2%' 
           }} 
           />
-      <Card.Header className='document px-4'>
-        <Card.Title><strong>{document?.Title}</strong></Card.Title>
+      <Card.Header className='px-4 d-flex align-items-center'>
+      <img src={getIcon()} style={{height:'50px'}}/>
+      <Card.Title className="my-3 mx-5 col"><strong>{document?.Title}</strong></Card.Title>
       </Card.Header>
-      <Card.Body className='document-card text-start'>
+      <Card.Body className='document-card text-start' style={{overflowY:'auto', maxHeight: '520px'}}>
         <div className='d-flex'>
 
           <div className='col-6 m-1'>
 
             <Card.Text style={{ fontSize: '16px' }}><strong>Date:</strong> {document?.Issuance_Date}</Card.Text>
+            
             <Card.Text style={{ fontSize: '16px' }}><strong>Scale Name:</strong> {scales[document?.IdScale] ? scales[document?.IdScale].scale_text : ""}</Card.Text>
             {scales[document?.IdScale] && scales[document?.IdScale].scale_number !== '' ? (
               <Card.Text style={{ fontSize: '16px' }}>
@@ -257,38 +295,70 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
                 {scales[document?.IdScale].scale_number}
               </Card.Text>
             ) : null}            
-            {document?.Language && <Card.Text style={{ fontSize: '16px' }}><strong>Language:</strong> {document?.Language}</Card.Text>}
-            {document?.IdStakeholder && stakeholders && <Card.Text style={{ fontSize: '16px' }}><strong>Stakeholder :</strong> {
+            
+            {document?.Language && 
+            <Card.Text style={{ fontSize: '16px' }}>
+              <strong>Language: </strong>{document?.Language}
+            </Card.Text>}
+            
+            {document?.IdStakeholder && stakeholders && 
+            <Card.Text style={{ fontSize: '16px' }}>
+              <strong>Stakeholders: </strong> {
               document.IdStakeholder && Array.isArray(document.IdStakeholder)
               ? document.IdStakeholder
                   .map((stakeholder) => stakeholder.Name || "Unknown")
                   .join(", ") // Join the names into a comma-separated string
               : "Unknown"
             }</Card.Text>}
-            {document?.Pages && <Card.Text style={{ fontSize: '16px' }}><strong>Pages:</strong> {document?.Pages}</Card.Text>}
-            <Card.Text style={{ fontSize: '16px'}}><strong>Connections:</strong> {numberofconnections}</Card.Text> 
-            {numberofconnections > 0 && ( 
-              <Card.Text style={{ fontSize: '16px'}}> 
-              <strong>Connected to:</strong>  
-              <br></br> 
-              {connections.map((conn) => ( 
-                <span key={conn.IdConnection}> 
-                  {conn.IdDocument1 === document?.IdDocument 
-                    ? `${documents.find( 
-                        (doc) => doc.IdDocument === conn.IdDocument2 
-                      )?.Title || "Unknown"} - ${ 
-                        typeConnections[conn.IdConnection]?.Type || "Unknown" 
-                      }` 
-                    : `${documents.find( 
-                        (doc) => doc.IdDocument === conn.IdDocument1 
-                      )?.Title || "Unknown"} - ${ 
-                        typeConnections[conn.IdConnection]?.Type || "Unknown" 
-                      }`} 
-                  <br /> 
-                </span> 
-              ))} 
-            </Card.Text> 
-            )} 
+            
+            {document?.Pages && 
+              <Card.Text style={{ fontSize: '16px' }}>
+                <strong>Pages:</strong> {document?.Pages}
+              </Card.Text>
+            }
+
+            <strong>Connections:</strong> {numberofconnections}
+            {numberofconnections > 0 && (
+              <div
+                className="mb-3 me-2"
+                style={{
+                  overflowY: "auto",
+                  maxHeight: "80px",
+                  overflowX: "auto",
+                }}
+              >
+                {connections.map((conn) => (
+                  <p
+                    key={conn.IdConnection}
+                    style={{
+                      fontSize: "13px",
+                      whiteSpace: "nowrap",
+                      margin: "0", // Remove all margins
+                      padding: "0", // Remove any padding
+                      width: '100px',
+                    }}
+                  >
+                    <span>{typeConnections[conn.IdConnection]?.Type || "Unknown"} - </span>
+                    <span
+                      className="link"
+                      onClick={() =>
+                        conn.IdDocument1 === document?.IdDocument
+                          ? handleConnectedDocument(conn.IdDocument2)
+                          : handleConnectedDocument(conn.IdDocument1)
+                      }
+                    >
+                      {documents.find((doc) =>
+                        conn.IdDocument1 === document?.IdDocument
+                          ? doc.IdDocument === conn.IdDocument2
+                          : doc.IdDocument === conn.IdDocument1
+                      )?.Title || "Unknown"}
+                    </span>
+                  </p>
+                ))}
+              </div>
+            )}
+
+            
             <Card.Text style={{ fontSize: '16px' }}> 
               <strong>Original Resource:</strong><br></br> 
               <div style={{ overflowY: "auto",maxHeight : "100px"}}> 
@@ -305,7 +375,15 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
                 )} 
               </div> 
               </Card.Text> 
+          </div> 
+          
+          <div className="m-1 col">  
+            {/* Description */}
+            <strong style={{fontSize:'16px'}}>Description:</strong> 
+            <Card.Text style={{marginTop:'5px',height: '300px', overflowY: 'auto' , fontSize: '16px' }}>{document?.Description}</Card.Text> 
+            {/* Location Badge */}
             {isLogged && 
+            <div className="d-flex justify-content-center">
               <Badge bg='light' className="p-3 mt-4" style={{color:'black', fontWeight:'normal'}}> 
               {locationType == 'Point' ? ( 
               <> 
@@ -324,20 +402,22 @@ function CardDocument ({document, locationType, latitude, longitude, setShowCard
                 </> 
                 )  
               } 
-              </Badge> 
+              </Badge>
+              </div> 
             } 
-          </div> 
-          <div className="m-1">  
-            <strong style={{fontSize:'16px'}}>Description:</strong> 
-            <Card.Text style={{marginTop:'5px',height: '300px', overflowY: 'auto' , fontSize: '16px' }}>{document?.Description}</Card.Text> 
           </div> 
         </div> 
       </Card.Body> 
-      {isLogged && ( 
-        <Card.Footer className=' text-end' > 
-          <Button variant="secondary" className='btn-document rounded-pill px-3' onClick={handleModifyDocument}>Modify</Button> 
+        <Card.Footer className='d-flex justify-content-between align-items-center' >
+          <div>
+            {viewMode !== 'map' && <Button variant="outline-secondary" size='sm' className='rounded-pill px-2 mx-1' onClick={() => setViewMode('map')}>View on Map</Button>}
+            {viewMode !== 'list' && <Button variant="outline-secondary" size='sm' className='rounded-pill px-2 mx-1' onClick={() => setViewMode('list')}>View on List</Button>}
+            {viewMode !== 'diagram' && <Button variant="outline-secondary" size='sm' className='rounded-pill px-2 mx-1' onClick={() => setViewMode('diagram')}>View on Diagram</Button>}
+          </div> 
+          {isLogged && ( 
+            <Button variant="secondary" className='btn-document rounded-pill px-4' onClick={handleModifyDocument}>Modify</Button> 
+          )} 
         </Card.Footer> 
-      )} 
     </Card> 
   ) 
   );
@@ -348,10 +428,8 @@ CardDocument.propTypes = {
   locationType: PropTypes.string.isRequired,
   latitude: PropTypes.number.isRequired,
   longitude: PropTypes.number.isRequired,
-  setShowCard: PropTypes.func.isRequired,
   setSelectedDocument: PropTypes.func.isRequired,
   isLogged: PropTypes.bool.isRequired,
-  viewMode: PropTypes.string,
   area: PropTypes.string,
   numberofconnections: PropTypes.number, // Ensure this matches the expected type
 };

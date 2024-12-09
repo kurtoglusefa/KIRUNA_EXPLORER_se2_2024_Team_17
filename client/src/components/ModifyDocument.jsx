@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useLocation } from "react-router-dom";
 import {
   Button,
@@ -19,6 +19,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Select from "react-select";
 
 import API from "../API";
+import AppContext from "../AppContext";
 function ModifyDocument() {
   let { documentId } = useParams();
   const navigate = useNavigate();
@@ -26,6 +27,8 @@ function ModifyDocument() {
   const selectedLocation = location.state.location || {};
   const [showAddConnection, setShowAddConnection] = useState(false);
   const [message, setMessage] = useState("");
+  const context = useContext(AppContext);
+  const setNewDocument = context.setSelectedDocument;
 
   console.log("selected location");
   console.log(selectedLocation);
@@ -278,7 +281,6 @@ function ModifyDocument() {
     setShowAddDocumentType(false);
   };
   const addResourcesDocument = async () => {
-    if (addResources.length > 0) {
       try {
         // Send FormData to your API function
         await API.addResourcesToDocument(documentId, addResources);
@@ -287,9 +289,6 @@ function ModifyDocument() {
       } catch (err) {
         setMessage("Error uploading resources:" + err);
       }
-    } else {
-      setMessage("No files selected");
-    }
   };
 
   const handleUpdate = async () => {
@@ -427,7 +426,7 @@ function ModifyDocument() {
         }
       }
 
-      if (addResources) {
+      if (addResources.lenght > 0) {
         try {
           console.log("sto inserendo i file");
           addResourcesDocument();
@@ -435,7 +434,9 @@ function ModifyDocument() {
           console.error(err);
         }
       }
-      setSelectedDocument(null);
+
+      const newDocument = await API.getDocumentById(documentId);
+      setNewDocument(newDocument);
       navigate("/home");
     }
   };
@@ -896,7 +897,7 @@ function ModifyDocument() {
           <Button
             variant="outline-secondary"
             className="mx-2 rounded-pill px-4"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/home')}
           >
             Cancel
           </Button>

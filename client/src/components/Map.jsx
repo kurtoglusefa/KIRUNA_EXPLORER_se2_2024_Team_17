@@ -15,6 +15,7 @@ import geoJsonData from "../assets/kiruna.json"; // If the data is saved in a fi
 import { Rnd } from 'react-rnd'
 import MarkerClusterGroup from "react-leaflet-cluster"
 import PropTypes from 'prop-types';
+
 function MapComponent({ locations, setLocations, locationsArea, documents, setSelectedLocation, propsDocument, selectedLocation, handleDocumentClick, numberofconnections, fetchLocationsArea }) {
   const context = useContext(AppContext);
   const navigate = useNavigate();
@@ -129,9 +130,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
     fetchDocumentTypes();
     setLoading(false);
   }, [documents]);
-  useEffect(()=> {
-    setSelectedDocument(null);
-  },[]);
 
   const handleAreaClick = (area) => {
     setSelectedArea(area);
@@ -403,14 +401,21 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                       }
                       return (
                         <Marker
+                          className='document-icon'
                           key={index+crypto.getRandomValues(array)}
                           position={position}
                           icon={
-                            new L.Icon({
-                              iconUrl: iconPath,
-                              iconSize: [32, 32],
-                              iconAnchor: [16, 32],
-                              popupAnchor: [0, -32],
+                            new L.divIcon({
+                              html: `
+                                <svg class'document-icon' width="40" height="40">
+                                  <circle cx="20" cy="20" r="16" stroke="${(selectedDocument?.IdDocument === document.IdDocument) ? 'darkblue' : ''}" stroke-width='3px' fill="${(selectedDocument?.IdDocument === document.IdDocument) ? '#C1D8F0' : '#dddddd'}" />
+                                  <image href="${iconPath}" x="10" y="10" width="20" height="20" />
+                                </svg>
+                              `,
+                              iconSize: [40, 40],
+                              iconAnchor: [0,0],
+                              popupAnchor: [27, 0],
+                              className: 'document-icon',
                             })
                           }
                           draggable={modifyMode}
@@ -420,10 +425,24 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                                 handleDragEnd(document, e);
                               }
                             },
-                            click: () => handleMarkerClick(document),
+                            click: () => {
+                              handleMarkerClick(document);
+                            },
+                            mouseover: (e) => {
+                              selectedDocument?.IdDocument !== document.IdDocument && e.target.openPopup();
+                            },
+                            mouseout: (e) => { 
+                              selectedDocument?.IdDocument !== document.IdDocument && e.target.closePopup();
+                            }
                           }}
                         >
-                          <Popup>{document.Title}</Popup>
+                          <Popup 
+                             keepInView
+                             closeOnClick={false}
+                             autoClose={false}
+                             open={selectedDocument?.IdDocument === document.IdDocument} // Controlled state
+                              // Close popup if user clicks close button
+                          >{document.Title}</Popup>
                         </Marker>
                       );
                     }
@@ -432,7 +451,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                   </MarkerClusterGroup>
                 </LayerGroup>
               </LayersControl.Overlay>
-              <LayersControl.Overlay name="Area" checked={modifyMode}>
+              <LayersControl.Overlay name="Area" checked={true}>
                 <LayerGroup>
                   {locationsArea &&
                     Object.values(locationsArea).map((area, index) => {
@@ -504,11 +523,17 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                           key={index+crypto.getRandomValues(array)}
                           position={position}
                           icon={
-                            new L.Icon({
-                              iconUrl: iconPath,
-                              iconSize: [32, 32],
-                              iconAnchor: [16, 32],
-                              popupAnchor: [0, -32],
+                            new L.divIcon({
+                              html: `
+                                <svg class'document-icon' width="40" height="40">
+                                  <circle cx="20" cy="20" r="16" stroke="${(selectedDocument?.IdDocument === document.IdDocument) ? 'darkblue' : ''}" stroke-width='3px' fill="${(selectedDocument?.IdDocument === document.IdDocument) ? '#C1D8F0' : '#dddddd'}" />
+                                  <image href="${iconPath}" x="10" y="10" width="20" height="20" />
+                                </svg>
+                              `,
+                              iconSize: [40, 40],
+                              iconAnchor: [0,0],
+                              popupAnchor: [27, 0],
+                              className: 'document-icon',
                             })
                           }
                           draggable={modifyMode}
@@ -518,10 +543,18 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                                 handleDragEnd(document, e);
                               }
                             },
-                            click: () => handleMarkerClick(document),
+                            click: () => {
+                              handleMarkerClick(document);
+                            },
+                            mouseover: (e) => {
+                              selectedDocument?.IdDocument !== document.IdDocument && e.target.openPopup();
+                            },
+                            mouseout: (e) => { 
+                              selectedDocument?.IdDocument !== document.IdDocument && e.target.closePopup();
+                            }
                           }}
                         >
-                          <Popup>{document.Title}</Popup>
+                          <Popup keepInView >{document.Title}</Popup>
                         </Marker>
                       );
                     }
@@ -647,8 +680,8 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                   locationType={locationsArea[selectedMarker?.IdLocation] ? "Area" : "Point"}
                   latitude={locations[selectedMarker?.IdLocation]?.Latitude.toFixed(4)}
                   longitude={locations[selectedMarker?.IdLocation]?.Longitude.toFixed(4)}
-                  setShowCard={setSelectedDocument}
                   setSelectedDocument={setSelectedDocument}
+                  handleMarkerClick={handleMarkerClick}
                   isLogged={isLogged}
                   viewMode='map'
                   numberofconnections={numberofconnections}
@@ -691,11 +724,16 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                       </>
                     ) : (
                       selectedDocument ? (
+                        locationsArea[selectedDocument.IdLocation] ? (
+                          <>
+                          <h6><strong>Area:</strong> {locationsArea[selectedDocument.IdLocation]?.Area_Name}</h6>
+                        </>                          
+                        ) : (
                         <>
                           <h6><strong>Latitude:</strong> {locations[selectedDocument.IdLocation]?.Latitude.toFixed(4)}<br></br>
                             <strong>Longitude:</strong> {locations[selectedDocument.IdLocation]?.Longitude.toFixed(4)}</h6>
                         </>
-
+                        )
                       ) : (
                       <Form.Group>
                         <Form.Label>
@@ -739,7 +777,11 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                       }
                       else {
                         if(selectedDocument) {
-                          navigate(`../documents/create-document`, { state: { location: {lat: locations[selectedDocument.IdLocation]?.Latitude.toFixed(4), lng: locations[selectedDocument.IdLocation]?.Longitude.toFixed(4),type: 'Point' }}, relative: 'path' })
+                          if(locationsArea[selectedDocument.IdLocation]) {
+                            navigate(`../documents/create-document`, { state: { location:{ area: locationsArea[selectedDocument.IdLocation], type: 'Area' }}, relative: 'path' })
+                          } else {
+                            navigate(`../documents/create-document`, { state: { location: {lat: locations[selectedDocument.IdLocation]?.Latitude.toFixed(4), lng: locations[selectedDocument.IdLocation]?.Longitude.toFixed(4),type: 'Point' }}, relative: 'path' })
+                          }
                         }
 
                         navigate(`../documents/create-document`, { state: { location: {lat: selectedLocation.lat.toFixed(4), lng: selectedLocation.lng.toFixed(4),type: 'Point' }}, relative: 'path' })

@@ -82,7 +82,7 @@
 
 .overlay {
   position: fixed;
-  z-index: 1000;
+  z-index: 10;
   box-shadow: #000000 0px 10px 20px 0px;
 }
 
@@ -140,6 +140,19 @@
   min-height: 90vh;
   max-height: 90vh;
   background-color: #eeeeee;
-  z-index: 0;
+  z-index: 50;
   box-shadow: #000000 0px 0px 70px;
+}
+
+.document-icon:hover {
+  stroke: darkblue;
+}
+
+.link {
+  color: blue;
+}
+
+.link:hover {
+  text-decoration: underline;
+  cursor: pointer ;
 }
