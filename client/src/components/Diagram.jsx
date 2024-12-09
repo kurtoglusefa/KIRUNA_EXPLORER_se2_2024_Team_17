@@ -116,10 +116,8 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments,fe
     const monthFraction = (x - 0 - yearDifference * gapx) / gapx; // Remaining part for months and days
     const month = Math.floor(monthFraction * 12) + 1; // Fraction to month (1-12)
   
-    const dayFraction = (monthFraction * 12 - (month - 1)) * 365; // Fraction of the year for the day
-    const day = Math.floor(dayFraction);
   
-    // Format the date string as YYYY-MM
+    // Format the date string as YYYY/MM/DD
     const dateStr = `${String(month).padStart(2, '0')}/${year}`;
     console.log(dateStr);
     return dateStr;
@@ -597,8 +595,9 @@ const fetchDocuments = async () => {
         )
       );
   
-      // Map X to Date and Y to Scale
+      // Map X to Date (check in the same year of doc.Issuance_Date) and Y to Scale
       let x = mapXToDate(node.position.x);
+      
       console.log("Mapped X (Date):", x);
   
       let y = mapYToScale(node.position.y);
@@ -621,23 +620,32 @@ const fetchDocuments = async () => {
       // Find the document to update
       let d = documents.find((doc) => doc.IdDocument === parseInt(node.id));
       console.log("Document found:", d);
-  
+      
       // Call updateDocument API with the new values
-      await API.updateDocument(
-        d.IdDocument,
-        d.Title,
-        d.IdStakeholder,
-        y,  // Updated scale (y)
-        x,  // Mapped date (x)
-        d.Language,
-        d.Pages,
-        d.Description,
-        d.IdType,
-        d.IdLocation
-      );
-      await fetchDocumentsData();
-      await fetchDocuments();
-  
+      if (d.Issuance_Date.substring(0,3) === x.substring(0,3)) {
+        // Call updateDocument API with the new values
+        await API.updateDocument(
+          d.IdDocument,
+          d.Title,
+          d.IdStakeholder,
+          y,  // Updated scale (y)
+          x,  // Mapped date (x)
+          d.Language,
+          d.Pages,
+          d.Description,
+          d.IdType,
+          d.IdLocation
+        );
+        await fetchDocumentsData();
+        await fetchDocuments();
+      } else {
+        alert("You can only move the document in the same year of the document");
+        console.log(d.Issuance_Date.substring(0,3));
+        console.log(x.substring(0,3));
+
+        await fetchDocumentsData();
+        await fetchDocuments();
+      }
     } catch (error) {
       console.error("Error during drag stop:", error);
     }

@@ -17,3 +17,4 @@ ALTER TABLE LOCATION
 ADD COLUMN Area_Name VARCHAR(255);
 
 select * from Document
+delete from Document where IdDocument = 138;
