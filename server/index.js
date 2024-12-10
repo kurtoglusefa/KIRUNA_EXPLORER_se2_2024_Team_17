@@ -106,6 +106,39 @@ const upload = multer({
   },
 });
 
+//// configuring the multer storage for attachments
+const attachmentStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const documentId = req.params.documentId;
+    if (!documentId) {
+      return cb(new Error("Document ID is missing"));
+    }
+
+    const dirPath = path.join(__dirname, "attachments", documentId);
+
+    try {
+      if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
+      }
+      cb(null, dirPath);
+    } catch (err) {
+      console.error("Error creating directory:", err);
+      cb(new Error("Failed to create attachment directory"));
+    }
+  },
+  filename: (req, file, cb) => {
+    const newFilename = `${file.originalname}`;
+    cb(null, newFilename);
+  },
+});
+
+const uploadAttachment = multer({
+  storage: attachmentStorage,
+  limits: {
+    fileSize: 10 * 1024 * 1024 * 10, // Limit to 100MB
+  },
+});
+
 // init express
 const app = new express();
 const port = 3001;
@@ -358,7 +391,9 @@ app.patch("/api/documents/:documentId/connection", async (req, res) => {
   }
 });
 
-// API add file to document
+/////// API add file to document  ////////
+
+///// RESOURCES
 
 // Endpoint to upload a file
 app.post(
@@ -435,6 +470,47 @@ app.get(
 
       res.status(200).json(resources);
     } catch (error) {
+      res.status(500).json({ message: "Server error", error });
+    }
+  }
+);
+
+//// ATTACHMENTS
+
+app.post(
+  "/api/documents/:documentId/attachments",
+  uploadAttachment.array("files", 20),
+  async (req, res) => {
+    console.log(req.body);
+    const documentId = parseInt(req.params.documentId);
+
+    if (!documentId || isNaN(documentId)) {
+      return res.status(400).json({ message: "Invalid document ID" });
+    }
+
+    try {
+      // check if the document really exists
+      const document = await documentDao.getDocumentById(documentId);
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+
+      if (req.files && req.files.length > 0) {
+        res.json({
+          message: "Attachments uploaded successfully!",
+          documentId,
+          files: req.files.map((file) => ({
+            filename: file.originalname,
+            path: file.path,
+          })),
+        });
+      } else {
+        res
+          .status(400)
+          .json({ message: "No files uploaded or upload failed." });
+      }
+    } catch (error) {
+      console.error("Error uploading attachment:", error);
       res.status(500).json({ message: "Server error", error });
     }
   }
