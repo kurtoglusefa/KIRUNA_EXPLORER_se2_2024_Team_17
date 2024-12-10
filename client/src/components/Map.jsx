@@ -31,6 +31,9 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   const [loading, setLoading] = useState(true);
   const offsetDistance = 0.0001; //offset distance between markers
   const mapRef = useRef(null); // To get a reference to the map instance
+  const [showPolygons, setShowPolygons] = useState(true);
+
+  
 
   const [areaCoordinates, setAreaCoordinates] = useState([]);
 
@@ -47,7 +50,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   const crypto = window.crypto || window.msCrypto;
   var array = new Uint32Array(1);
   
-
+ 
   useEffect(() => {
     // Update the window width on resize
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -101,10 +104,15 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
           }
         }
       };
+      const handleZoomEnd = () => {
+        const zoom = map.getZoom();
+        setShowPolygons(zoom >= 11); // Mostra i poligoni solo a zoom >= 12
+      };
 
       // Attach the event listener to the map container
       const mapContainer = map.getContainer();
       mapContainer.addEventListener('wheel', handleWheel);
+      map.on("zoomend", handleZoomEnd); // Ascolta i cambiamenti di zoom
 
       // Cleanup the event listener when component unmounts
       return () => {
@@ -114,7 +122,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
 
     return null; // This component does not render any UI
   }
-
   useEffect(() => {
     setLoading(true);
     const fetchDocumentTypes = async () => {
@@ -341,6 +348,48 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   };
 
 
+  const createClusterAreaCustomIcon = (cluster) => {
+    const count = cluster.getChildCount()-1; // Numero di marker nel cluster
+  
+    return L.divIcon({
+      html: `<div style="
+        background-color: red; 
+        color: white; 
+        border-radius: 50%; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        width: 40px; 
+        height: 40px; 
+        font-size: 14px;
+        border: 2px solid white;">
+          ${count}
+        </div>`,
+      className: "custom-cluster-icon",
+    });
+  };
+
+  const createClusterDocumentCustomIcon = (cluster) => {
+    const count = cluster.getChildCount(); // Numero di marker nel cluster
+  
+    return L.divIcon({
+      html: `<div style="
+        background-color: blue; 
+        color: white; 
+        border-radius: 50%; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        width: 40px; 
+        height: 40px; 
+        font-size: 14px;
+        border: 2px solid white;">
+          ${count}
+        </div>`,
+      className: "custom-cluster-icon",
+    });
+  };
+
   return (
     <>
       {loading == true ? (
@@ -374,9 +423,11 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
             {/* Layers */}
             {isLogged ? (
             <LayersControl position="topright" collapsed={false}>
-              <LayersControl.Overlay name="Documents" checked>
+              <LayersControl.Overlay name="All Documents" checked>
                 <LayerGroup>
-                  <MarkerClusterGroup >
+                  <MarkerClusterGroup 
+                    iconCreateFunction={createClusterDocumentCustomIcon}
+                  >
                   {documents.map((document, index) => {
                     // Determine the location of the document
                     const location =
@@ -451,46 +502,164 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                   </MarkerClusterGroup>
                 </LayerGroup>
               </LayersControl.Overlay>
-              <LayersControl.Overlay name="Area" checked={true}>
+              <LayersControl.Overlay name="Documents belong to municipal area" checked>
                 <LayerGroup>
-                  {locationsArea &&
-                    Object.values(locationsArea).map((area, index) => {
-                      let coordinates;
-                      try {
-                        coordinates = Array.isArray(area.Area_Coordinates)
-                          ? area.Area_Coordinates
-                          : JSON.parse(area.Area_Coordinates);
-                      } catch (error) {
-                        console.error("Error parsing coordinates:", error);
-                        return null; // Skip this area if coordinates are invalid
+                  <MarkerClusterGroup 
+                  iconCreateFunction={createClusterDocumentCustomIcon}
+                  >
+                  {documents.map((document, index) => {
+                    // Determine the location of the document
+                    const location =
+                      locationsArea[document.IdLocation] ||
+                      locations[document.IdLocation];
+                    const offsetIndex = index * offsetDistance;
+                    if (location) {
+                      let position = [];
+                      if (location.Location_Type === "Area" && location.Area_Name === "Municipality of Kiruna") {
+                        position = [
+                          location.Latitude + (index % 2 === 0 ? offsetIndex : -offsetIndex),
+                          location.Longitude + (index % 2 === 0 ? -offsetIndex : offsetIndex),
+                        ]; 
+                      let iconPath;
+                      if (Array.isArray(document.IdStakeholder) && document.IdStakeholder.length > 0) {
+                         iconPath = `src/icon/${document.IdStakeholder[0].Color ? document.IdStakeholder[0].Color : '8A9FA4'}/${documentTypes[document.IdType - 1]?.iconsrc ? documentTypes[document.IdType - 1]?.iconsrc : 'other.svg'}`;
+                      } else {
+                         iconPath = `src/icon/${stakeholders[document.IdStakeholder-1]?.color}/${documentTypes[document.IdType - 1]?.iconsrc}`;
                       }
-
                       return (
-                        <Polygon
-                        key={index+crypto.getRandomValues(array)}
-                          positions={coordinates} // Use the parsed array as positions
-                          pathOptions={{
-                            color: "blue",
-                            fillColor: "blue",
-                            fillOpacity: 0.1,
-                          }}
+                        <Marker
+                          className='document-icon'
+                          key={index+crypto.getRandomValues(array)}
+                          position={position}
+                          icon={
+                            new L.divIcon({
+                              html: `
+                                <svg class'document-icon' width="40" height="40">
+                                  <circle cx="20" cy="20" r="16" stroke="${(selectedDocument?.IdDocument === document.IdDocument) ? 'darkblue' : ''}" stroke-width='3px' fill="${(selectedDocument?.IdDocument === document.IdDocument) ? '#C1D8F0' : '#dddddd'}" />
+                                  <image href="${iconPath}" x="10" y="10" width="20" height="20" />
+                                </svg>
+                              `,
+                              iconSize: [40, 40],
+                              iconAnchor: [0,0],
+                              popupAnchor: [27, 0],
+                              className: 'document-icon',
+                            })
+                          }
+                          draggable={modifyMode}
                           eventHandlers={{
-                            click: () => handleAreaClick(area),
+                            dragend: (e) => {
+                              if (isLogged) {
+                                handleDragEnd(document, e);
+                              }
+                            },
+                            click: () => {
+                              handleMarkerClick(document);
+                            },
+                            mouseover: (e) => {
+                              selectedDocument?.IdDocument !== document.IdDocument && e.target.openPopup();
+                            },
+                            mouseout: (e) => { 
+                              selectedDocument?.IdDocument !== document.IdDocument && e.target.closePopup();
+                            }
                           }}
                         >
-                          <Popup>
-                            {area.Area_Name} <br />
-                            {getNumberOfDocumentsArea(area.IdLocation)} documents
-                          </Popup>
-                        </Polygon>
+                          <Popup 
+                             keepInView
+                             closeOnClick={false}
+                             autoClose={false}
+                             open={selectedDocument?.IdDocument === document.IdDocument} // Controlled state
+                              // Close popup if user clicks close button
+                          >{document.Title}</Popup>
+                        </Marker>
                       );
-                    })}
+                    }
+                  }
+                    return null; // Ensure that the map function returns null if location is not found
+                  })}
+                  </MarkerClusterGroup>
                 </LayerGroup>
+              </LayersControl.Overlay>
+              <LayersControl.Overlay name="Area" checked={true}>
+              <LayerGroup>
+                <MarkerClusterGroup
+                 iconCreateFunction={createClusterAreaCustomIcon}
+                >
+                {locationsArea &&
+                  Object.values(locationsArea).map((area, index) => {
+                    let coordinates;
+                    try {
+                      coordinates = Array.isArray(area.Area_Coordinates)
+                        ? area.Area_Coordinates
+                        : JSON.parse(area.Area_Coordinates);
+                    } catch (error) {
+                      console.error("Error parsing coordinates:", error);
+                      return null;
+                    }
+                    return (
+                      <>
+                        {/*show markers instead of area  */}
+                        {!showPolygons && (
+                          <Marker key={`marker-${index}`} position={[area.Latitude, area.Longitude]}
+                          icon={
+                            new L.divIcon({
+                              html: `
+                                <svg class'document-icon' width="40" height="40">
+                                  <circle cx="20" cy="20" r="16" stroke="${(selectedDocument?.IdDocument === document.IdDocument) ? 'darkblue' : ''}" stroke-width='3px' fill="${(selectedDocument?.IdDocument === document.IdDocument) ? '#C1D8F0' : '#dddddd'}" />
+                                  <image href="src/icon/000000/map-icon.svg" x="10" y="10" width="20" height="20" />
+                                </svg>
+                              `,
+                              iconSize: [40, 40],
+                              iconAnchor: [0,0],
+                              popupAnchor: [27, 0],
+                              className: 'area-icon',
+                            })
+                          }>
+                            <Popup>
+                              {area.Area_Name} <br />
+                              {getNumberOfDocumentsArea(area.IdLocation)} documents
+                            </Popup>
+                          </Marker>
+                        )}
+
+                        {/* show area only if zoom is higher */}
+                        {showPolygons && (
+                          <Polygon
+                            key={crypto.getRandomValues(array)} 
+                            positions={coordinates} 
+                            pathOptions={{
+                              color: "blue",
+                              fillColor: "blue",
+                              fillOpacity: 0.1,
+                            }}
+                            eventHandlers={{
+                              click: (e) => {
+                                handleAreaClick(area); // Update the selected area
+                                const layer = e.target; // Access the clicked polygon's layer
+                                setTimeout(() => {
+                                  layer.openPopup(); // Explicitly open the popup after state update
+                                }, 0); // Delay to ensure the state update completes
+                              },
+                            }}
+                          >
+                            <Popup>
+                              {area.Area_Name} <br />
+                              {getNumberOfDocumentsArea(area.IdLocation)} documents
+                            </Popup>
+                          </Polygon>
+                        )}
+                      </>
+                    );
+                    
+                  })}
+                </MarkerClusterGroup>
+              </LayerGroup>
               </LayersControl.Overlay>
             </LayersControl>
             ) : (
               <LayerGroup>
-                <MarkerClusterGroup>
+                <MarkerClusterGroup
+                  iconCreateFunction={createClusterDocumentCustomIcon}
+                >
                   {documents.map((document, index) => {
                     // Determine the location of the document
                     const location =
@@ -583,7 +752,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                     remove: false
                   }}
                 />
-                {selectedArea && (
+                {selectedArea && selectedArea.Area_Name!= "Municipality of Kiruna" && (
 
                   <Polygon
                     positions={
@@ -596,7 +765,12 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                     fillOpacity={0.6}      // Fill opacity
                     weight={2}
                     key={selectedArea.IdLocation}
-                  />
+                    >
+                      <Popup>
+                              {selectedArea.Area_Name} <br />
+                              {getNumberOfDocumentsArea(selectedArea.IdLocation)} documents
+                            </Popup>
+                    </Polygon>
                 )}
               </FeatureGroup>
             ) : null}
@@ -605,25 +779,33 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
               Object.values(locationsArea).map((area, index) => {
                 if (
                   (selectedArea &&
-                    selectedArea.IdLocation === area.IdLocation) ||
+                    selectedArea.IdLocation === area.IdLocation &&  selectedArea?.Area_Name!= "Municipality of Kiruna" ) ||
                   (selectedMarker &&
-                    selectedMarker.IdLocation === area.IdLocation)
+                    selectedMarker.IdLocation === area.IdLocation && selectedArea?.Area_Name!= "Municipality of Kiruna")
                 ) {
                   // Parse the coordinates string into a proper array
-                  const coordinates = Array.isArray(area.Area_Coordinates)
-                    ? area.Area_Coordinates
-                    : JSON.parse(area.Area_Coordinates); // If Area_Coordinates is a string, parse it
-                  return (
-                    <Polygon
-                      key={index+crypto.getRandomValues(array)}
-                      positions={coordinates} // Use the parsed array as positions
-                      pathOptions={{
-                        color: "blue",
-                        fillColor: "blue",
-                        fillOpacity: 0.1,
-                      }}
-                    />
-                  );
+                  if(area.Area_Coordinates != null && selectedArea?.Area_Name!= "Municipality of Kiruna")
+                  {
+                    const coordinates = Array.isArray(area.Area_Coordinates)
+                      ? area.Area_Coordinates
+                      : JSON.parse(area.Area_Coordinates); // If Area_Coordinates is a string, parse it
+                    return (
+                      <Polygon
+                        key={index+crypto.getRandomValues(array)}
+                        positions={coordinates} // Use the parsed array as positions
+                        pathOptions={{
+                          color: "blue",
+                          fillColor: "blue",
+                          fillOpacity: 0.1,
+                        }}
+                        >
+                        <Popup>
+                              {area.Area_Name} <br />
+                              {getNumberOfDocumentsArea(area.IdLocation)} documents
+                            </Popup>
+                        </Polygon>
+                    );
+                  }
                 }
               })}
             {/* Marker for selected location */}
