@@ -516,6 +516,44 @@ app.post(
   }
 );
 
+app.delete(
+  "/api/documents/:documentId/attachments/:filename",
+  async (req, res) => {
+    try {
+      const documentId = String(req.params.documentId);
+      const filename = req.params.filename;
+      const filePath = path.join(
+        __dirname,
+        "attachments",
+        documentId,
+        filename
+      );
+
+      // checking if the file exists
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ message: "Attachment not found." });
+      }
+
+      // deleting the file
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error("Error deleting file:", err);
+          return res
+            .status(500)
+            .json({ message: "Failed to delete the attachment." });
+        }
+
+        return res
+          .status(200)
+          .json({ message: "Attachment deleted successfully." });
+      });
+    } catch (error) {
+      console.error("Error handling delete request:", error);
+      return res.status(500).json({ message: "An unexpected error occurred." });
+    }
+  }
+);
+
 // API TYPES
 app.get("/api/types", (req, res) => {
   typeDocumentDao
