@@ -148,6 +148,7 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.static("public"));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/attachments", express.static(path.join(__dirname, "attachments")));
 
 // CORS configuration
 const corsOptions = {
