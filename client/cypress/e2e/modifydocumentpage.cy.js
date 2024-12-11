@@ -11,7 +11,7 @@ describe('Add document Flow', () => {
       cy.url().should('include', '/home'); // Adjust if necessary
       cy.get("#tbg-view-mode").click();
     });
-    /*it('should select one document and visualize the document card and update it ', () => {
+    it('should select one document and visualize the document card and update it ', () => {
         cy.get('#document-list')
         .find('#list-group-item') // Find all list items within the ListGroup
         .first() // Select the first item
@@ -51,7 +51,7 @@ describe('Add document Flow', () => {
         .should('be.visible') // Ensure the alert is visible
         .and('contain', 'Please complete all fields to add a document.'); // Adjust the error text as per your application
 
-    });*/
+    });
 
     it('should give add a connection inside the document and save it ', () => {
         cy.get('#document-list')
@@ -63,6 +63,23 @@ describe('Add document Flow', () => {
 
         // add a connection 
         cy.get('#add-connection').click();
+
+        cy.get('#connectionType').select('1');
+
+        cy.get('#documentSearch').type('esempio');
+        cy.wait(500); // Adjust the time as necessary
+        cy.get('#list-document', { timeout: 10000 }) // Wait for the list to render
+        .should('be.visible') // Ensure the list is visible
+        .within(() => {
+            // Look for an item with the specific title
+            cy.contains('esempio').click(); // Replace with actual title
+        });
+
+        cy.get('#save-connection').click();
+
+        cy.get("#connections").contains('esempio');
+
+
     });
 
 

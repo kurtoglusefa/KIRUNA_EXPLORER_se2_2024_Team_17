@@ -657,7 +657,7 @@ function ModifyDocument() {
                   <div className=" d-flex justify-content-between mt-1">
                     <div className="col-7 text-start me-3">
                       {connections.length > 0 ? (
-                        <ListGroup variant="flush" className="mb-2" style={{ fontSize:'12px',maxHeight:'100px', overflowY:'auto'}}>
+                        <ListGroup id="connections" variant="flush" className="mb-2" style={{ fontSize:'12px',maxHeight:'100px', overflowY:'auto'}}>
                           {connections.map((conn, index) => (
                             <ListGroup.Item key={index}>
                               {conn.IdDocument1 == documentId
@@ -954,6 +954,7 @@ function ModifyDocument() {
               value={selectedDocument.Title}
               onChange={handleSearchChange}
               autoComplete="off" // Prevents browser autocomplete
+              id="documentSearch"
             />
 
             {/* Render the dropdown list of suggestions */}
@@ -965,9 +966,11 @@ function ModifyDocument() {
                   zIndex: 1,
                   width: "100%",
                 }}
+                id="list-document"
               >
                 {filteredDocuments.map((doc) => (
                   <ListGroup.Item
+                    
                     key={doc.IdDocument}
                     action
                     onClick={() => handleSelectDocument(doc)}
@@ -983,6 +986,7 @@ function ModifyDocument() {
             <Form.Select
               value={connectionType}
               onChange={(e) => setConnectionType(e.target.value)}
+              id="connectionType"
             >
               <option value="">Select connection type</option>
               {Object.values(typeConnections).map((type) => (
@@ -1004,6 +1008,7 @@ function ModifyDocument() {
             variant=""
             className="btn-document"
             onClick={handleAddConnection}
+            id="save-connection"
           >
             Add Connection
           </Button>
