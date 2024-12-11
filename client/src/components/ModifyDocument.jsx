@@ -96,7 +96,7 @@ function ModifyDocument() {
         const res = await API.getDocumentResources(documentId);
         setResources(res);
       } catch (err) {
-        if (err.response.status === 404) {
+        if (err) {
           setResources([]);
         } else {
           setMessage("Error fetching resources");
@@ -524,6 +524,7 @@ function ModifyDocument() {
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
+                  id="title"
                 />
               </Form.Group>
 
@@ -531,6 +532,7 @@ function ModifyDocument() {
                 <Form.Label as="strong">Scale*</Form.Label>
                 <InputGroup>
                   <Form.Select
+                    id="scale"
                     required
                     value={documentScale ? documentScale.id : 0}
                     style={{ width: "20%" }}
@@ -573,7 +575,7 @@ function ModifyDocument() {
                           variant="outline-secondary"
                           onClick={()=> setShowAddScale(true)}
                           style={{ textAlign: "left" }}
-                          
+                          id ="addScale"
                         >
                           Add New Scale
                         </Button>
@@ -586,6 +588,7 @@ function ModifyDocument() {
                               placeholder='language'
                               value={language}
                               onChange={(e) => setLanguage(e.target.value)}
+                              id="language"
                             >
                               <option>Select Language</option>
                               <option value="English">English</option>
@@ -609,6 +612,7 @@ function ModifyDocument() {
                           <strong className="me-3">Issuance Date</strong>
                           <Form.Control
                             controlid='year' 
+                            id='year'
                             className={formSubmitted && !issuanceDate.year ? "mx-1 blink" : "mx-1"}
                             type='number' 
                             style={{width:'10ch'}}
@@ -685,6 +689,7 @@ function ModifyDocument() {
                         variant="secondary"
                         size="sm"
                         className="rounded-pill"
+                        id="add-connection"
                         onClick={() => setShowAddConnection(true)}
                       >
                         Add Connection
@@ -751,12 +756,13 @@ function ModifyDocument() {
                 <InputGroup className="align-items-center">
                   <Select
                     options={stakeholders.map((stk) => ({
+                      id: `stakeholder-${stk.id}`, // Add a unique id here
                       value: stk.id,
                       label: stk.name,
                     }))}
                     isMulti
                     placeholder="Select Stakeholder"
-                    
+                    id="stakeholders"
                     value={selectedStakeholders}
                     onChange={(selected) => setSelectedStakeholders(selected)}
                     className={formSubmitted && selectedStakeholders <= 0 ? "col-9 blink" : "col-9"}
@@ -765,6 +771,7 @@ function ModifyDocument() {
                     variant="outline-secondary"
                     onClick={() => setShowAddStakeholder(true)}
                     className="rounded-end col"
+                    id="addStakeholder"
                   >
                     Add Stakeholder
                   </Button>
@@ -777,6 +784,7 @@ function ModifyDocument() {
                       value={type.id}
                       onChange={(e) => setType(e.target.value)}
                       className={formSubmitted && !title ? "col-8 blink" : "col-8"}
+                      id="documentType"
                     >
                       <option>Select Document Type</option>
                       {types.map((tp) => (
@@ -789,6 +797,7 @@ function ModifyDocument() {
                     <Button
                       variant="outline-secondary"
                       onClick={() => setShowAddDocumentType(true)}
+                      id="addDocumentType"
                     >
                       Add Document Type
                     </Button>
@@ -802,6 +811,7 @@ function ModifyDocument() {
                     style={{ height: "150px" }}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
+                    id="description"
                   />
                 </Form.Group>
 
@@ -1011,6 +1021,7 @@ function ModifyDocument() {
                 type="text"
                 value={newScale_name}
                 onChange={(e) => setNewScale_name(e.target.value)}
+                id="scale_text"
               />
             </FloatingLabel>
           </Form.Group>
@@ -1033,6 +1044,7 @@ function ModifyDocument() {
                 onChange={(event) => handleNewScaleChange(event.target.value)}
                 className="mt-0 font-size-20"
                 style={{ width: "30%", textAlign: "left" }}
+                id="scale_number"
               />
             </InputGroup>
           </Form.Group>
@@ -1044,7 +1056,7 @@ function ModifyDocument() {
           >
             Cancel
           </Button>
-          <Button variant="" className="btn-document" onClick={handleAddScale}>
+          <Button variant="" id="save_scale" className="btn-document" onClick={handleAddScale}>
             Add Scale
           </Button>
         </Modal.Footer>
@@ -1065,6 +1077,7 @@ function ModifyDocument() {
                 type="text"
                 value={newStakeholder_name}
                 onChange={(e) => setNewStakeholder_name(e.target.value)}
+                id="stakeholder_name"
               />
             </FloatingLabel>
           </Form.Group>
@@ -1080,6 +1093,7 @@ function ModifyDocument() {
             variant=""
             className="btn-document"
             onClick={handleAddStakeholder}
+            id="save_stakeholder"
           >
             Add StakeHolder
           </Button>
@@ -1101,6 +1115,7 @@ function ModifyDocument() {
                 type="text"
                 value={newDocumentType_name}
                 onChange={(e) => setNewDocumentType_name(e.target.value)}
+                id="document_type_name"
               />
             </FloatingLabel>
           </Form.Group>
@@ -1116,6 +1131,7 @@ function ModifyDocument() {
             variant=""
             className="btn-document"
             onClick={handleAddDocumentType}
+            id="save_DocumentType"
           >
             Add Document Type
           </Button>

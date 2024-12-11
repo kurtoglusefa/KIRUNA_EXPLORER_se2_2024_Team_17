@@ -165,6 +165,7 @@ function MyNavbar({ documents, setDocuments }) {
                   name="options"
                   value={viewMode}
                   onChange={handleToggle}
+                  id="tbg-view-mode"
                 >
                   <ToggleButton
                     id="tbg-map"

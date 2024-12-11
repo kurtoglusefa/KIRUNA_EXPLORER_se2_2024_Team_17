@@ -632,12 +632,12 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                               fillOpacity: 0.1,
                             }}
                             eventHandlers={{
-                              click: (e) => {
-                                handleAreaClick(area); // Update the selected area
-                                const layer = e.target; // Access the clicked polygon's layer
-                                setTimeout(() => {
-                                  layer.openPopup(); // Explicitly open the popup after state update
-                                }, 0); // Delay to ensure the state update completes
+                              click: () => {
+                                handleAreaClick(area);
+                              },
+                              mouseover: (e) => {
+                                const layer = e.target;
+                                layer.openPopup();
                               },
                             }}
                           >

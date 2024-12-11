@@ -190,9 +190,10 @@ function Home(props) {
                     ) : (
                       <Card style={{ width: '100%' }}>
                         <Card.Header>Document List</Card.Header>
-                        <ListGroup style={{ maxHeight: '355px', overflowY: 'auto' }}>
+                        <ListGroup style={{ maxHeight: '355px', overflowY: 'auto' }} id="document-list">
                           {props.documents.map((doc, index) => (
                             <ListGroup.Item
+                              id="list-group-item"
                               key={index}
                               onClick={() => handleDocumentClick(doc)}
                               style={{ cursor: 'pointer', fontWeight: selectedDocument?.IdDocument === doc?.IdDocument ? 'bold' : 'normal' }}
