@@ -417,7 +417,7 @@ function CardDocument ({document, locationType, latitude, longitude, handleMarke
             {viewMode !== 'diagram' && <Button variant="outline-secondary" size='sm' className='rounded-pill px-2 mx-1' onClick={() => setViewMode('diagram')}>View on Diagram</Button>}
           </div> 
           {isLogged && ( 
-            <Button variant="secondary" className='btn-document rounded-pill px-4' onClick={handleModifyDocument}>Modify</Button> 
+            <Button id="modify-document" variant="secondary" className='btn-document rounded-pill px-4' onClick={handleModifyDocument}>Modify</Button> 
           )} 
         </Card.Footer> 
     </Card> 

@@ -1,5 +1,5 @@
 import{ useEffect, useState,useContext } from 'react';
-import ReactFlow, { Background, Controls, Handle, ReactFlowProvider, BackgroundVariant } from 'reactflow';
+import ReactFlow, { Background, Handle, ReactFlowProvider, BackgroundVariant } from 'reactflow';
 import 'reactflow/dist/style.css';
 import CardDocument from './CardDocument';
 import AppContext from '../AppContext';
@@ -15,7 +15,7 @@ import {
   ListGroup,
 } from "react-bootstrap";
 
-function Diagram({locations,setLocations,locationsArea,documents,setDocuments,fetchDocumentsData}) {
+function Diagram({locations,locationsArea,documents,fetchDocumentsData}) {
   const selectedDocument = useContext(AppContext).selectedDocument;
   const setSelectedDocument = useContext(AppContext).setSelectedDocument;
   const [numberofconnections, setNumberofconnections] = useState(0);
@@ -49,7 +49,9 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments,fe
   const [filteredDocuments, setFilteredDocuments] = useState([]); // Filtered list of documents for search
   const [selectedDestinationDocument, setSelectedDestinationDocument] = useState(null); // Selected destination document for connection
   const [newConnection, setNewConnection] = useState(false); // New connection object to create
-
+  const [viewport, setViewport] = useState({ x: 0, y: 0 }); // Track viewport position
+  const offsetY = -150; // Offset for the Y position of the nodes
+  const offsetX = 60;
   const updateConnection = async () => {
     
     try {
@@ -100,6 +102,10 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments,fe
     setSelectedDestinationDocument(doc);
     setFilteredDocuments([]); // Clear suggestions after selection
   };
+
+  const handleMove = (e, viewport) => {
+    setViewport(viewport);
+  };
   
   const scaleRanges = {
     Text: { min: -200, max: 0 },
@@ -122,7 +128,6 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments,fe
   
     // Format the date string as YYYY/MM/DD
     const dateStr = `${year}/${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
-    console.log(dateStr);
     return dateStr;
     
   };
@@ -287,8 +292,6 @@ const fetchConnections = async () => {
           data: { offset: offsetObjects[connection.IdDocument1+"-"+connection.IdDocument2]*30 }, // Offset of 100 for upward curve
         };
       });
-      console.log(offsetObjects);
-
       setConnections(res);
       setEdges(edges);
     } catch (err) {
@@ -297,12 +300,9 @@ const fetchConnections = async () => {
 };
 const fetchDocuments = async () => {
   try {
-  
       const startYear = 2000;
-  
       // Define the x-coordinate range
       const minX = 50;  // Top position for the earliest date
-
       const scaleRanges = {
         Text: { min: -200, max: 0 },
         Concept: { min: 0, max: 200 },
@@ -344,7 +344,6 @@ const fetchDocuments = async () => {
 
       const mapDateToX = (dateStr) => {
         const { year, month, day } = parseDate(dateStr);
-        console.log("dateStr",parseDate(dateStr));
         if (!year || isNaN(year)) return minX; // Default to minX if year is invalid
     
         // Calculate the year offset from the start year
@@ -368,7 +367,6 @@ const fetchDocuments = async () => {
       const mapScaleToY = (Idscale) => {
 
         const scale= scales[Idscale]?.scale_text;
-        console.log(scale);
         if(scale === "Text"){
           return scaleRanges.Text.min;
         }
@@ -393,7 +391,6 @@ const fetchDocuments = async () => {
       const nodes = documents.map((doc) => {
         const iconSrc = documentTypes[doc.IdType-1]?.iconsrc || 'other.svg'; // Fallback to a default icon
         const x= mapDateToX(doc.Issuance_Date);
-        console.log("asse x",x);
         const y = mapScaleToY(doc.IdScale);
         return {
           id: doc.IdDocument.toString(), // Ensure `id` is a string
@@ -405,10 +402,8 @@ const fetchDocuments = async () => {
             stakeholder: doc.IdStakeholder,
             id: doc.IdDocument,
           },
-
         };
       });
-
       setNodes(nodes);
     } catch (err) {
       console.error('Error fetching documents:', err);
@@ -489,8 +484,6 @@ const fetchDocuments = async () => {
     setSelectedEdge(null);
   };
   const handleConnect = (params) => {
-   console.log("PARAMS");
-   console.log(params);
    setSelectedDestinationDocument(documents.find((doc) => doc.IdDocument === parseInt(params.target)));
    setSelectedDocument(documents.find((doc) => doc.IdDocument === parseInt(params.source)));
    setShowAddConnection(true);
@@ -501,8 +494,6 @@ const fetchDocuments = async () => {
   const SvgNode = ({ data ,selected }) => {
     if(!data) return null;
     let path="";
-    console.log("quello che passo",data);
-    
     if(data.stakeholder){
       path = `src/icon/${data.stakeholder[0].Color}/${data.iconSrc}`;
     }
@@ -566,7 +557,6 @@ const fetchDocuments = async () => {
   };
 
   const onNodeDrag = (event, node) => {
-    console.log('Node is being dragged', node);
     setNodes((prevNodes) =>
       prevNodes.map((n) =>
         n.id === node.id
@@ -583,49 +573,16 @@ const fetchDocuments = async () => {
   };
   
   const onNodeDragStop = async (event, node) => {
-      console.log('Node is being dragged', node);
-  
-      // Update the position of the dragged node in the state
-      setNodes((prevNodes) =>
-        prevNodes.map((n) =>
-          n.id === node.id
-            ? {
-                ...n,
-                position: {
-                  x: node.position.x,
-                  y: node.position.y,
-                },
-              }
-            : n
-        )
-      );
-      
       // Map X to Date (check in the same year of doc.Issuance_Date) and Y to Scale
-      let x = mapXToDate(node.position.x);
-      
-      console.log("Mapped X (Date):", x);
-  
-      let y = mapYToScale(node.position.y);
-      console.log("Mapped Y (Scale):", y);
-  
-      // If the scale is greater than 4, add a new scale and update `y`
-      if (y > 4) {
-        console.log("Updating scale...");
-        let result = await API.addScale("new scale", "1:" + y);
-        
-        // Ensure the scaleId is returned correctly
-        if (result && result.scaleId) {
-          y = result.scaleId;
-          console.log("Updated scaleId:", y);
-        } else {
-          console.error("Error: API.addScale did not return a valid scaleId.");
-        }
-      }
+      let x = mapXToDate(node.position.x - offsetX +10 );
+      let y = mapYToScale(node.position.y - offsetY);
       try {
       // Find the document to update
         let d = documents.find((doc) => doc.IdDocument === parseInt(node.id));
-        console.log("Document found:", d);
-        
+        if(y>4){
+          // this is an archhitecure plan so not modify the scale but get the last scale
+          y=d.IdScale;
+        }
         // Call updateDocument API with the new values
         if (d.Issuance_Date.substring(0,4) === x.substring(0,4)) {
           // Call updateDocument API with the new values
@@ -641,8 +598,23 @@ const fetchDocuments = async () => {
             d.IdType,
             d.IdLocation
           );
+          // Update the position of the dragged node in the state
+          setNodes((prevNodes) =>
+            prevNodes.map((n) =>
+              n.id === node.id
+                ? {
+                    ...n,
+                    position: {
+                      x: node.position.x,
+                      y: node.position.y,
+                    },
+                  }
+                : n
+            )
+          );
           await fetchDocumentsData();
           await fetchDocuments();
+          
         } else {
           alert("You can only move the document in the same year of the document");
           await fetchDocumentsData();
@@ -662,14 +634,17 @@ const fetchDocuments = async () => {
         {/* Diagram */}
         <ReactFlowProvider>
           <ReactFlow
+            onMove={handleMove} // Track movement of the diagram
             nodes={nodes}
+            zoomOnScroll={false} // Disable zooming with the mouse wheel
+            zoomOnPinch={false}  // Disable pinch zooming on touch devices
+            zoomOnDoubleClick={false} // Disable zooming by double-clicking
+            minZoom={1.0} 
+            maxZoom={1.0}
             snapGrid={[10, 10]}
-            snapToGrid={true}
-            minZoom={0.3} 
-            maxZoom={1.6}
+            snapToGrid={true} 
             edges={edges}
             edgeTypes={edgeTypes} // Use custom edge types
-            fitView={true}
             nodeTypes={{ svgNode: SvgNode }}
             onConnect={handleConnect}
             onNodeClick={handleNodeClick} 
@@ -680,21 +655,77 @@ const fetchDocuments = async () => {
             onNodeMouseLeave={(e) => e.target.style.cursor = 'drag'}
             style={{ background: "#FDFDFD" }}>
             <Background color="lightgray" gap={gapx} variant={BackgroundVariant.Lines} />
-            <Controls  showZoom={false} showInteractive={false} showFitView={true}/>
+             {/* X-Axis */}
+             <svg
+              className="x-axis"
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                width: '100%',
+                height: 30,
+              }}
+            >
+              <line
+                x1="0" // Offset the line start
+                y1="0"
+                x2="calc(100% - 10px)" // Ensure the line doesn't exceed the width
+                y2="0"
+                stroke="black"
+                strokeWidth="2"
+              />
+              {Array.from({ length: 25 }, (_, i) => {
+                if (2000 + i > 2024) return null; // Stop rendering labels after 2024
+                return (
+                  <text
+                    key={i}
+                    x={gapx * i + offsetX + viewport.x } // Apply the offset
+                    y="15"
+                    textAnchor="middle"
+                    fontSize="15"
+                  >
+                    {2000 + i}
+                  </text>
+                );
+              })}
+            </svg>
+            {/* Y-Axis */}
+            <svg width="100%" height="100%">
+            <line x1="0" y1="0" x2="0" y2="100%" stroke="black" strokeWidth="2" />
+            {
+              Object.entries(scaleRanges).map(([key], index) => (
+                    (key === "Blueprints/Effects") ?  <text
+                    key={index}
+                    x={10} // Fixed X position for labels
+                    y={gapx * (index+1)  + viewport.y +offsetY}  // Correct Y position adjustment
+                    style={{ fontSize: 12, fill: 'black' }}
+                >
+                    {key}
+                </text> :
+                <text
+                    key={index}
+                    x={10} // Fixed X position for labels
+                    y={gapx * index  + viewport.y +offsetY}  // Correct Y position adjustment
+                    style={{ fontSize: 12, fill: 'black' }}
+                >
+                    {key}
+                </text>
+            ))}
+            </svg>
           </ReactFlow>
         </ReactFlowProvider>
         {isLogged &&
             <>
               <div className='d-flex mt-2 align-items-center justify-content-between ms-3'>
                 <div className='d-flex align-items-center'>
-                  <Button variant='dark' size='sm' className='rounded-pill mt-2 overlay px-4 btn-document' style={{ left:'3.5%', bottom: '5%' }} onClick={() => {
+                  <Button variant='dark' size='sm' className='rounded-pill mt-2 overlay px-4 btn-document' style={{ left:'3.5%', bottom: '10%' }} onClick={() => {
                     setModifyMode((mode) => !mode)
                   }}>
                     <span className='h6' style={{ fontSize: '16px' }}>{modifyMode ? 'Disable' : 'Enable'} drag document</span>
                   </Button>
 
                   <div>
-                    {modifyMode && <span className='col text-end mx-5 mb-1' style={{ position: 'absolute', zIndex: 1000, textShadow: '#000000 0px 0px 20px', left: '450px', bottom: '5%', color: 'black' }}>Drag  document enabled</span>}
+                    {modifyMode && <span className='col text-end mx-5 mb-1' style={{ position: 'absolute', zIndex: 1000, textShadow: '#000000 0px 0px 20px', left: '450px', bottom: '10%', color: 'black' }}>Drag  document enabled</span>}
                   </div>
                 </div>
               </div>
@@ -702,18 +733,12 @@ const fetchDocuments = async () => {
             </>
           }
       </div>
-    
-      
-    
     </div>
 
     {/* Card Document */}
 
     {selectedDocument && (
-      <div
-        className='document-card overlay col-lg-3 col-md-6 col-sm-9'
-        
-      >
+      <div className='document-card overlay col-lg-3 col-md-6 col-sm-9'>
         <Rnd 
           default={{
             x: 60,
@@ -856,10 +881,9 @@ const fetchDocuments = async () => {
 
 Diagram.propTypes = {
   locations: PropTypes.arrayOf(PropTypes.object).isRequired,
-  setLocations: PropTypes.func.isRequired,
   locationsArea: PropTypes.string.isRequired,
   documents: PropTypes.arrayOf(PropTypes.object).isRequired,
-  setDocuments: PropTypes.func.isRequired,
+  fetchDocumentsData: PropTypes.func.isRequired,
 };
 
 export default Diagram;
