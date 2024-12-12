@@ -554,37 +554,30 @@ app.delete(
     }
   }
 );
-// get attachments for a specific document
-app.get(
-  "/api/documents/:documentId/attachments",
-  async (req, res) => {
-    const documentId = String(req.params.documentId);
-    const dirPath = path.join(__dirname, "attachments", documentId);
+// API to get attachments for a specific document
+app.get("/api/documents/:documentId/attachments", checkDocumentExists, async (req, res) => {
+  const documentId = String(req.params.documentId);
+  const dirPath = path.join(__dirname, "attachments", documentId);
 
-    try {
+  try {
       // Check if the attachments directory exists
       if (!fs.existsSync(dirPath)) {
-        return res
-          .status(404)
-          .json({ message: "No attachments found for this document." });
+          return res.status(404).json({ message: "No attachments found for this document" });
       }
 
-      // Read all files in the directory
+      // Read the files in the directory
       const files = fs.readdirSync(dirPath);
-
-      // Map files to provide details
       const attachments = files.map((file) => ({
-        filename: file,
-        url: `/attachments/${documentId}/${file}`,
+          documentId: Number(documentId),
+          filename: file,
+          url: `/attachments/${documentId}/${file}`, // Construct URL for accessing the attachment
       }));
 
       res.status(200).json(attachments);
-    } catch (error) {
-      console.error("Error fetching attachments:", error);
+  } catch (error) {
       res.status(500).json({ message: "Server error", error });
-    }
   }
-);
+});
 
 // API TYPES
 app.get("/api/types", (req, res) => {
