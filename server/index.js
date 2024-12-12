@@ -106,6 +106,39 @@ const upload = multer({
   },
 });
 
+//// configuring the multer storage for attachments
+const attachmentStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const documentId = req.params.documentId;
+    if (!documentId) {
+      return cb(new Error("Document ID is missing"));
+    }
+
+    const dirPath = path.join(__dirname, "attachments", documentId);
+
+    try {
+      if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
+      }
+      cb(null, dirPath);
+    } catch (err) {
+      console.error("Error creating directory:", err);
+      cb(new Error("Failed to create attachment directory"));
+    }
+  },
+  filename: (req, file, cb) => {
+    const newFilename = `${file.originalname}`;
+    cb(null, newFilename);
+  },
+});
+
+const uploadAttachment = multer({
+  storage: attachmentStorage,
+  limits: {
+    fileSize: 10 * 1024 * 1024 * 10, // Limit to 100MB
+  },
+});
+
 // init express
 const app = new express();
 const port = 3001;
@@ -115,6 +148,7 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.static("public"));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/attachments", express.static(path.join(__dirname, "attachments")));
 
 // CORS configuration
 const corsOptions = {
@@ -358,7 +392,9 @@ app.patch("/api/documents/:documentId/connection", async (req, res) => {
   }
 });
 
-// API add file to document
+/////// API add file to document  ////////
+
+///// RESOURCES
 
 // Endpoint to upload a file
 app.post(
@@ -439,6 +475,136 @@ app.get(
     }
   }
 );
+
+//// ATTACHMENTS
+
+app.post(
+  "/api/documents/:documentId/attachments",
+  uploadAttachment.array("files", 20),
+  async (req, res) => {
+    console.log(req.body);
+    const documentId = parseInt(req.params.documentId);
+
+    if (!documentId || isNaN(documentId)) {
+      return res.status(400).json({ message: "Invalid document ID" });
+    }
+
+    try {
+      // check if the document really exists
+      const document = await documentDao.getDocumentById(documentId);
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+
+      if (req.files && req.files.length > 0) {
+        res.json({
+          message: "Attachments uploaded successfully!",
+          documentId,
+          files: req.files.map((file) => ({
+            filename: file.originalname,
+            path: file.path,
+          })),
+        });
+      } else {
+        res
+          .status(400)
+          .json({ message: "No files uploaded or upload failed." });
+      }
+    } catch (error) {
+      console.error("Error uploading attachment:", error);
+      res.status(500).json({ message: "Server error", error });
+    }
+  }
+);
+
+app.delete(
+  "/api/documents/:documentId/attachments/:filename",
+  async (req, res) => {
+    try {
+      const documentId = String(req.params.documentId);
+      const filename = req.params.filename;
+      const filePath = path.join(
+        __dirname,
+        "attachments",
+        documentId,
+        filename
+      );
+
+      // checking if the file exists
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ message: "Attachment not found." });
+      }
+
+      // deleting the file
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error("Error deleting file:", err);
+          return res
+            .status(500)
+            .json({ message: "Failed to delete the attachment." });
+        }
+
+        return res
+          .status(200)
+          .json({ message: "Attachment deleted successfully." });
+      });
+    } catch (error) {
+      console.error("Error handling delete request:", error);
+      return res.status(500).json({ message: "An unexpected error occurred." });
+    }
+  }
+);
+// API to get attachments for a specific document
+app.get("/api/documents/:documentId/attachments", checkDocumentExists, async (req, res) => {
+  const documentId = String(req.params.documentId);
+  const dirPath = path.join(__dirname, "attachments", documentId);
+
+  try {
+      // Check if the attachments directory exists
+      if (!fs.existsSync(dirPath)) {
+          return res.status(404).json({ message: "No attachments found for this document" });
+      }
+
+      // Read the files in the directory
+      const files = fs.readdirSync(dirPath);
+      const attachments = files.map((file) => ({
+          documentId: Number(documentId),
+          filename: file,
+          url: `/attachments/${documentId}/${file}`, // Construct URL for accessing the attachment
+      }));
+
+      res.status(200).json(attachments);
+  } catch (error) {
+      res.status(500).json({ message: "Server error", error });
+  }
+});
+// GET /api/documents/filter?keyword=<keyword>
+app.get("/api/documents/filter", async (req, res) => {
+  const keyword = req.query.keyword;
+
+  if (!keyword || keyword.trim() === "") {
+      return res.status(400).json({ error: "Keyword is required for filtering" });
+  }
+
+  try {
+      // Retrieve all documents using the existing DAO method
+      const documents = await documentDao.getDocuments();
+
+      // Filter documents based on the keyword in the description
+      const filteredDocuments = documents.filter((doc) =>
+          doc.Description && doc.Description.toLowerCase().includes(keyword.toLowerCase())
+      );
+
+      if (filteredDocuments.length === 0) {
+          return res.status(404).json({ message: "No documents found matching the keyword" });
+      }
+
+      res.status(200).json(filteredDocuments);
+  } catch (error) {
+      console.error("Error filtering documents:", error);
+      res.status(500).json({ error: "Server error" });
+  }
+});
 
 // API TYPES
 app.get("/api/types", (req, res) => {
