@@ -578,6 +578,33 @@ app.get("/api/documents/:documentId/attachments", checkDocumentExists, async (re
       res.status(500).json({ message: "Server error", error });
   }
 });
+// GET /api/documents/filter?keyword=<keyword>
+app.get("/api/documents/filter", async (req, res) => {
+  const keyword = req.query.keyword;
+
+  if (!keyword || keyword.trim() === "") {
+      return res.status(400).json({ error: "Keyword is required for filtering" });
+  }
+
+  try {
+      // Retrieve all documents using the existing DAO method
+      const documents = await documentDao.getDocuments();
+
+      // Filter documents based on the keyword in the description
+      const filteredDocuments = documents.filter((doc) =>
+          doc.Description && doc.Description.toLowerCase().includes(keyword.toLowerCase())
+      );
+
+      if (filteredDocuments.length === 0) {
+          return res.status(404).json({ message: "No documents found matching the keyword" });
+      }
+
+      res.status(200).json(filteredDocuments);
+  } catch (error) {
+      console.error("Error filtering documents:", error);
+      res.status(500).json({ error: "Server error" });
+  }
+});
 
 // API TYPES
 app.get("/api/types", (req, res) => {
