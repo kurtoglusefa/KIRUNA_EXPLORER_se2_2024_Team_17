@@ -87,8 +87,8 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
         let area = locationsArea[document.IdLocation];
         area = Array.isArray(area.Area_Coordinates) ? area.Area_Coordinates : JSON.parse(area.Area_Coordinates);
         setMultipleAreas((oldAreas) => {
-          console.log(oldAreas);
           console.log(area);
+          area.push(area[0]);
           return [...oldAreas, area];
         });  
       }
@@ -102,24 +102,24 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
     }
 
     try {
-      // Convert each area into a valid GeoJSON polygon
-      const geoJsonPolygons = multipleAreas.map((coords) => ({
-        type: 'Feature',
-        geometry: {
-          type: 'Polygon',
-          coordinates: [coords], // Ensure the coordinates are in GeoJSON format
-        },
-      }));
-      
-      
-      // Perform the union operation
-      const unionPolygon = geoJsonPolygons.reduce((acc, polygon) => {
-        if (!acc) return polygon; // Initialize with the first polygon
-        return turf.union(acc, polygon); // Perform the union
-      }, null);
-      console.log('useEffect called');
-      console.log(unionPolygon);
-      setUnionPolygon(unionPolygon);
+      if(multipleAreas.length >=2) {
+        console.log('Area che mi arrivano');
+        console.log(multipleAreas);
+        console.log(multipleAreas.length);
+        // Convert each area into a valid GeoJSON polygon
+        const geoJsonPolygons = multipleAreas.map((coords) => (
+           turf.polygon([coords])
+        ));
+
+        console.log('geoJsonPolygons');
+        console.log(geoJsonPolygons);
+        // Perform the union operation
+        let unionPolygon = turf.multiPolygon(geoJsonPolygons.map((polygon) => polygon.geometry.coordinates));
+        console.log("Union Polygon:", unionPolygon);
+        // Set the union polygon in state
+        setUnionPolygon(unionPolygon);
+
+      }
     } catch (error) {
       console.error('Error creating union polygon:', error );
     }
@@ -686,11 +686,12 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
 
             {multipleDocMode && unionPolygon && 
               <GeoJSON                       
-                data={unionPolygon.geometry.coordinates[0]} // Use the parsed array as positions
+                data={unionPolygon} // Use the parsed array as positions
                 style={{
-                  color: "blue",
+                  color: "red",
                   fillColor: "green",
                   fillOpacity: 0.2,
+                  weight: 1000
                 }}
               /> 
             }
