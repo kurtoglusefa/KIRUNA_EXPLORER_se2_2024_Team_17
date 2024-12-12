@@ -28,16 +28,11 @@ function CardDocument ({document, locationType, latitude, longitude, handleMarke
     } else {
         iconPath = `src/icon/${stakeholders[document?.IdStakeholder-1]?.color}/${documentTypes[document?.IdType - 1]?.iconsrc}`;
     }
-    console.log(documents);
-    console.log(document);
-    console.log(stakeholders);
-    console.log(iconPath);
     return iconPath;
   };
 
   const handleConnectedDocument = async (id) => {
     const doc = await API.getDocumentById(id);
-    console.log(doc);
     const stakeholders = await API.getStakeholderByDocumentId(doc.IdDocument);
     handleMarkerClick({...doc, IdStakeholder: stakeholders});
   };
@@ -69,7 +64,6 @@ function CardDocument ({document, locationType, latitude, longitude, handleMarke
           setResource(res);
           setLoading(false);
       } catch (err) {
-        console.log(err);
         if(err === 404) {
           setResource([]);
         } else {
@@ -89,10 +83,7 @@ function CardDocument ({document, locationType, latitude, longitude, handleMarke
     }; 
     const getAllTypeConnections = async () => {
       try { 
-        console.log("get all type connections"); 
         const res = await API.getAllTypeConnections(); 
-        console.log(res); 
- 
         const typeConnectionId = res.reduce((acc, conn) => { 
           acc[conn.IdConnection] = conn; 
           return acc; 
@@ -120,8 +111,6 @@ function CardDocument ({document, locationType, latitude, longitude, handleMarke
     const fetchDocumentConnections = async () => {
       try { 
         const res = await API.getDocumentConnection(document.IdDocument); 
-        console.log("Document connections"); 
-        console.log(res); 
         setConnections(res);
         setLoading(false); 
       } 
@@ -149,11 +138,9 @@ function CardDocument ({document, locationType, latitude, longitude, handleMarke
  
   const handleModifyDocument = () => {
     if (document) {
-      console.log(locationType);
       navigate(`/documents/modify-document/${document.IdDocument}`, { state: { document: document , location: (locationType=="Point") ? {lat: latitude, lng: longitude,type:locationType} : {area: area,type:locationType}, type:locationType } });
     }
   };
-  console.log(document);
   
   return (
     loading ? (

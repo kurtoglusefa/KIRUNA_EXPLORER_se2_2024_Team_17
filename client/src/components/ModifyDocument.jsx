@@ -30,8 +30,6 @@ function ModifyDocument() {
   const context = useContext(AppContext);
   const setNewDocument = context.setSelectedDocument;
 
-  console.log("selected location");
-  console.log(selectedLocation);
 
 
   // document fields
@@ -106,7 +104,6 @@ function ModifyDocument() {
     const fetchStakeholdersbyDocumentId = async (id) => {
       try {
         const res = await API.getStakeholderByDocumentId(id);
-        console.log(res);
         setSelectedStakeholders(
           res.map((stk) => ({ value: stk.IdStakeholder, label: stk.Name }))
         );
@@ -198,9 +195,7 @@ function ModifyDocument() {
     };
     const getAllTypeConnections = async () => {
       try {
-        console.log("get all type connections");
         const res = await API.getAllTypeConnections();
-        console.log(res);
 
         const typeConnectionId = res.reduce((acc, conn) => {
           acc[conn.IdConnection] = conn;
@@ -222,7 +217,6 @@ function ModifyDocument() {
     const getAllScales = async () => {
       try {
         const res = await API.getScales();
-        console.log(res);
         setScales(res);
       } catch (err) {
         console.error(err);
@@ -242,7 +236,6 @@ function ModifyDocument() {
 
   const handleDeleteResource = async (resource) => {
     try {
-      console.log(resource);
       await API.deleteResource(resource);
       const res = await API.getDocumentResources(documentId);
       setResources(res);
@@ -251,9 +244,7 @@ function ModifyDocument() {
     }
   };
   const handleTypeScaleChange = (selectedId) => {
-    console.log("ho cambiato");
     const selectedScale = scales.find((scale) => scale.id == selectedId);
-    console.log(selectedScale); // Now you have the full object
     setDocumentScale(selectedScale);
     setOldScale_number(selectedScale.scale_number.split(":")[1]);
   };
@@ -273,7 +264,6 @@ function ModifyDocument() {
 
   const handleAddDocumentType = async () => {
     // here call api to add a document type
-    console.log(newDocumentType_name);
     await API.createTypeDocument(newDocumentType_name,'other.svg');
     const res = await API.getAllTypesDocument();
     setTypes(res);
@@ -292,7 +282,6 @@ function ModifyDocument() {
   };
 
   const handleUpdate = async () => {
-    console.log("sto aggiornando");
     setFormSubmitted(true);
     if (
       !title ||
@@ -385,9 +374,6 @@ function ModifyDocument() {
         }
         
     } else {
-        console.log("sto inserendo");
-        console.log(selectedStakeholders);
-        console.log(selectedLocation);
         if ( locationType === "Point" && latitude && longitude) {
           // insert the document which is a point
           //check to be here the type of the document BEACYSE MUST BE NOT NULL
@@ -420,7 +406,6 @@ function ModifyDocument() {
             type,
             selectedArea.IdLocation
           );
-          console.log(result);
           result = await result.idDocument;
           documentId = result;
         }
@@ -428,7 +413,6 @@ function ModifyDocument() {
 
       if (addResources.lenght > 0) {
         try {
-          console.log("sto inserendo i file");
           addResourcesDocument();
         } catch (err) {
           console.error(err);
@@ -482,13 +466,10 @@ function ModifyDocument() {
     setFilteredDocuments([]); // Clear suggestions after selection
   };
   const handleNewScaleChange = (value) => {
-    console.log("new scale");
-    console.log(value);
     setNewScale_number(`1:${value}`);
   };
   const handleAddStakeholder = async () => {
     //here call api to add a scale
-    console.log(newStakeholder_name);
     await API.addStakeholder(newStakeholder_name);
     // after we insert the stakeholder we have to update the list of stakeholders
     const res = await API.getAllStakeholders();

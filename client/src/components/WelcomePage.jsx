@@ -25,11 +25,9 @@ const WelcomePage = () => {
                 <div className='welcome-message-button'>
                   <Button variant='light' className=' mb-1 mt-5 mx-2 rounded-pill px-5 py-3' onClick={() => {setViewMode('map'); navigate('/home')}}>
                     <h4>Explore the <span style={{color:'#E63946'}}>Map</span>!</h4>
-                    <div className="popup-message">Discover the journey of relocating Kiruna city.</div>
                   </Button>
                   <Button variant='light' className=' mb-1 mt-5 mx-2 rounded-pill px-5 py-3' onClick={() => {setViewMode('diagram'); navigate('/home')}}>
                     <h4>Explore the <span style={{color:'#2A9D8F'}}>Diagram</span>!</h4>
-                    <div className="popup-message">Discover the journey of relocating Kiruna city.</div>
                   </Button>
                 </div>
             </div>

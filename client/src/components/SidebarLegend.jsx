@@ -16,7 +16,7 @@ function SidebarLegend () {
           className="bi bi-info-circle-fill h2 info-button" 
           onClick={() => setInfoOpened(!infoOpened)} 
           style={{color:'FDFDFD'}} 
-          onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'} 
+          onMouseEnter={(e) => e.target.style.transform = 'scale(0.9)'} 
           onMouseLeave={(e) => e.target.style.transform = 'scale(1)'} 
           onFocus={ () => {} } 
           onKeyDown={() => {}} 

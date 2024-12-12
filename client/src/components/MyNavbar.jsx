@@ -56,10 +56,8 @@ function MyNavbar({ documents, setDocuments }) {
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    console.log("Search term:", searchTerm); // for debugging
     if (searchTerm.trim() !== "" || stakeholder || issuanceYear || typeDocument) {
       const allDocuments = await API.getAllDocuments(); // fetch all documents
-      console.log("Fetched documents:", allDocuments); // for debugging
 
       // filter documents safely
       let filteredResults = allDocuments.filter((doc) => {
@@ -68,13 +66,11 @@ function MyNavbar({ documents, setDocuments }) {
           title.toLowerCase().includes(searchTerm.toLowerCase())
         );
       });
-      console.log("Filtered results:", stakeholder); // for debugging
       //filter by stakeholder
       if (stakeholder) {
         const filteredResultsStakeholder = await Promise.all(
           filteredResults.map(async (doc) => {
             const stakeholders = await fetchStakeholdersbyDocumentId(doc.IdDocument);
-            console.log("Stakeholders:", stakeholders); // for debugging
             if (stakeholders.some((stk) => stk.IdStakeholder == stakeholder)) {
               return doc;
             }
@@ -84,7 +80,6 @@ function MyNavbar({ documents, setDocuments }) {
         filteredResults = filteredResultsStakeholder.filter((doc) => doc !== null);
       }
       if (issuanceYear) {
-        console.log("Filtering by issuance year:", issuanceYear); // for debugging
         const filteredResultsYear = filteredResults.filter((doc) => {
           // Extract the year from IssuanceYear, assuming it's in a date format (e.g., '2024/04/31')
           const docYear = new Date(doc.Issuance_Date).getFullYear(); // Safely extract the year
@@ -93,8 +88,6 @@ function MyNavbar({ documents, setDocuments }) {
         filteredResults = filteredResultsYear; // Update filtered results
       }
       if(typeDocument) {
-        console.log("Filtering by type of document:", typeDocument); // for debugging
-        console.log("Filtered results:", filteredResults); // for debugging
         const filteredResultsType = filteredResults.filter((doc) => {
           return doc.IdType == typeDocument;
         });
@@ -106,7 +99,6 @@ function MyNavbar({ documents, setDocuments }) {
           return { ...doc, IdStakeholder: stakeholders };
         })
       );
-      console.log("Filtered results:", filteredResults); // for debugging
       setDocuments(filteredResults); // store the filtered results
       if (filteredResults.length === 1) {
         setSelectedDocument(filteredResults[0]);
@@ -114,8 +106,6 @@ function MyNavbar({ documents, setDocuments }) {
       else {
         setSelectedDocument(null);
       }
-      console.log("documents:",filteredResults); // for debugging
-      console.log(`Search results for "${searchTerm}":`, filteredResults);
 
     }
     else {
@@ -152,7 +142,7 @@ function MyNavbar({ documents, setDocuments }) {
                   cursor: 'pointer',
                   transition: 'background-color 0.3s, transform 0.2s',
                 }}
-                onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'}
+                onMouseEnter={(e) => e.target.style.transform = 'scale(0.9)'}
                 onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
               />
           </Navbar.Brand>

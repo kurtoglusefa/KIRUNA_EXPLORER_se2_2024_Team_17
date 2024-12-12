@@ -122,7 +122,6 @@ function Diagram({locations,setLocations,locationsArea,documents,setDocuments,fe
   
     // Format the date string as YYYY/MM/DD
     const dateStr = `${year}/${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
-    console.log(dateStr);
     return dateStr;
     
   };
@@ -287,7 +286,6 @@ const fetchConnections = async () => {
           data: { offset: offsetObjects[connection.IdDocument1+"-"+connection.IdDocument2]*30 }, // Offset of 100 for upward curve
         };
       });
-      console.log(offsetObjects);
 
       setConnections(res);
       setEdges(edges);
@@ -344,7 +342,6 @@ const fetchDocuments = async () => {
 
       const mapDateToX = (dateStr) => {
         const { year, month, day } = parseDate(dateStr);
-        console.log("dateStr",parseDate(dateStr));
         if (!year || isNaN(year)) return minX; // Default to minX if year is invalid
     
         // Calculate the year offset from the start year
@@ -368,7 +365,6 @@ const fetchDocuments = async () => {
       const mapScaleToY = (Idscale) => {
 
         const scale= scales[Idscale]?.scale_text;
-        console.log(scale);
         if(scale === "Text"){
           return scaleRanges.Text.min;
         }
@@ -393,7 +389,6 @@ const fetchDocuments = async () => {
       const nodes = documents.map((doc) => {
         const iconSrc = documentTypes[doc.IdType-1]?.iconsrc || 'other.svg'; // Fallback to a default icon
         const x= mapDateToX(doc.Issuance_Date);
-        console.log("asse x",x);
         const y = mapScaleToY(doc.IdScale);
         return {
           id: doc.IdDocument.toString(), // Ensure `id` is a string
@@ -489,8 +484,6 @@ const fetchDocuments = async () => {
     setSelectedEdge(null);
   };
   const handleConnect = (params) => {
-   console.log("PARAMS");
-   console.log(params);
    setSelectedDestinationDocument(documents.find((doc) => doc.IdDocument === parseInt(params.target)));
    setSelectedDocument(documents.find((doc) => doc.IdDocument === parseInt(params.source)));
    setShowAddConnection(true);
@@ -501,7 +494,6 @@ const fetchDocuments = async () => {
   const SvgNode = ({ data ,selected }) => {
     if(!data) return null;
     let path="";
-    console.log("quello che passo",data);
     
     if(data.stakeholder){
       path = `src/icon/${data.stakeholder[0].Color}/${data.iconSrc}`;
@@ -566,7 +558,6 @@ const fetchDocuments = async () => {
   };
 
   const onNodeDrag = (event, node) => {
-    console.log('Node is being dragged', node);
     setNodes((prevNodes) =>
       prevNodes.map((n) =>
         n.id === node.id
@@ -583,7 +574,6 @@ const fetchDocuments = async () => {
   };
   
   const onNodeDragStop = async (event, node) => {
-      console.log('Node is being dragged', node);
   
       // Update the position of the dragged node in the state
       setNodes((prevNodes) =>
@@ -603,20 +593,16 @@ const fetchDocuments = async () => {
       // Map X to Date (check in the same year of doc.Issuance_Date) and Y to Scale
       let x = mapXToDate(node.position.x);
       
-      console.log("Mapped X (Date):", x);
   
       let y = mapYToScale(node.position.y);
-      console.log("Mapped Y (Scale):", y);
   
       // If the scale is greater than 4, add a new scale and update `y`
       if (y > 4) {
-        console.log("Updating scale...");
         let result = await API.addScale("new scale", "1:" + y);
         
         // Ensure the scaleId is returned correctly
         if (result && result.scaleId) {
           y = result.scaleId;
-          console.log("Updated scaleId:", y);
         } else {
           console.error("Error: API.addScale did not return a valid scaleId.");
         }
@@ -624,7 +610,6 @@ const fetchDocuments = async () => {
       try {
       // Find the document to update
         let d = documents.find((doc) => doc.IdDocument === parseInt(node.id));
-        console.log("Document found:", d);
         
         // Call updateDocument API with the new values
         if (d.Issuance_Date.substring(0,4) === x.substring(0,4)) {
