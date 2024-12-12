@@ -292,7 +292,6 @@ function ModifyDocument() {
   };
 
   const handleUpdate = async () => {
-    console.log("sto aggiornando");
     setFormSubmitted(true);
     if (
       !title ||
@@ -439,6 +438,7 @@ function ModifyDocument() {
       const stakeholders = await API.getStakeholderByDocumentId(documentId);
 
       setNewDocument({...newDocument,IdStakeholder: stakeholders});
+      
       navigate("/home");
     }
   };

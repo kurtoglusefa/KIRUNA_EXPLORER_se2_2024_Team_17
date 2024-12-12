@@ -234,7 +234,7 @@ function Home(props) {
               <Spinner animation="border" variant="primary" />
             ) : (
               <div>
-                <Diagram locations={locations} setLocations={setLocations} locationsArea={locationsArea} documents={props.documents} setDocuments={props.setDocuments} selectedDocument={selectedDocument} setSelectedDocument={setSelectedDocument} fetchDocumentsData={fetchDocuments}/>
+                <Diagram locations={locations}  locationsArea={locationsArea} documents={props.documents}  fetchDocumentsData={fetchDocuments}/>
               </div>
             )
           ) : null
