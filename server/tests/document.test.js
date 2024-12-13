@@ -102,8 +102,6 @@ describe("Document API with Session Authentication", () => {
 
     const retrieveResponse = await agent.get(`/api/documents/${documentId}`);
     expect(retrieveResponse.status).toBe(200);
-
-    console.log(retrieveResponse.body);
     expect(retrieveResponse.body).toMatchObject({
       IdDocument: documentId,
       Title: "Updated Sample Title",
@@ -251,7 +249,7 @@ describe("Get All Document Areas API", () => {
     expect(response.body).toHaveProperty("error", "Internal server error");
   });
 });
-describe("File Upload API", () => {
+describe("Resources API", () => {
   let agent;
   beforeAll(async () => {
     agent = request.agent(app);
@@ -274,6 +272,13 @@ describe("File Upload API", () => {
     expect(response.status).toBe(200);
     expect(response.body.message).toBe("Files uploaded successfully!");
     expect(response.body.documentId).toBe(documentId);
+  });
+
+  it("should return the list of files for a document", async () => {
+    const response = await agent.get(`/api/documents/${documentId}/resources`);
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body.length).toBe(2);
   });
 
   it("should delete a file successfully", async () => {
@@ -319,5 +324,34 @@ describe("File Upload API", () => {
 
     expect(response.status).toBe(500);
     expect(response.body.message).toBe("Failed to delete the file.");
+  });
+});
+describe("Attachment API", () => {
+  let agent;
+  beforeAll(async () => {
+    agent = request.agent(app);
+
+    const loginResponse = await agent.post("/api/sessions").send({
+      username: "mario@test.it",
+      password: process.env.TEST_USER_PASSWORD,
+    });
+    expect(loginResponse.status).toBe(200);
+  });
+  it("should upload a attachment successfully", async () => {
+    // Perform the file upload request
+    const response = await agent
+      .post("/api/documents/" + documentId + "/attachments")
+      .attach("files", path.resolve(__dirname, "mock_file/testfile.txt"))
+      .attach("files", path.resolve(__dirname, "mock_file/test2file.txt"))
+      .set("Content-Type", "multipart/form-data");
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe("Attachments uploaded successfully!");
+      expect(response.body.documentId).toBe(documentId);
+  });
+  it("should return the list of attachments for a document", async () => {
+    const response = await agent.get(`/api/documents/${documentId}/attachments`);
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body.length).toBe(2);
   });
 });

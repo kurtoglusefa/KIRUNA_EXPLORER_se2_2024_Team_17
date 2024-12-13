@@ -413,7 +413,7 @@ function ModifyDocument() {
 
       if (addResources.lenght > 0) {
         try {
-          addResourcesDocument();
+          await addResourcesDocument();
         } catch (err) {
           console.error(err);
         }

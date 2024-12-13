@@ -5,7 +5,7 @@ import 'react-tooltip/dist/react-tooltip.css'
 import { Button, Card, Form, Spinner, Modal } from "react-bootstrap"; // Importing required components
 import {useNavigate } from "react-router-dom";
 import AppContext from '../AppContext';
-import L, { geoJSON } from 'leaflet';
+import L from 'leaflet';
 import API from '../API';
 import '../App.css';
 import CardDocument from './CardDocument';
@@ -17,7 +17,6 @@ import { Rnd } from 'react-rnd'
 import MarkerClusterGroup from "react-leaflet-cluster"
 import PropTypes from 'prop-types';
 import {Tooltip} from 'react-tooltip';
-import geojsonhint from 'geojsonhint';
 
 function MapComponent({ locations, setLocations, locationsArea, documents, setSelectedLocation, propsDocument, selectedLocation, handleDocumentClick, numberofconnections, fetchLocationsArea }) {
   const context = useContext(AppContext);
@@ -39,7 +38,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   const [multipleDocMode, setMultipleDocMode] = useState(false);
   const [multipleDocuments, setMultipleDocuments] = useState([]);
   const [multipleAreas, setMultipleAreas] = useState([]);
-  const [unionPolygon, setUnionPolygon] = useState(null);
   const [showPolygons, setShowPolygons] = useState(true);
 
   
@@ -155,7 +153,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
       };
       const handleZoomEnd = () => {
         const zoom = map.getZoom();
-        setShowPolygons(zoom >= 11); // Mostra i poligoni solo a zoom >= 12
+        setShowPolygons(zoom >= 15); // Mostra i poligoni solo a zoom >= 12
       };
 
       // Attach the event listener to the map container
@@ -395,10 +393,8 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
 
     return null;
   };
-
-
   const createClusterAreaCustomIcon = (cluster) => {
-    const count = cluster.getChildCount()-1; // Numero di marker nel cluster
+    const count = cluster.getChildCount(); // Number of marker areas in the cluster
   
     return L.divIcon({
       html: `<div style="
@@ -470,7 +466,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
             <ZoomControl position="topleft" />
             <CenterMapControl />
             {/* Layers */}
-            {isLogged ? (
             <LayersControl position="topright" collapsed={false}>
               <LayersControl.Overlay name="All Documents" checked>
                 <LayerGroup>
@@ -680,31 +675,36 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                       console.error("Error parsing coordinates:", error);
                       return null;
                     }
-                    return (
-                      <>
-                        {/*show markers instead of area  */}
-                        {!showPolygons && (
-                          <Marker key={`marker-${index}`} position={[area.Latitude, area.Longitude]}
-                          icon={
-                            new L.divIcon({
-                              html: `
-                                <svg class'document-icon' width="40" height="40">
-                                  <circle cx="20" cy="20" r="16" stroke="${(selectedDocument?.IdDocument === document.IdDocument) ? 'darkblue' : ''}" stroke-width='3px' fill="${(selectedDocument?.IdDocument === document.IdDocument) ? '#C1D8F0' : '#dddddd'}" />
-                                  <image href="src/icon/000000/map-icon.svg" x="10" y="10" width="20" height="20" />
-                                </svg>
-                              `,
-                              iconSize: [40, 40],
-                              iconAnchor: [0,0],
-                              popupAnchor: [27, 0],
-                              className: 'area-icon',
-                            })
-                          }>
-                            <Popup>
-                              {area.Area_Name} <br />
-                              {getNumberOfDocumentsArea(area.IdLocation)} documents
-                            </Popup>
-                          </Marker>
-                        )}
+                    if(area.Area_Name === "Municipality of Kiruna") {
+                      return null;
+                    }
+                    else
+                    {
+                      return (
+                        <>
+                          {/*show markers instead of area  */}
+                          {!showPolygons && (
+                            <Marker key={`marker-${index}`} position={[area.Latitude, area.Longitude]}
+                            icon={
+                              new L.divIcon({
+                                html: `
+                                  <svg class'document-icon' width="40" height="40">
+                                    <circle cx="20" cy="20" r="16" stroke="${(selectedDocument?.IdDocument === document.IdDocument) ? 'darkblue' : ''}" stroke-width='3px' fill="${(selectedDocument?.IdDocument === document.IdDocument) ? '#C1D8F0' : '#dddddd'}" />
+                                    <image href="src/icon/000000/map-icon.svg" x="10" y="10" width="20" height="20" />
+                                  </svg>
+                                `,
+                                iconSize: [40, 40],
+                                iconAnchor: [0,0],
+                                popupAnchor: [27, 0],
+                                className: 'area-icon',
+                              })
+                            }>
+                              <Popup>
+                                {area.Area_Name} <br />
+                                {getNumberOfDocumentsArea(area.IdLocation)} documents
+                              </Popup>
+                            </Marker>
+                          )}
 
                         {/* show area only if zoom is higher */}
                         {showPolygons && (
@@ -725,12 +725,9 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                                 const layer = e.target;
                                 layer.openPopup();
                               },
-                            mouseover: (e) => {
-                              e.target.openPopup();
-                            },
-                            mouseout: (e) => {
-                              e.target.closePopup();
-                            },
+                              mouseout: (e) => {
+                                e.target.closePopup();
+                              },
                             }}
                           >
                             <Popup>
@@ -741,107 +738,13 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                         )}
                       </>
                     );
+                  }
                     
                   })}
                 </MarkerClusterGroup>
               </LayerGroup>
               </LayersControl.Overlay>
             </LayersControl>
-            ) : (
-              <LayerGroup>
-                <MarkerClusterGroup
-                  iconCreateFunction={createClusterDocumentCustomIcon}
-                >
-                  {documents.map((document, index) => {
-                    // Determine the location of the document
-                    const location =
-                      locationsArea[document.IdLocation] ||
-                      locations[document.IdLocation];
-                    const offsetIndex = index * offsetDistance;
-
-                    if (location) {
-                      let position = [];
-                      if (location.Location_Type === "Point") {
-                        position = [location.Latitude, location.Longitude];
-                      } else {
-                        position = [
-                          location.Latitude + (index % 2 === 0 ? offsetIndex : -offsetIndex),
-                          location.Longitude + (index % 2 === 0 ? -offsetIndex : offsetIndex),
-                        ];
-                      }
-
-
-                      let iconPath;
-                      if (Array.isArray(document.IdStakeholder) && document.IdStakeholder.length > 0) {
-                         iconPath = `src/icon/${document.IdStakeholder[0].Color}/${documentTypes[document.IdType - 1]?.iconsrc}`;
-                      } else {
-                         iconPath = `src/icon/${stakeholders[document.IdStakeholder-1]?.color}/${documentTypes[document.IdType - 1]?.iconsrc}`;
-                      }
-                      
-                      return (
-                        <Marker
-                          key={index+crypto.getRandomValues(array)}
-                          position={position}
-                          icon={
-                            (selectedDocument?.IdDocument === document.IdDocument || multipleDocuments.includes(document)) ?
-                              new L.divIcon({
-                                html: ` 
-                                  <svg class'document-icon' width="60" height="60">
-                                    <circle cx="30" cy="30" r="25" stroke="blue" stroke-width='3px' fill="lightsteelblue" />
-                                    <image href="${iconPath}" x="15" y="15" width="30" height="30" />
-                                  </svg> 
-                                `,
-                                iconSize: [0, 0],
-                                iconAnchor:  [10,10],
-                                popupAnchor: [20,-10],
-                                className: 'document-icon',
-                              })
-                            : 
-                            new L.divIcon({
-                              html: `
-                                <svg class'document-icon' width="40" height="40">
-                                  <circle cx="20" cy="20" r="16" fill="#ffffff" />
-                                  <image href="${iconPath}" x="10" y="10" width="20" height="20" />
-                                </svg>
-                              `,
-                              iconSize: [0, 0],
-                              iconAnchor:  [0,0],
-                              popupAnchor: [20, 0],
-                              className: 'document-icon',
-                            })
-                          }
-                          draggable={modifyMode}
-                          eventHandlers={{
-                            dragend: (e) => {
-                              if (isLogged) {
-                                handleDragEnd(document, e);
-                              }
-                            },
-                            click: () => {
-                              if(multipleDocMode) {                                
-                                handleMarkerMultipleSelection(document);
-                              } else {                                
-                                handleMarkerClick(document);
-                              }
-                            },
-                            mouseover: (e) => {
-                              selectedDocument?.IdDocument !== document.IdDocument && e.target.openPopup();
-                            },
-                            mouseout: (e) => { 
-                              selectedDocument?.IdDocument !== document.IdDocument && e.target.closePopup();
-                            }
-                          }}
-                        >
-                          <Popup keepInView >{document.Title}</Popup>
-                        </Marker>
-                      );
-                    }
-                    return null; // Ensure that the map function returns null if location is not found
-                  })}
-                  </MarkerClusterGroup>
-                </LayerGroup>
-            )}
-
             {/* Drawing tools */}
             {isLogged ? (
               <FeatureGroup key={"normal"}>
@@ -1198,7 +1101,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
             
             setMultipleDocuments([]);
             setMultipleAreas([]);
-            setUnionPolygon(null);
           } else {
             
             setSelectedMarker(null);
@@ -1252,7 +1154,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
     </>
   );
 }
-
 MapComponent.propTypes = {
   locations: PropTypes.object,
   setLocations: PropTypes.func,
