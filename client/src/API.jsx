@@ -76,7 +76,6 @@ async function getUserInfo() {
 // API DOCUMENTS CALL 
 
 const addDocument = (title, idStakeholder, scale, issuance_Date, language, pages, description, idtype, locationType, latitude, longitude, area_coordinates) => {
-  console.log("ADD DOCUMENT");
   return new Promise((resolve, reject) => {
     fetch(URL + "/documents", {
       method: "POST",
@@ -102,8 +101,6 @@ const addDocument = (title, idStakeholder, scale, issuance_Date, language, pages
 
 };
 const addDocumentArea = (title, idStakeholder, scale, issuance_Date, language, pages, description, idtype, idLocation) => {
-  console.log("ADD DOCUMENT");
-  console.log(scale);
   return new Promise((resolve, reject) => {
     fetch(URL + "/documents", {
       method: "POST",
@@ -657,7 +654,6 @@ const getDocumentResources = async (id) => {
 const addResourcesToDocument = (idDocument, files) => {
   return new Promise((resolve, reject) => {
     const formData = new FormData();
-    console.log(files);
     // Check if files is an array (handling multiple files)
     if (files && files.length > 0) {
       Array.from(files).forEach((file) => {
@@ -688,7 +684,6 @@ const addResourcesToDocument = (idDocument, files) => {
         }
       })
       .then((data) => {
-        console.log("Files uploaded successfully:", data);
         resolve(data); // Resolve with the successful response data
       })
       .catch((error) => {

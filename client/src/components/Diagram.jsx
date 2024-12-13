@@ -573,6 +573,22 @@ const fetchDocuments = async () => {
   };
   
   const onNodeDragStop = async (event, node) => {
+  
+      // Update the position of the dragged node in the state
+      setNodes((prevNodes) =>
+        prevNodes.map((n) =>
+          n.id === node.id
+            ? {
+                ...n,
+                position: {
+                  x: node.position.x,
+                  y: node.position.y,
+                },
+              }
+            : n
+        )
+      );
+      
       // Map X to Date (check in the same year of doc.Issuance_Date) and Y to Scale
       let x = mapXToDate(node.position.x - offsetX +10 );
       let y = mapYToScale(node.position.y - offsetY);
