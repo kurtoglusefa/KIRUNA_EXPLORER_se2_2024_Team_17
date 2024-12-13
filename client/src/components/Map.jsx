@@ -5,7 +5,7 @@ import 'react-tooltip/dist/react-tooltip.css'
 import { Button, Card, Form, Spinner, Modal } from "react-bootstrap"; // Importing required components
 import {useNavigate } from "react-router-dom";
 import AppContext from '../AppContext';
-import L from 'leaflet';
+import L, { geoJSON } from 'leaflet';
 import API from '../API';
 import '../App.css';
 import CardDocument from './CardDocument';
@@ -17,6 +17,7 @@ import { Rnd } from 'react-rnd'
 import MarkerClusterGroup from "react-leaflet-cluster"
 import PropTypes from 'prop-types';
 import {Tooltip} from 'react-tooltip';
+import geojsonhint from 'geojsonhint';
 
 function MapComponent({ locations, setLocations, locationsArea, documents, setSelectedLocation, propsDocument, selectedLocation, handleDocumentClick, numberofconnections, fetchLocationsArea }) {
   const context = useContext(AppContext);
@@ -86,46 +87,15 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
       if(locationsArea[document.IdLocation]) {
         let area = locationsArea[document.IdLocation];
         area = Array.isArray(area.Area_Coordinates) ? area.Area_Coordinates : JSON.parse(area.Area_Coordinates);
+        //area.push(area[0]);
+        console.log(area);
         setMultipleAreas((oldAreas) => {
-          console.log(area);
-          area.push(area[0]);
           return [...oldAreas, area];
         });  
       }
     }
   }
   
-  useEffect(() => {
-    if (multipleAreas.length === 0) {
-      setUnionPolygon(null);
-      return;
-    }
-
-    try {
-      if(multipleAreas.length >=2) {
-        console.log('Area che mi arrivano');
-        console.log(multipleAreas);
-        console.log(multipleAreas.length);
-        // Convert each area into a valid GeoJSON polygon
-        const geoJsonPolygons = multipleAreas.map((coords) => (
-           turf.polygon([coords])
-        ));
-
-        console.log('geoJsonPolygons');
-        console.log(geoJsonPolygons);
-        // Perform the union operation
-        let unionPolygon = turf.multiPolygon(geoJsonPolygons.map((polygon) => polygon.geometry.coordinates));
-        console.log("Union Polygon:", unionPolygon);
-        // Set the union polygon in state
-        setUnionPolygon(unionPolygon);
-
-      }
-    } catch (error) {
-      console.error('Error creating union polygon:', error );
-    }
-  }, [multipleAreas]);
-
-
   useEffect(() => {
     // Update the window width on resize
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -570,6 +540,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                             color: "blue",
                             fillColor: "blue",
                             fillOpacity: 0.1,
+                            weight: 1,
                           }}
                           eventHandlers={{
                             click: () => handleAreaClick(area),
@@ -581,7 +552,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                             },
                           }}
                         >
-                          <Popup >
+                          <Popup>
                             {area.Area_Name} <br />
                             {getNumberOfDocumentsArea(area.IdLocation)} documents
                           </Popup>
@@ -684,18 +655,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                 </LayerGroup>
             )}
 
-            {multipleDocMode && unionPolygon && 
-              <GeoJSON                       
-                data={unionPolygon} // Use the parsed array as positions
-                style={{
-                  color: "red",
-                  fillColor: "green",
-                  fillOpacity: 0.2,
-                  weight: 1000
-                }}
-              /> 
-            }
-
             {/* Drawing tools */}
             {isLogged ? (
               <FeatureGroup key={"normal"}>
@@ -724,10 +683,12 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                         ? selectedArea.Area_Coordinates
                         : JSON.parse(selectedArea.Area_Coordinates) // Parse if not already an array
                     }
-                    color="blue"          // Border color
-                    fillColor="black"      // Fill color
-                    fillOpacity={0.5}      // Fill opacity
-                    weight={2}
+                    pathOptions={{
+                      color: "blue",
+                      fillColor: "black",
+                      fillOpacity: 0.5,
+                      weight: 2,
+                    }}
                     eventHandlers={{
                       mouseover: (e) => {
                         e.target.openPopup();
@@ -765,13 +726,14 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                         color: "blue",
                         fillColor: "black",
                         fillOpacity: 0.5,
+                        weight: 2,
                       }}
                       eventHandlers={{
                         click: () => setModifyMode(true),
                         
                       }}
                       >
-                      <Popup >
+                      <Popup>
                         {area.Area_Name} <br />
                         {getNumberOfDocumentsArea(area.IdLocation)} documents
                       </Popup>
@@ -808,9 +770,36 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                 fillColor: "black",
                 fillOpacity: 0.2,
               })}
-
-             
             />
+
+            {multipleDocMode && multipleAreas && 
+                multipleAreas.map((area, index) => {
+                  const name = locationsArea[multipleDocuments[index].IdLocation]?.Area_Name;
+                  return (
+                    <Polygon
+                      key={index+crypto.getRandomValues(array)}
+                      positions={area} // Use the parsed array as positions
+                      pathOptions={{
+                        color: "",
+                        fillColor: "lightskyblue",
+                        fillOpacity: 0.5,
+                      }}
+                      eventHandlers={{
+                        mouseover: (e) => e.target.openPopup(),
+                        mouseout: (e) => e.target.closePopup(),
+                      }}
+                      >
+                      <Popup >
+                        {name} <br />
+                        {getNumberOfDocumentsArea(area.IdLocation)} documents
+                      </Popup>
+                    </Polygon>
+                  );
+                }
+              )
+            }
+            
+
             <CustomZoomHandler />
           </MapContainer> 
 
