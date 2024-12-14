@@ -33,16 +33,6 @@ function ModifyDocument() {
   const setNewDocument = context.setSelectedDocument;
 
 
-
-  // Mock function to simulate fetching attached documents from an API
-  const fetchAttachedDocuments = async () => {
-    return [
-      { url: 'http://example.com/doc1.pdf', name: 'Document 1' },
-      { url: 'http://example.com/doc2.pdf', name: 'Document 2' },
-      { url: 'http://example.com/doc3.pdf', name: 'Document 3' },
-    ];
-  };
-
   // document fields
   const [title, setTitle] = useState("");
   const [scale, setScale] = useState("");
@@ -63,6 +53,7 @@ function ModifyDocument() {
   );
   const [resources, setResources] = useState([]);
   const [addResources, setAddResources] = useState([]);
+  const [addAttachments, setAddAttachments] = useState([]);
   const [selectedDocument, setSelectedDocument] = useState("");
   const [connectionType, setConnectionType] = useState("");
   const [connections, setConnections] = useState([]); // List of added connections
@@ -101,20 +92,29 @@ function ModifyDocument() {
   const crypto = window.crypto || window.msCrypto;
   var array = new Uint32Array(1);
 
-
-  useEffect(() => {
-    const fetchResources = async () => {
-      try {
-        const res = await API.getDocumentResources(documentId);
-        setResources(res);
-      } catch (err) {
-        if (err) {
-          setResources([]);
-        } else {
-          setMessage("Error fetching resources");
-        }
+  const fetchResources = async () => {
+    try {
+      const res = await API.getDocumentResources(documentId);
+      setResources(res);
+    } catch (err) {
+      if (err) {
+        setResources([]);
+      } else {
+        setMessage("Error fetching resources");
       }
-    };
+    }
+  };
+  const fetchAttachedDocuments = async () => {
+    try {
+      const res = await API.getDocumentAttachments(documentId);
+      setAttachedDocuments(res);
+    } catch (err) {
+      if (err) {
+        setAttachedDocuments([]);
+      }
+    }
+  };
+  useEffect(() => {
     const fetchStakeholdersbyDocumentId = async (id) => {
       try {
         const res = await API.getStakeholderByDocumentId(id);
@@ -128,6 +128,7 @@ function ModifyDocument() {
     if (documentId) {
       fetchStakeholdersbyDocumentId(documentId);
       fetchResources();
+      fetchAttachedDocuments();
     }
   }, [addResources]);
 
@@ -157,17 +158,6 @@ function ModifyDocument() {
       } catch (err) {
         console.error(err);
       }
-    };
-    const fetchData = async () => {
-      // sim fetching document data
-      const doc = { /* mock document data */ };
-      setDocument(doc);
-
-      // fetch attached documents
-      const docs = await fetchAttachedDocuments();
-      setAttachedDocuments(docs);
-
-      setLoading(false);
     };
 
     const fetchLocationsArea = async () => {
@@ -256,7 +246,6 @@ function ModifyDocument() {
     getTypes();
     getAllTypeConnections();
     getDocumentConnections();
-    fetchData();
     if (documentId) fetchDocument();
     setLoading(false);
   }, []);
@@ -268,6 +257,15 @@ function ModifyDocument() {
       setResources(res);
     } catch (err) {
       setMessage("Error deleting resource");
+    }
+  };
+  const handleDeleteAttachment = async (attachment) => {
+    try {
+      await API.deleteAttachment(attachment);
+      const res = await API.getDocumentAttachments(documentId);
+      setAttachedDocuments(res);
+    } catch (err) {
+      setMessage("Error deleting attachment");
     }
   };
   const handleTypeScaleChange = (selectedId) => {
@@ -307,7 +305,18 @@ function ModifyDocument() {
         setMessage("Error uploading resources:" + err);
       }
   };
-
+  const addAttachmentsDocument = async () => {
+    try {
+      // Send FormData to your API function
+      console.log(" mi arrivano questi attachments");
+      console.log(addAttachments);
+      await API.addAttachmentsToDocument(documentId, addAttachments);
+      setAddAttachments([]);
+      setMessage("");
+    } catch (err) {
+      setMessage("Error uploading resources:" + err);
+    }
+  };
   const handleUpdate = async () => {
     setFormSubmitted(true);
     if (
@@ -437,10 +446,16 @@ function ModifyDocument() {
           documentId = result;
         }
       }
-
       if (addResources.lenght > 0) {
         try {
           await addResourcesDocument();
+        } catch (err) {
+          console.error(err);
+        }
+      }
+      if(addAttachments.length > 0) {
+        try {
+          await addAttachmentsDocument();
         } catch (err) {
           console.error(err);
         }
@@ -713,21 +728,48 @@ function ModifyDocument() {
               )}
               <div className="text-start">
                 <Form.Group controlId="formFileMultiple" className="mb-2">
-                
-              {attachedDocuments.length > 0 && (
-                <div>
-                  <strong>Attached Documents:</strong>
-                  <ul>
-                    {attachedDocuments.map((attachedDoc, index) => (
-                      <li key={index}>
-                        <a href={attachedDoc.url} target="_blank" rel="noopener noreferrer">
-                          {attachedDoc.name}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+                <Form.Label as="strong">Original Attachments: </Form.Label>{attachedDocuments?.length}
+                  <div className="d-flex">
+                    <div className="col-7 me-2">
+                    {/* List of attachments */}
+                    {attachedDocuments?.length > 0 ? (
+                      <ListGroup variant="flush" className="mb-2">
+                        <div style={{ overflowY: "auto", maxHeight: "100px", fontSize:'12px' }}>
+                          {attachedDocuments.map((res, index) => (
+                            <ListGroup.Item
+                            key={index+crypto.getRandomValues(array)}
+                              className="d-flex justify-content-between align-items-center"
+                              >
+                              {/* Attachment Link */}
+                              <a
+                                href={`http://localhost:3001${res.url}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ textDecoration: "underline" }}
+                                >
+                                {res.filename}
+                              </a>
+
+                              {/* Cancel/Delete Button */}
+                              <CloseButton onClick={() => handleDeleteAttachment(res)}></CloseButton>
+                            </ListGroup.Item>
+                          ))}
+                        </div>
+                      </ListGroup>
+                    ) : (
+                      <p className="text-muted text-center">No resources added yet.</p>
+                    )}
+                    </div>
+                    <div className="col">
+                      {/* Form to upload new attachments */}
+                      <Form.Control
+                        type="file"
+                        onChange={(e) => setAddAttachments(e.target.files)}
+                        size="sm"
+                        multiple
+                        />
+                    </div>  
+                  </div>
                   <Form.Label as="strong">Original Resources: </Form.Label>{resources.length}
                   <div className="d-flex">
                     <div className="col-7 me-2">

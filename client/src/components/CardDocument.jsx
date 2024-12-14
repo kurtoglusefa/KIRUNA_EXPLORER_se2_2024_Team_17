@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { Badge, Button, Card, Placeholder } from "react-bootstrap";
-import { useLocation, useNavigate } from "react-router-dom";
+import {useNavigate } from "react-router-dom";
 import API from "../API";
 import PropTypes from 'prop-types';
 import AppContext from "../AppContext";
@@ -23,13 +23,7 @@ function CardDocument ({document, locationType, latitude, longitude, handleMarke
   const [attachedDocuments, setAttachedDocuments] = useState([]);
 
 // mock function to fetch attached documents from an API
-const fetchAttachedDocuments = async () => {
-  return [
-    { url: 'http://example.com/doc1.pdf', name: 'Document 1' },
-    { url: 'http://example.com/doc2.pdf', name: 'Document 2' },
-    { url: 'http://example.com/doc3.pdf', name: 'Document 3' },
-  ];
-};
+
 
 
   const getIcon = () => {
@@ -82,6 +76,18 @@ const fetchAttachedDocuments = async () => {
         }
       }
     };
+    const fetchAttachedDocuments = async () => {
+      try {
+        const docs = await API.getDocumentAttachments(document.IdDocument);
+        setAttachedDocuments(docs);
+        setLoading(false);
+        return docs;
+      } catch (err) {
+        setLoading(false);
+        console.error(err);
+      }
+    };
+
 
     const fetchDocuments = async () => {
       try { 
@@ -129,41 +135,14 @@ const fetchAttachedDocuments = async () => {
         console.error(err); 
       } 
     }; 
-    const fetchData = async () => {
-      // simulate fetching document data
-      const doc = {
-        IdDocument: 1,
-        Title: 'Mock Document',
-        Issuance_Date: '2023-01-01',
-        IdScale: 1,
-        Language: 'English',
-        IdStakeholder: [1],
-        Pages: 10,
-        Description: 'This is a mock document',
-        AreaName: 'Mock Area',
-      };
-      setDocuments(doc);
-
-      // fetch attached documents
-      const docs = await fetchAttachedDocuments();
-      setAttachedDocuments(docs);
-
-      setLoading(false);
-    };
-    fetchData();
     setLoading(true);
     fetchStakeholders();
-    setLoading(true);
     fetchDocumentConnections();
-    setLoading(true);
     fetchResources();
-    setLoading(true);
+    fetchAttachedDocuments();
     fetchScales();
-    setLoading(true);
     fetchDocuments(); 
-    setLoading(true);
     getAllTypeConnections();
-    setLoading(true);
     fetchDocumentTypes();
   }, [document?.IdDocument]);
 
@@ -380,20 +359,21 @@ const fetchAttachedDocuments = async () => {
               </div>
             )}
           
-        {attachedDocuments.length > 0 && (
-          <div>
-            <strong>Attached Documents:</strong>
-            <ul>
-              {attachedDocuments.map((attachedDoc, index) => (
-                <li key={index}>
-                  <a href={attachedDoc.url} target="_blank" rel="noopener noreferrer">
-                    {attachedDoc.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+            <Card.Text style={{ fontSize: '16px' }}> 
+            <strong>Original Attachments :</strong><br></br> 
+              <div style={{ overflowY: "auto",maxHeight : "100px"}}> 
+                {attachedDocuments.length > 0 ? ( 
+                  attachedDocuments.map((res, index) => ( 
+                    <> 
+                      <a href={`http://localhost:3001${res.url}`} target="_blank" key={index} style={{fontSize:'13px'}} ><u>{res.filename}</u></a> 
+                      <br></br> 
+                    </> 
+                  ))  
+                ): ( 
+                  <span style={{fontSize:'13px'}}>No Attachments added</span> 
+                )} 
+              </div> 
+            </Card.Text> 
 
             
             <Card.Text style={{ fontSize: '16px' }}> 

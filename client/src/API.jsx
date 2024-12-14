@@ -650,6 +650,22 @@ const getDocumentResources = async (id) => {
     });
   });
 }
+const getDocumentAttachments = async (id) => {
+  return new Promise((resolve, reject) => {
+    fetch(URL + '/documents/'+ id + '/attachments',{
+      credentials: "include",
+    })
+    .then(res => {
+      if (res.ok) {
+        res.json().then(files => {
+          resolve(files);
+        });
+      } else {
+        reject(res.status);
+      }
+    });
+  });
+}
 
 const addResourcesToDocument = (idDocument, files) => {
   return new Promise((resolve, reject) => {
@@ -693,9 +709,68 @@ const addResourcesToDocument = (idDocument, files) => {
   });
 };
 
+const addAttachmentsToDocument = (idDocument, files) => {
+  return new Promise((resolve, reject) => {
+    const formData = new FormData();
+    // Check if files is an array (handling multiple files)
+    if (files && files.length > 0) {
+      Array.from(files).forEach((file) => {
+        formData.append('files', file); // Append each file individually
+      });
+    } else {
+      console.error("No files provided for upload.");
+      reject({ error: "No files provided for upload." });
+      return;
+    }
+
+    formData.append('idDocument', idDocument); // Add the document ID to the form data
+
+    // Make the fetch request
+    fetch(URL+ `/documents/`+idDocument+`/attachments`, {
+      method: "POST",
+      body: formData,
+      credentials: "include", // Include cookies if needed
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.json(); // Return the JSON response
+        } else {
+          // Return the response's error message if available
+          return response.json().then((message) => {
+            throw new Error(message.error || "Upload failed");
+          });
+        }
+      })
+      .then((data) => {
+        resolve(data); // Resolve with the successful response data
+      })
+      .catch((error) => {
+        console.error("Error uploading files:", error);
+        reject({ error: error.message || "Cannot communicate with the server." });
+      });
+  });
+};
+
 const deleteResource = (resource) => {
   return new Promise((resolve, reject) => {
     fetch(URL + `/documents/${resource.documentId}/resources/${resource.filename}`, {
+      method: "DELETE",
+      credentials: "include",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          return response.json().then((message) => reject(message));
+        }
+        resolve();
+      })
+      .catch(() => {
+        reject({ error: "Cannot communicate with the server." });
+      });
+  });
+};
+const deleteAttachment = (attachment) => {
+  return new Promise((resolve, reject) => {
+    fetch(URL + `/documents/${attachment.documentId}/attachments/${attachment.filename}`, {
       method: "DELETE",
       credentials: "include",
     })
@@ -821,6 +896,6 @@ const updateScale = (id, scale_number) => {
   });
 };
 
-const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, createDocumentConnection, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea, getDocumentResources, addResourcesToDocument, addArea,deleteResource,getScales,addScale,updateScale,addStakeholder,getStakeholderByDocumentId,createTypeDocument,addLocationPoint,updateDocumentConnection,deleteDocumentConnection};
+const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, createDocumentConnection, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea, getDocumentResources, addResourcesToDocument, addArea,deleteResource,getScales,addScale,updateScale,addStakeholder,getStakeholderByDocumentId,createTypeDocument,addLocationPoint,updateDocumentConnection,deleteDocumentConnection,getDocumentAttachments,addAttachmentsToDocument,deleteAttachment};
 
 export default API;
