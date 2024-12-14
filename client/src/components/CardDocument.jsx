@@ -20,7 +20,18 @@ function CardDocument ({document, locationType, latitude, longitude, handleMarke
   const [connections, setConnections] = useState([]); 
   const [typeConnections, setTypeConnections] = useState({}); 
   const [documentTypes, setDocumentTypes] = useState([]);
-  
+  const [attachedDocuments, setAttachedDocuments] = useState([]);
+
+// mock function to fetch attached documents from an API
+const fetchAttachedDocuments = async () => {
+  return [
+    { url: 'http://example.com/doc1.pdf', name: 'Document 1' },
+    { url: 'http://example.com/doc2.pdf', name: 'Document 2' },
+    { url: 'http://example.com/doc3.pdf', name: 'Document 3' },
+  ];
+};
+
+
   const getIcon = () => {
     let iconPath = '';
     if (Array.isArray(document?.IdStakeholder) && document?.IdStakeholder.length > 0) {
@@ -129,6 +140,28 @@ function CardDocument ({document, locationType, latitude, longitude, handleMarke
         console.error(err); 
       } 
     }; 
+    const fetchData = async () => {
+      // simulate fetching document data
+      const doc = {
+        IdDocument: 1,
+        Title: 'Mock Document',
+        Issuance_Date: '2023-01-01',
+        IdScale: 1,
+        Language: 'English',
+        IdStakeholder: [1],
+        Pages: 10,
+        Description: 'This is a mock document',
+        AreaName: 'Mock Area',
+      };
+      setDocuments(doc);
+
+      // fetch attached documents
+      const docs = await fetchAttachedDocuments();
+      setAttachedDocuments(docs);
+
+      setLoading(false);
+    };
+    fetchData();
     setLoading(true);
     fetchStakeholders();
     setLoading(true);
@@ -359,6 +392,21 @@ function CardDocument ({document, locationType, latitude, longitude, handleMarke
                 ))}
               </div>
             )}
+          
+        {attachedDocuments.length > 0 && (
+          <div>
+            <strong>Attached Documents:</strong>
+            <ul>
+              {attachedDocuments.map((attachedDoc, index) => (
+                <li key={index}>
+                  <a href={attachedDoc.url} target="_blank" rel="noopener noreferrer">
+                    {attachedDoc.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
             
             <Card.Text style={{ fontSize: '16px' }}> 

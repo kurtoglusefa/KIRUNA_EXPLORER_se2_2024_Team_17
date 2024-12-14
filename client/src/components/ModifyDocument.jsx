@@ -20,6 +20,8 @@ import Select from "react-select";
 
 import API from "../API";
 import AppContext from "../AppContext";
+
+
 function ModifyDocument() {
   let { documentId } = useParams();
   const navigate = useNavigate();
@@ -33,6 +35,15 @@ function ModifyDocument() {
   console.log("selected location");
   console.log(selectedLocation);
 
+
+  // Mock function to simulate fetching attached documents from an API
+  const fetchAttachedDocuments = async () => {
+    return [
+      { url: 'http://example.com/doc1.pdf', name: 'Document 1' },
+      { url: 'http://example.com/doc2.pdf', name: 'Document 2' },
+      { url: 'http://example.com/doc3.pdf', name: 'Document 3' },
+    ];
+  };
 
   // document fields
   const [title, setTitle] = useState("");
@@ -58,6 +69,7 @@ function ModifyDocument() {
   const [connectionType, setConnectionType] = useState("");
   const [connections, setConnections] = useState([]); // List of added connections
   const [document, setDocument] = useState(null);
+  const [attachedDocuments, setAttachedDocuments] = useState([]);
   const [stakeholders, setStakeholders] = useState([]);
   const [types, setTypes] = useState([]);
   const [typeConnections, setTypeConnections] = useState([]);
@@ -90,6 +102,8 @@ function ModifyDocument() {
 
   const crypto = window.crypto || window.msCrypto;
   var array = new Uint32Array(1);
+
+
   useEffect(() => {
     const fetchResources = async () => {
       try {
@@ -147,6 +161,18 @@ function ModifyDocument() {
         console.error(err);
       }
     };
+    const fetchData = async () => {
+      // sim fetching document data
+      const doc = { /* mock document data */ };
+      setDocument(doc);
+
+      // fetch attached documents
+      const docs = await fetchAttachedDocuments();
+      setAttachedDocuments(docs);
+
+      setLoading(false);
+    };
+
     const fetchLocationsArea = async () => {
   
       API.getAllLocationsArea()
@@ -236,6 +262,7 @@ function ModifyDocument() {
     getTypes();
     getAllTypeConnections();
     getDocumentConnections();
+    fetchData();
     if (documentId) fetchDocument();
     setLoading(false);
   }, []);
@@ -500,6 +527,10 @@ function ModifyDocument() {
   const handleOptionChangeLocation = (e) => {
     setLocationType(e.target.value);
   };
+
+
+
+
   /* ------------------------------------ FORM ------------------------------------------ */
   return (
     <>
@@ -695,6 +726,21 @@ function ModifyDocument() {
               )}
               <div className="text-start">
                 <Form.Group controlId="formFileMultiple" className="mb-2">
+                
+              {attachedDocuments.length > 0 && (
+                <div>
+                  <strong>Attached Documents:</strong>
+                  <ul>
+                    {attachedDocuments.map((attachedDoc, index) => (
+                      <li key={index}>
+                        <a href={attachedDoc.url} target="_blank" rel="noopener noreferrer">
+                          {attachedDoc.name}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
                   <Form.Label as="strong">Original Resources: </Form.Label>{resources.length}
                   <div className="d-flex">
                     <div className="col-7 me-2">
