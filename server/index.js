@@ -192,6 +192,21 @@ const isUrbanPlanner = (req, res, next) => {
   }
   return res.status(401).json({ error: "Not authenticated" });
 };
+
+/*** utility APIs */
+
+app.post("/api/test/reset-db", async (req, res) => {
+  try {
+    // reset the database
+    await documentDao.resetDocument();
+    res.status(200).json({ message: "Database reset successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+);
+
+
 /*** User APIs ***/
 
 // POST /api/sessions

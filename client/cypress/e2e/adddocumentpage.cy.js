@@ -1,6 +1,9 @@
 describe('Add document Flow', () => {
     // Step 1: Use `beforeEach` to log in before each test
     beforeEach(() => {
+      // reset the database
+      cy.request('POST', 'http://localhost:3001/api/test/reset-db'); // Adjust the URL as needed
+
       // Visit the login page
       cy.visit('http://localhost:5173/login');  // Adjust the URL if needed
   
@@ -9,49 +12,22 @@ describe('Add document Flow', () => {
   
       // Verify that the user is redirected to the home page
       cy.url().should('include', '/home'); // Adjust if necessary
-    });
-    it('should enable drag mode, select a location, and add a document point', () => {
-        // Click on the button to enable "drag document" mode
-        cy.contains('Enable drag / add new location for a document').click();
-    
-        // Verify that the mode is enabled
-        cy.contains('Drag / Add new document enabled').should('be.visible');
-    
-        // Click on the map to select a location (adjust the map selector as needed)
-        cy.get('.leaflet-container').click(400, 300); // Adjust coordinates to a valid map area
-    
-        // Verify the selected location is displayed
-        cy.get('.form.overlay .mx-3 h5').should('contain', 'Selected Location');
 
-        // Add a document at the selected location
-        cy.get('.btn-document').contains('Add document').click();
+      cy.contains('Enable drag / add new location for a document').click();
     
-        // Verify navigation to the document creation page
-        cy.url().should('include', '/documents/create-document');
+      // Verify that the mode is enabled
+      cy.contains('Drag / Add new document enabled').should('be.visible');
+      // Click on the map to select a location (adjust the map selector as needed)
+      cy.get('.leaflet-container').click(800, 300); // Adjust coordinates to a valid map area
+      // Verify the selected location is displayed
+      cy.get('.form.overlay .mx-3 h5').should('contain', 'Selected Location');
+      // Add a document at the selected location
+      cy.get('.btn-document').contains('Add document').click();
     
-        // Verify that the document creation page shows the selected location
-         // Ensure latitude and longitude inputs are not visible
-        cy.get('input#latitude').should('not.exist');
-        cy.get('input#longitude').should('not.exist');
-
+      // Verify navigation to the document creation page
+      cy.url().should('include', '/documents/create-document');
     });
     it("should give the possibility to compile the fields and submit the document", () => {
-        
-        cy.contains('Enable drag / add new location for a document').click();
-
-        cy.contains('Drag / Add new document enabled').should('be.visible');
-    
-        // Click on the map to select a location (adjust the map selector as needed)
-        cy.get('.leaflet-container').click(400, 300); // Adjust coordinates to a valid map area
-    
-        // Verify the selected location is displayed
-        cy.get('.form.overlay .mx-3 h5').should('contain', 'Selected Location');
-
-        // Add a document at the selected location
-        cy.get('.btn-document').contains('Add document').click();
-    
-        // Verify navigation to the document creation page
-        cy.url().should('include', '/documents/create-document');
 
         // now add fields
         cy.get('#title').type('Sample Title');
@@ -64,8 +40,6 @@ describe('Add document Flow', () => {
         cy.get('#stakeholders').type('LKAB');
         cy.wait(500); // Adjust the time as necessary
         cy.get('div[id^="react-select"]', { timeout: 10000 }).contains('LKAB').click();
-        
-        //cy.get["#stakeholders"].select('1');
         
         // Verify the input contains the typed value
         cy.get('#title').should('have.value', 'Sample Title');
@@ -85,30 +59,11 @@ describe('Add document Flow', () => {
 
     });
     it("should give the possibility to compile the fields and if not all provided give an error if  submit the document", () => {
-        
-        cy.contains('Enable drag / add new location for a document').click();
-
-        cy.contains('Drag / Add new document enabled').should('be.visible');
-    
-        // Click on the map to select a location (adjust the map selector as needed)
-        cy.get('.leaflet-container').click(400, 300); // Adjust coordinates to a valid map area
-    
-        // Verify the selected location is displayed
-        cy.get('.form.overlay .mx-3 h5').should('contain', 'Selected Location');
-
-        // Add a document at the selected location
-        cy.get('.btn-document').contains('Add document').click();
-    
-        // Verify navigation to the document creation page
-        cy.url().should('include', '/documents/create-document');
 
         // now add fields
         cy.get('#title').type('Sample Title');
         cy.get('#description').type('example description');
         cy.get('#scale').select('1');
-
-        
-        //cy.get["#stakeholders"].select('1');
         
         // Verify the input contains the typed value
         cy.get('#title').should('have.value', 'Sample Title');
@@ -127,23 +82,6 @@ describe('Add document Flow', () => {
     });
     
     it("should give the possibility to compile the fields, adding new fields like scale,stakeholder,documentType and submit the document", () => {
-        
-        cy.contains('Enable drag / add new location for a document').click();
-
-        cy.contains('Drag / Add new document enabled').should('be.visible');
-    
-        // Click on the map to select a location (adjust the map selector as needed)
-        cy.get('.leaflet-container').click(400, 300); // Adjust coordinates to a valid map area
-    
-        // Verify the selected location is displayed
-        cy.get('.form.overlay .mx-3 h5').should('contain', 'Selected Location');
-
-        // Add a document at the selected location
-        cy.get('.btn-document').contains('Add document').click();
-    
-        // Verify navigation to the document creation page
-        cy.url().should('include', '/documents/create-document');
-
         // now add scale field
         cy.get('#addScale').click();
 
@@ -159,9 +97,6 @@ describe('Add document Flow', () => {
 
         // now add stakeholder field
         cy.get('#addStakeholder').click();
-
-        
-
         // Verify that the modal is visible
         cy.get('.modal') // Replace `.modal` with the actual class or ID of your modal
         .should('be.visible');

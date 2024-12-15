@@ -147,3 +147,15 @@ exports.updateDocument = (
     );
   });
 };
+exports.resetDocument = () => {
+  return new Promise((resolve, reject) => {
+    const sql = "DELETE FROM Document";
+    db.run(sql, function (err) {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(true);
+    });
+  });
+};
