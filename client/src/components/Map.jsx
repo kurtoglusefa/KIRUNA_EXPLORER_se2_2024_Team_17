@@ -40,8 +40,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   const [multipleAreas, setMultipleAreas] = useState([]);
   const [showPolygons, setShowPolygons] = useState(true);
 
-  const [municipalAreaOnly, setMunicipalAreaOnly] = useState(true);
-  const [allAreas, setallAreas] = useState(true);
+
 
   const [areaCoordinates, setAreaCoordinates] = useState([]);
 
@@ -468,7 +467,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
             <CenterMapControl />
             {/* Layers */}
             <LayersControl position="topright" collapsed={false}>
-              <LayersControl.Overlay name="All Documents" checked={allAreas} onChange={(e) => setallAreas(e.target.checked)}>
+              <LayersControl.Overlay name="All Documents">
                 <LayerGroup>
                   <MarkerClusterGroup
                     iconCreateFunction={createClusterDocumentCustomIcon}
@@ -565,7 +564,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                   </MarkerClusterGroup>
                 </LayerGroup>
               </LayersControl.Overlay>
-              <LayersControl.Overlay name="Documents belong to municipal area" checked={municipalAreaOnly} onChange={(e) => setMunicipalAreaOnly(e.target.checked)}>
+              <LayersControl.Overlay name="Documents belong to municipal area">
                 <LayerGroup>
                   <MarkerClusterGroup
                     iconCreateFunction={createClusterDocumentCustomIcon}
@@ -1011,7 +1010,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                               }}
                               required={true}
                             >
-                              {/* <option>Select an Area</option>
+                              <option>Select an Area</option>
                               {Object.values(locationsArea).map((area) => (
                                 <option
                                   key={area.IdLocation}
@@ -1019,17 +1018,8 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                                 >
                                   {area.Area_Name || `Area ${area.IdLocation}`}
                                 </option>
-                              ))} */}
-                              <option>Select an Area</option>
-                              {Object.values(locationsArea)
-                                .filter(area =>
-                                  municipalAreaOnly ? area.Area_Name === "Municipality of Kiruna" : true
-                                )
-                                .map((area) => (
-                                  <option key={area.IdLocation} value={area.IdLocation}>
-                                    {area.Area_Name || `Area ${area.IdLocation}`}
-                                  </option>
-                                ))}
+                              ))}
+
                             </Form.Select>
                           </Form.Group>
                         ))

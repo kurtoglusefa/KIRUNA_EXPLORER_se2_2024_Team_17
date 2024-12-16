@@ -154,11 +154,11 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
   };
 
 
-
   const OffsetEdge = ({ id, sourceX, sourceY, targetX, targetY, style, data }) => {
     console.log('Edge data:', data); // Log the edge's data for debugging
     const offset = data?.offset || 50; // Use offset from data (default: 50)
     const connectionDetails = data?.connectionDetails; // Extract connection details
+    const [showTooltip, setShowTooltip] = useState(false);  // Tooltip visibility state
     // Log connectionDetails to verify if they're correctly populated
     console.log('Connection Details:', connectionDetails);
     // Calculate control points for a Bezier curve
@@ -179,7 +179,14 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
             strokeWidth: 15, // Expanded clickable area
             cursor: 'pointer', // Indicates interactivity
           }}
-          data-tooltip-id={`tooltip-${id}`} // Tooltip ID for this edge
+          onMouseEnter={(e) => {
+            e.target.style.cursor = 'pointer';  // Set pointer cursor
+            setShowTooltip(true);              // Show tooltip
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.cursor = 'default'; // Reset cursor
+            setShowTooltip(false);             // Hide tooltip
+          }}
         />
 
         {/* Visible path */}
@@ -192,22 +199,37 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
             strokeWidth: 2, // Normal stroke width
             ...style,
           }}
-          data-tooltip-id={`tooltip-${id}`} // Tooltip ID for this edge
+
         />
         {/* Tooltip */}
-        <Tooltip id={`tooltip-${id}`} place="top" style={{ zIndex: 1000 }}>
-          {connectionDetails ? (
-            <>
-              <h5>Connection Details</h5>
-              <p><strong>Type:</strong> {connectionDetails.type || 'No type'}</p>
-              <p>
-                <strong>Documents:</strong> {connectionDetails.sourceDocument} - {connectionDetails.targetDocument}
-              </p>
-            </>
-          ) : (
-            <p>No details available</p>
-          )}
-        </Tooltip>
+        {showTooltip && (
+          <foreignObject x={controlX - 50} y={controlY - 20} width={200} height={100}>
+            <div
+              style={{
+                background: 'black',
+                border: '1px solid black',
+                borderRadius: '5px',
+                padding: '5px',
+                color: 'white',
+                fontSize: '11px',
+                boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                pointerEvents: 'none', // Prevent interaction with the tooltip
+              }}
+            >
+              {connectionDetails ? (
+                <>
+                  <h5 style={{ margin: '0 0 4px', fontSize: '12px', fontWeight: 'bold' }}>Connection Details</h5>
+                  <p><strong>Type:</strong> {connectionDetails.type}</p>
+                  <p>
+                    <strong>Documents:</strong> {connectionDetails.sourceDocument} ↔ {connectionDetails.targetDocument}
+                  </p>
+                </>
+              ) : (
+                <p>No details available</p>
+              )}
+            </div>
+          </foreignObject>
+        )}
       </g>
     );
   };
@@ -726,6 +748,8 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
               onNodeDragStop={modifyMode ? onNodeDragStop : null} // Only enable drag if modifyMode is true
               onNodeMouseEnter={(e) => e.target.style.cursor = 'pointer'}
               onNodeMouseLeave={(e) => e.target.style.cursor = 'drag'}
+              onEdgeMouseEnter={(e) => e.target.style.cursor = 'pointer'}
+              onEdgeMouseLeave={(e) => e.target.style.cursor = 'default'}
               style={{ background: "#FDFDFD" }}>
               <Background color="lightgray" gap={gapx} variant={BackgroundVariant.Lines} />
               {/* X-Axis */}
