@@ -1,7 +1,6 @@
 const db = require("../db/db");
 const Location = require("../models/location"); // Import the Location class
 
-
 /**
  * Adds a new location to the database.
  * @function addLocation
@@ -11,40 +10,52 @@ const Location = require("../models/location"); // Import the Location class
  * @param {String} area_coordinates - Area coordinates of the location.
  * @returns {Promise<Number>} Resolves with the id created location.
  */
-exports.addLocation = (location_type,latitude,longitude,area_coordinates,area_name) => {
-    return new Promise((resolve, reject) => {
-      const sql =
-        "INSERT INTO Location (Location_type, Latitude, Longitude, Area_coordinates,Area_Name) VALUES (?,?,?,?,?)";
-      db.run(
-        sql,[location_type,latitude,longitude,JSON.stringify(area_coordinates),area_name],
-        function (err) {
-          if (err) {
-            console.log(err);
-            reject(err);
-          }
-          const newlocation = new Location(this.lastID,location_type,latitude,longitude,area_coordinates,area_name);
-          resolve(this.lastID);
+exports.addLocation = (
+  location_type,
+  latitude,
+  longitude,
+  area_coordinates,
+  area_name
+) => {
+  return new Promise((resolve, reject) => {
+    const sql =
+      "INSERT INTO Location (Location_type, Latitude, Longitude, Area_coordinates, Area_Name) VALUES (?,?,?,?,?)";
+    db.run(
+      sql,
+      [
+        location_type,
+        latitude,
+        longitude,
+        JSON.stringify(area_coordinates),
+        area_name,
+      ],
+      function (err) {
+        if (err) {
+          console.log(err);
+          return reject(err);
         }
-      );
-    });
-  };
+        resolve(this.lastID);
+      }
+    );
+  });
+};
 /**
  * Get locatios point to the database.
  * @function getLocations
  * @returns {Promise<Number>} Resolves with all locations point.
  */
 exports.getLocationsPoint = () => {
-    return new Promise((resolve, reject) => {
-        const sql = 'SELECT * FROM Location WHERE Location_Type = "Point"';
+  return new Promise((resolve, reject) => {
+    const sql = 'SELECT * FROM Location WHERE Location_Type = "Point"';
 
-        db.all(sql, (err, row) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(row)
-                };
-            })
+    db.all(sql, (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(row);
+      }
     });
+  });
 };
 /**
  * Get locations area to the database .
@@ -53,15 +64,15 @@ exports.getLocationsPoint = () => {
  */
 exports.getLocationsArea = () => {
   return new Promise((resolve, reject) => {
-      const sql = 'SELECT * FROM Location WHERE Location_Type = "Area"';
+    const sql = 'SELECT * FROM Location WHERE Location_Type = "Area"';
 
-      db.all(sql, (err, row) => {
-          if (err) {
-              reject(err);
-          } else {
-              resolve(row)
-              };
-          })
+    db.all(sql, (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(row);
+      }
+    });
   });
 };
 /**
@@ -71,17 +82,17 @@ exports.getLocationsArea = () => {
  * @returns {Promise<Number>} Resolves with the location.
  */
 exports.getLocationById = (locationId) => {
-    return new Promise((resolve, reject) => {
-        const sql = 'SELECT * FROM Location WHERE IdLocation = ?';
+  return new Promise((resolve, reject) => {
+    const sql = "SELECT * FROM Location WHERE IdLocation = ?";
 
-        db.get(sql, [locationId], (err, row) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(row)
-                };
-            })
+    db.get(sql, [locationId], (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(row);
+      }
     });
+  });
 };
 /**
  * Updates the location giving the id to the database.
@@ -93,15 +104,26 @@ exports.getLocationById = (locationId) => {
  * @param {String} area_coordinates - Area coordinates of the location.
  * @returns {Promise<Number>} Resolves with the update location.
  */
-exports.updateLocation = (locationId, location_type,latitude,longitude,area_coordinates) => {
-    return new Promise((resolve, reject) => {
-        const sql = "UPDATE Location SET Location_type = ?, Latitude = ?, Longitude = ?, Area_coordinates = ? WHERE IdLocation = ?";
-        db.run(sql, [location_type,latitude,longitude,area_coordinates,locationId], function (err) {
-            if (err) {
-                reject(err);
-                return;
-            }
-            resolve(true);
-        });
-    });
-}
+exports.updateLocation = (
+  locationId,
+  location_type,
+  latitude,
+  longitude,
+  area_coordinates
+) => {
+  return new Promise((resolve, reject) => {
+    const sql =
+      "UPDATE Location SET Location_type = ?, Latitude = ?, Longitude = ?, Area_coordinates = ? WHERE IdLocation = ?";
+    db.run(
+      sql,
+      [location_type, latitude, longitude, area_coordinates, locationId],
+      function (err) {
+        if (err) {
+          reject(err);
+          return;
+        }
+        resolve(true);
+      }
+    );
+  });
+};
