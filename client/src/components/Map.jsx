@@ -1,9 +1,9 @@
 import { useContext, useState, useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Polygon, useMap, LayersControl, LayerGroup, ZoomControl,GeoJSON,FeatureGroup  } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Polygon, useMap, LayersControl, LayerGroup, ZoomControl, GeoJSON, FeatureGroup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import 'react-tooltip/dist/react-tooltip.css'
 import { Button, Card, Form, Spinner, Modal } from "react-bootstrap"; // Importing required components
-import {useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import AppContext from '../AppContext';
 import L from 'leaflet';
 import API from '../API';
@@ -16,7 +16,7 @@ import geoJsonData from "../assets/kiruna.json"; // If the data is saved in a fi
 import { Rnd } from 'react-rnd'
 import MarkerClusterGroup from "react-leaflet-cluster"
 import PropTypes from 'prop-types';
-import {Tooltip} from 'react-tooltip';
+import { Tooltip } from 'react-tooltip';
 
 function MapComponent({ locations, setLocations, locationsArea, documents, setSelectedLocation, selectedLocation, handleDocumentClick, numberofconnections, fetchLocationsArea }) {
   const context = useContext(AppContext);
@@ -32,14 +32,14 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   const [loading, setLoading] = useState(true);
   const offsetDistance = 0.0001; //offset distance between markers
   const mapRef = useRef(null); // To get a reference to the map instance
-  
+
   // States for multiple document selection
   const [multipleDocMode, setMultipleDocMode] = useState(false);
   const [multipleDocuments, setMultipleDocuments] = useState([]);
   const [multipleAreas, setMultipleAreas] = useState([]);
   const [showPolygons, setShowPolygons] = useState(true);
 
-  
+
 
   const [areaCoordinates, setAreaCoordinates] = useState([]);
 
@@ -57,14 +57,14 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   let array = new Uint32Array(1);
 
   useEffect(() => {
-    if(!selectedDocument){
+    if (!selectedDocument) {
       setSelectedMarker(null);
       setSelectedArea(null);
     }
   }, [selectedDocument]);
-  
-  const handleMarkerMultipleSelection = (document) =>  {
-    if(multipleDocuments.includes(document)) {
+
+  const handleMarkerMultipleSelection = (document) => {
+    if (multipleDocuments.includes(document)) {
       setMultipleDocuments((oldDocuments) => {
         console.log(oldDocuments);
         return oldDocuments.filter(item => item !== document);
@@ -82,18 +82,18 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
       setMultipleDocuments((oldDocuments) => {
         console.log(oldDocuments);
         return [...oldDocuments, document];
-      });      
-      if(locationsArea[document.IdLocation]) {
+      });
+      if (locationsArea[document.IdLocation]) {
         let area = locationsArea[document.IdLocation];
         area = Array.isArray(area.Area_Coordinates) ? area.Area_Coordinates : JSON.parse(area.Area_Coordinates);
         console.log(area);
         setMultipleAreas((oldAreas) => {
           return [...oldAreas, area];
-        });  
+        });
       }
     }
   }
-  
+
   useEffect(() => {
     // Update the window width on resize
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -105,7 +105,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
     const updateArea = async () => {
 
       if (selectedArea && newCoordinates.length > 0) {
-    
+
         // Assuming getCenter is available and newCoordinates is a valid object
         const { lat, lng } = getCenter(newCoordinates);
         // Call the API function with the required parameters
@@ -208,7 +208,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
 
   const handleAddArea = async () => {
     if (areaName) {
-      
+
       API.addArea(
         areaName,
         JSON.stringify(areaCoordinates[0]),
@@ -288,7 +288,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
 
   };
 
-  function MarkerFocus ({position}) {
+  function MarkerFocus({ position }) {
     const map = useMap();
     useEffect(() => {
       if (selectedMarker && position != [undefined, undefined]) {
@@ -311,11 +311,11 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
     useMapEvents({
       click(e) {
         if (modifyMode) {
-          if(!isPointInFeature(e.latlng)) {
+          if (!isPointInFeature(e.latlng)) {
             alert("You can't add a document that is not in the area of Kiruna");
             return;
           }
-          else{
+          else {
             const { lat, lng } = e.latlng;
             setSelectedLocation({ lat, lng });
           }
@@ -396,7 +396,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   };
   const createClusterAreaCustomIcon = (cluster) => {
     const count = cluster.getChildCount(); // Number of marker areas in the cluster
-  
+
     return L.divIcon({
       html: `<div style="
         background-color: red; 
@@ -417,7 +417,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
 
   const createClusterDocumentCustomIcon = (cluster) => {
     const count = cluster.getChildCount(); // Numero di marker nel cluster
-  
+
     return L.divIcon({
       html: `<div style="
         background-color: blue; 
@@ -441,9 +441,9 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
       {loading ? (
         <Spinner animation="border" variant="primary" />
       ) : (
-        <div style={{maxHeight: '100%', maxWidth:'100%'}}>
-          <MapContainer ref={mapRef} center={[67.8536, 20.2437]} zoomControl={false} zoom={15}  minZoom={8} maxBounds={ calculateBounds(geoJsonData)} // Constrain the map to Kiruna's bounding box
-      maxBoundsViscosity={1.0} >
+        <div style={{ maxHeight: '100%', maxWidth: '100%' }}>
+          <MapContainer ref={mapRef} center={[67.8536, 20.2437]} zoomControl={false} zoom={15} minZoom={8} maxBounds={calculateBounds(geoJsonData)} // Constrain the map to Kiruna's bounding box
+            maxBoundsViscosity={1.0} >
             {/* Location listener */}
             <LocationMarker />
 
@@ -468,195 +468,195 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
             <CenterMapControl />
             {/* Layers */}
             <LayersControl position="topright" collapsed={false}>
-              <LayersControl.Overlay name="All Documents" checked>
+              <LayersControl.Overlay name="All Documents">
                 <LayerGroup>
-                  <MarkerClusterGroup 
+                  <MarkerClusterGroup
                     iconCreateFunction={createClusterDocumentCustomIcon}
                   >
-                  {documents.map((document, index) => {
-                    // Determine the location of the document
-                    const location =
-                      locationsArea[document.IdLocation] ||
-                      locations[document.IdLocation];
-                    const offsetIndex = index * offsetDistance;
-                    if (location) {
-                      let position = [];
-                      if (location.Location_Type === "Point") {
-                        position = [location.Latitude, location.Longitude];
-                      } else {
-                        position = [
-                          location.Latitude + (index % 2 === 0 ? offsetIndex : -offsetIndex),
-                          location.Longitude + (index % 2 === 0 ? -offsetIndex : offsetIndex),
-                        ];
-                      }
-                      let iconPath;
-                      if (Array.isArray(document.IdStakeholder) && document.IdStakeholder.length > 0) {
-                         iconPath = `src/icon/${document.IdStakeholder[0].Color ? document.IdStakeholder[0].Color : '8A9FA4'}/${documentTypes[document.IdType - 1]?.iconsrc ? documentTypes[document.IdType - 1]?.iconsrc : 'other.svg'}`;
-                      } else {
-                         iconPath = `src/icon/${stakeholders[document.IdStakeholder-1]?.color}/${documentTypes[document.IdType - 1]?.iconsrc}`;
-                      }
-                      return (
-                        <Marker
-                          className='document-icon'
-                          key={index+crypto.getRandomValues(array)}
-                          position={position}
-                          icon={
-                            (selectedDocument?.IdDocument === document.IdDocument || multipleDocuments.includes(document)) ?
-                              new L.divIcon({
-                                html: ` 
+                    {documents.map((document, index) => {
+                      // Determine the location of the document
+                      const location =
+                        locationsArea[document.IdLocation] ||
+                        locations[document.IdLocation];
+                      const offsetIndex = index * offsetDistance;
+                      if (location) {
+                        let position = [];
+                        if (location.Location_Type === "Point") {
+                          position = [location.Latitude, location.Longitude];
+                        } else {
+                          position = [
+                            location.Latitude + (index % 2 === 0 ? offsetIndex : -offsetIndex),
+                            location.Longitude + (index % 2 === 0 ? -offsetIndex : offsetIndex),
+                          ];
+                        }
+                        let iconPath;
+                        if (Array.isArray(document.IdStakeholder) && document.IdStakeholder.length > 0) {
+                          iconPath = `src/icon/${document.IdStakeholder[0].Color ? document.IdStakeholder[0].Color : '8A9FA4'}/${documentTypes[document.IdType - 1]?.iconsrc ? documentTypes[document.IdType - 1]?.iconsrc : 'other.svg'}`;
+                        } else {
+                          iconPath = `src/icon/${stakeholders[document.IdStakeholder - 1]?.color}/${documentTypes[document.IdType - 1]?.iconsrc}`;
+                        }
+                        return (
+                          <Marker
+                            className='document-icon'
+                            key={index + crypto.getRandomValues(array)}
+                            position={position}
+                            icon={
+                              (selectedDocument?.IdDocument === document.IdDocument || multipleDocuments.includes(document)) ?
+                                new L.divIcon({
+                                  html: ` 
                                   <svg class'document-icon' width="60" height="60">
                                     <circle cx="30" cy="30" r="25" stroke="blue" stroke-width='3px' fill="lightsteelblue" />
                                     <image href="${iconPath}" x="15" y="15" width="30" height="30" />
                                   </svg> 
                                 `,
-                                iconSize: [0, 0],
-                                iconAnchor:  [10,10],
-                                popupAnchor: [20,-10],
-                                className: 'document-icon',
-                              })
-                            : 
-                            new L.divIcon({
-                              html: `
+                                  iconSize: [0, 0],
+                                  iconAnchor: [10, 10],
+                                  popupAnchor: [20, -10],
+                                  className: 'document-icon',
+                                })
+                                :
+                                new L.divIcon({
+                                  html: `
                                 <svg class'document-icon' width="40" height="40">
                                   <circle cx="20" cy="20" r="16" fill="#ffffff" />
                                   <image href="${iconPath}" x="10" y="10" width="20" height="20" />
                                 </svg>
                               `,
-                              iconSize: [0, 0],
-                              iconAnchor:  [0,0],
-                              popupAnchor: [20, 0],
-                              className: 'document-icon',
-                            })
-                          }
-                          draggable={modifyMode}
-                          eventHandlers={{
-                            dragend: (e) => {
-                              if (isLogged) {
-                                handleDragEnd(document, e);
-                              }
-                            },
-                            click: () => {
-                              if(multipleDocMode) {                                
-                                handleMarkerMultipleSelection(document);
-                              } else {                                
-                                handleMarkerClick(document);
-                              }
-                            },
-                            mouseover: (e) => {
-                              selectedDocument?.IdDocument !== document.IdDocument && e.target.openPopup();
-                            },
-                            mouseout: (e) => { 
-                              selectedDocument?.IdDocument !== document.IdDocument && e.target.closePopup();
+                                  iconSize: [0, 0],
+                                  iconAnchor: [0, 0],
+                                  popupAnchor: [20, 0],
+                                  className: 'document-icon',
+                                })
                             }
-                          }}
-                        >
-                          <Popup 
-                             keepInView
-                             closeOnClick={false}
-                             autoClose={false}
-                             open={selectedDocument?.IdDocument === document.IdDocument} // Controlled state
-                              // Close popup if user clicks close button
-                          >{document.Title}</Popup>
-                        </Marker>
-                      );
-                    }
-                    return null; // Ensure that the map function returns null if location is not found
-                  })}
+                            draggable={modifyMode}
+                            eventHandlers={{
+                              dragend: (e) => {
+                                if (isLogged) {
+                                  handleDragEnd(document, e);
+                                }
+                              },
+                              click: () => {
+                                if (multipleDocMode) {
+                                  handleMarkerMultipleSelection(document);
+                                } else {
+                                  handleMarkerClick(document);
+                                }
+                              },
+                              mouseover: (e) => {
+                                selectedDocument?.IdDocument !== document.IdDocument && e.target.openPopup();
+                              },
+                              mouseout: (e) => {
+                                selectedDocument?.IdDocument !== document.IdDocument && e.target.closePopup();
+                              }
+                            }}
+                          >
+                            <Popup
+                              keepInView
+                              closeOnClick={false}
+                              autoClose={false}
+                              open={selectedDocument?.IdDocument === document.IdDocument} // Controlled state
+                            // Close popup if user clicks close button
+                            >{document.Title}</Popup>
+                          </Marker>
+                        );
+                      }
+                      return null; // Ensure that the map function returns null if location is not found
+                    })}
                   </MarkerClusterGroup>
                 </LayerGroup>
               </LayersControl.Overlay>
-              <LayersControl.Overlay name="Documents belong to municipal area" checked>
+              <LayersControl.Overlay name="Documents belong to municipal area">
                 <LayerGroup>
-                  <MarkerClusterGroup 
-                  iconCreateFunction={createClusterDocumentCustomIcon}
+                  <MarkerClusterGroup
+                    iconCreateFunction={createClusterDocumentCustomIcon}
                   >
-                  {documents.map((document, index) => {
-                    // Determine the location of the document
-                    const location =
-                      locationsArea[document.IdLocation] ||
-                      locations[document.IdLocation];
-                    const offsetIndex = index * offsetDistance;
-                    if (location) {
-                      let position = [];
-                      if (location.Location_Type === "Area" && location.Area_Name === "Municipality of Kiruna") {
-                        position = [
-                          location.Latitude + (index % 2 === 0 ? offsetIndex : -offsetIndex),
-                          location.Longitude + (index % 2 === 0 ? -offsetIndex : offsetIndex),
-                        ]; 
-                      let iconPath;
-                      if (Array.isArray(document.IdStakeholder) && document.IdStakeholder.length > 0) {
-                         iconPath = `src/icon/${document.IdStakeholder[0].Color ? document.IdStakeholder[0].Color : '8A9FA4'}/${documentTypes[document.IdType - 1]?.iconsrc ? documentTypes[document.IdType - 1]?.iconsrc : 'other.svg'}`;
-                      } else {
-                         iconPath = `src/icon/${stakeholders[document.IdStakeholder-1]?.color}/${documentTypes[document.IdType - 1]?.iconsrc}`;
-                      }
-                      return (
-                        <Marker
-                          className='document-icon'
-                          key={index+crypto.getRandomValues(array)}
-                          position={position}
-                          icon={
-                            (selectedDocument?.IdDocument === document.IdDocument || multipleDocuments.includes(document)) ?
-                              new L.divIcon({
-                                html: ` 
+                    {documents.map((document, index) => {
+                      // Determine the location of the document
+                      const location =
+                        locationsArea[document.IdLocation] ||
+                        locations[document.IdLocation];
+                      const offsetIndex = index * offsetDistance;
+                      if (location) {
+                        let position = [];
+                        if (location.Location_Type === "Area" && location.Area_Name === "Municipality of Kiruna") {
+                          position = [
+                            location.Latitude + (index % 2 === 0 ? offsetIndex : -offsetIndex),
+                            location.Longitude + (index % 2 === 0 ? -offsetIndex : offsetIndex),
+                          ];
+                          let iconPath;
+                          if (Array.isArray(document.IdStakeholder) && document.IdStakeholder.length > 0) {
+                            iconPath = `src/icon/${document.IdStakeholder[0].Color ? document.IdStakeholder[0].Color : '8A9FA4'}/${documentTypes[document.IdType - 1]?.iconsrc ? documentTypes[document.IdType - 1]?.iconsrc : 'other.svg'}`;
+                          } else {
+                            iconPath = `src/icon/${stakeholders[document.IdStakeholder - 1]?.color}/${documentTypes[document.IdType - 1]?.iconsrc}`;
+                          }
+                          return (
+                            <Marker
+                              className='document-icon'
+                              key={index + crypto.getRandomValues(array)}
+                              position={position}
+                              icon={
+                                (selectedDocument?.IdDocument === document.IdDocument || multipleDocuments.includes(document)) ?
+                                  new L.divIcon({
+                                    html: ` 
                                   <svg class'document-icon' width="60" height="60">
                                     <circle cx="30" cy="30" r="25" stroke="blue" stroke-width='3px' fill="lightsteelblue" />
                                     <image href="${iconPath}" x="15" y="15" width="30" height="30" />
                                   </svg> 
                                 `,
-                                iconSize: [0, 0],
-                                iconAnchor:  [10,10],
-                                popupAnchor: [20,-10],
-                                className: 'document-icon',
-                              })
-                            : 
-                            new L.divIcon({
-                              html: `
+                                    iconSize: [0, 0],
+                                    iconAnchor: [10, 10],
+                                    popupAnchor: [20, -10],
+                                    className: 'document-icon',
+                                  })
+                                  :
+                                  new L.divIcon({
+                                    html: `
                                 <svg class'document-icon' width="40" height="40">
                                   <circle cx="20" cy="20" r="16" stroke="${(selectedDocument?.IdDocument === document.IdDocument) ? 'darkblue' : ''}" stroke-width='3px' fill="${(selectedDocument?.IdDocument === document.IdDocument) ? '#C1D8F0' : '#dddddd'}" />
                                   <image href="${iconPath}" x="10" y="10" width="20" height="20" />
                                 </svg>
                               `,
-                              iconSize: [0, 0],
-                              iconAnchor:  [0,0],
-                              popupAnchor: [20, 0],
-                              className: 'document-icon',
-                            })
-                          }
-                          draggable={modifyMode}
-                          eventHandlers={{
-                            dragend: (e) => {
-                              if (isLogged) {
-                                handleDragEnd(document, e);
+                                    iconSize: [0, 0],
+                                    iconAnchor: [0, 0],
+                                    popupAnchor: [20, 0],
+                                    className: 'document-icon',
+                                  })
                               }
-                            },
-                            click: () => {
-                              if(multipleDocMode) {                                
-                                handleMarkerMultipleSelection(document);
-                              } else {                                
-                                handleMarkerClick(document);
-                              }
-                            },
-                            mouseover: (e) => {
-                              selectedDocument?.IdDocument !== document.IdDocument && e.target.openPopup();
-                            },
-                            mouseout: (e) => { 
-                              selectedDocument?.IdDocument !== document.IdDocument && e.target.closePopup();
-                            }
-                          }}
-                        >
-                          <Popup 
-                             keepInView
-                             closeOnClick={false}
-                             autoClose={false}
-                             open={selectedDocument?.IdDocument === document.IdDocument} // Controlled state
+                              draggable={modifyMode}
+                              eventHandlers={{
+                                dragend: (e) => {
+                                  if (isLogged) {
+                                    handleDragEnd(document, e);
+                                  }
+                                },
+                                click: () => {
+                                  if (multipleDocMode) {
+                                    handleMarkerMultipleSelection(document);
+                                  } else {
+                                    handleMarkerClick(document);
+                                  }
+                                },
+                                mouseover: (e) => {
+                                  selectedDocument?.IdDocument !== document.IdDocument && e.target.openPopup();
+                                },
+                                mouseout: (e) => {
+                                  selectedDocument?.IdDocument !== document.IdDocument && e.target.closePopup();
+                                }
+                              }}
+                            >
+                              <Popup
+                                keepInView
+                                closeOnClick={false}
+                                autoClose={false}
+                                open={selectedDocument?.IdDocument === document.IdDocument} // Controlled state
                               // Close popup if user clicks close button
-                          >{document.Title}</Popup>
-                        </Marker>
-                      );
-                    }
-                  }
-                    return null; // Ensure that the map function returns null if location is not found
-                  })}
+                              >{document.Title}</Popup>
+                            </Marker>
+                          );
+                        }
+                      }
+                      return null; // Ensure that the map function returns null if location is not found
+                    })}
                   </MarkerClusterGroup>
                 </LayerGroup>
               </LayersControl.Overlay>
@@ -694,56 +694,56 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                                     <image href="src/icon/000000/map-icon.svg" x="10" y="10" width="20" height="20" />
                                   </svg>
                                 `,
-                                iconSize: [40, 40],
-                                iconAnchor: [0,0],
-                                popupAnchor: [27, 0],
-                                className: 'area-icon',
-                              })
-                            }>
-                              <Popup>
-                                {area.Area_Name} <br />
-                                {getNumberOfDocumentsArea(area.IdLocation)} documents
-                              </Popup>
-                            </Marker>
-                          )}
+                                      iconSize: [40, 40],
+                                      iconAnchor: [0, 0],
+                                      popupAnchor: [27, 0],
+                                      className: 'area-icon',
+                                    })
+                                  }>
+                                  <Popup>
+                                    {area.Area_Name} <br />
+                                    {getNumberOfDocumentsArea(area.IdLocation)} documents
+                                  </Popup>
+                                </Marker>
+                              )}
 
-                        {/* show area only if zoom is higher */}
-                        {showPolygons && (
-                          <Polygon
-                            key={crypto.getRandomValues(array)} 
-                            positions={coordinates} 
-                            pathOptions={{
-                              color: "blue",
-                              fillColor: "blue",
-                              fillOpacity: 0.1,
-                            weight: 1,
-                            }}
-                            eventHandlers={{
-                              click: () => {
-                                handleAreaClick(area);
-                              },
-                              mouseover: (e) => {
-                                const layer = e.target;
-                                layer.openPopup();
-                              },
-                              mouseout: (e) => {
-                                e.target.closePopup();
-                              },
-                            }}
-                          >
-                            <Popup>
-                              {area.Area_Name} <br />
-                              {getNumberOfDocumentsArea(area.IdLocation)} documents
-                            </Popup>
-                          </Polygon>
-                        )}
-                      </>
-                    );
-                  }
-                    
-                  })}
-                </MarkerClusterGroup>
-              </LayerGroup>
+                              {/* show area only if zoom is higher */}
+                              {showPolygons && (
+                                <Polygon
+                                  key={crypto.getRandomValues(array)}
+                                  positions={coordinates}
+                                  pathOptions={{
+                                    color: "blue",
+                                    fillColor: "blue",
+                                    fillOpacity: 0.1,
+                                    weight: 1,
+                                  }}
+                                  eventHandlers={{
+                                    click: () => {
+                                      handleAreaClick(area);
+                                    },
+                                    mouseover: (e) => {
+                                      const layer = e.target;
+                                      layer.openPopup();
+                                    },
+                                    mouseout: (e) => {
+                                      e.target.closePopup();
+                                    },
+                                  }}
+                                >
+                                  <Popup>
+                                    {area.Area_Name} <br />
+                                    {getNumberOfDocumentsArea(area.IdLocation)} documents
+                                  </Popup>
+                                </Polygon>
+                              )}
+                            </>
+                          );
+                        }
+
+                      })}
+                  </MarkerClusterGroup>
+                </LayerGroup>
               </LayersControl.Overlay>
             </LayersControl>
             {/* Drawing tools */}
@@ -765,7 +765,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                     remove: false
                   }}
                 />
-                {selectedArea && selectedArea.Area_Name!= "Municipality of Kiruna" && (
+                {selectedArea && selectedArea.Area_Name != "Municipality of Kiruna" && (
 
                   <Polygon
                     key={selectedArea.IdLocation}
@@ -788,7 +788,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                         e.target.closePopup();
                       },
                     }}
-                    >
+                  >
                     <Popup >
                       {selectedArea.Area_Name} <br />
                       {getNumberOfDocumentsArea(selectedArea.IdLocation)} documents
@@ -804,29 +804,28 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                   (selectedArea &&
                     selectedArea.IdLocation === area.IdLocation) ||
                   (selectedMarker &&
-                    selectedMarker.IdLocation === area.IdLocation && selectedArea?.Area_Name!= "Municipality of Kiruna")
+                    selectedMarker.IdLocation === area.IdLocation && selectedArea?.Area_Name != "Municipality of Kiruna")
                 ) {
                   // Parse the coordinates string into a proper array
-                  if(area.Area_Coordinates != null && selectedArea?.Area_Name!= "Municipality of Kiruna")
-                  {
+                  if (area.Area_Coordinates != null && selectedArea?.Area_Name != "Municipality of Kiruna") {
                     const coordinates = Array.isArray(area.Area_Coordinates)
                       ? area.Area_Coordinates
                       : JSON.parse(area.Area_Coordinates); // If Area_Coordinates is a string, parse it
                     return (
                       <Polygon
-                        key={index+crypto.getRandomValues(array)}
+                        key={index + crypto.getRandomValues(array)}
                         positions={coordinates} // Use the parsed array as positions
                         pathOptions={{
                           color: "blue",
                           fillColor: "blue",
                           fillOpacity: 0.1,
                         }}
-                        >
+                      >
                         <Popup>
-                              {area.Area_Name} <br />
-                              {getNumberOfDocumentsArea(area.IdLocation)} documents
-                            </Popup>
-                        </Polygon>
+                          {area.Area_Name} <br />
+                          {getNumberOfDocumentsArea(area.IdLocation)} documents
+                        </Popup>
+                      </Polygon>
                     );
                   }
                   const coordinates = Array.isArray(area.Area_Coordinates)
@@ -834,7 +833,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                     : JSON.parse(area.Area_Coordinates); // If Area_Coordinates is a string, parse it
                   return (
                     <Polygon
-                      key={index+crypto.getRandomValues(array)}
+                      key={index + crypto.getRandomValues(array)}
                       positions={coordinates} // Use the parsed array as positions
                       pathOptions={{
                         color: "blue",
@@ -844,9 +843,9 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                       }}
                       eventHandlers={{
                         click: () => setModifyMode(true),
-                        
+
                       }}
-                      >
+                    >
                       <Popup>
                         {area.Area_Name} <br />
                         {getNumberOfDocumentsArea(area.IdLocation)} documents
@@ -858,11 +857,11 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
             {/* Marker for selected location */}
             {modifyMode && !multipleDocMode ? (
               selectedLocation && !selectedArea ? (
-              <>
-                <Marker position={selectedLocation} />
-                {/* setView on selected Marker*/}
-                <MarkerFocus position={selectedLocation} />
-              </>
+                <>
+                  <Marker position={selectedLocation} />
+                  {/* setView on selected Marker*/}
+                  <MarkerFocus position={selectedLocation} />
+                </>
               ) : (
 
                   selectedMarker ? (
@@ -871,7 +870,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                 ) : (
                   selectedArea && <MarkerFocus position={{lat: locationsArea[selectedArea?.IdLocation]?.Latitude, lng:locationsArea[selectedArea?.IdLocation]?.Longitude}} />
                 )
-              ) 
+              )
             ) : (
               selectedDocument && <MarkerFocus position={locationsArea[selectedDocument?.IdLocation] ? {lat: locationsArea[selectedDocument?.IdLocation]?.Latitude, lng:locationsArea[selectedDocument?.IdLocation]?.Longitude} : {lat:locations[selectedDocument?.IdLocation]?.Latitude, lng: locations[selectedDocument?.IdLocation]?.Longitude}} />
             )}
@@ -912,10 +911,10 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                 }
               )
             }
-            
+
 
             <CustomZoomHandler />
-          </MapContainer> 
+          </MapContainer>
 
           {/* Overlay components*/}
           {/* Document Card */}
@@ -923,7 +922,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
             <div
               className='document-card overlay col-lg-3 col-md-6 col-sm-9'
             >
-              <Rnd 
+              <Rnd
                 default={{
                   x: 60,
                   y: -730
@@ -950,13 +949,13 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
           {/* Card location for creating new document */}
           {modifyMode && isLogged &&
             <div>
-              <Rnd 
+              <Rnd
                 default={{
                   x: windowWidth - componentWidth - initialXFromRight,
                   y: -270,
                   width: 280,
                 }}
-                bounds={'window'}                
+                bounds={'window'}
               >
               <Card className='text-start form overlay' >
                 <Button 
@@ -1050,14 +1049,14 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                           }
                         }
 
-                        navigate(`../documents/create-document`, { state: { location: {lat: selectedLocation.lat.toFixed(4), lng: selectedLocation.lng.toFixed(4),type: 'Point' }}, relative: 'path' })
-                      }
-                    }}
-                  >
-                    Add document
-                  </Button>
-                </div>
-              </Card>
+                          navigate(`../documents/create-document`, { state: { location: { lat: selectedLocation.lat.toFixed(4), lng: selectedLocation.lng.toFixed(4), type: 'Point' } }, relative: 'path' })
+                        }
+                      }}
+                    >
+                      Add document
+                    </Button>
+                  </div>
+                </Card>
               </Rnd>
             </div>
           }
@@ -1066,20 +1065,36 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
             <>
               <div className='d-flex mt-2 align-items-center justify-content-between ms-3'>
                 <div className='d-flex align-items-center'>
-                  <Button disabled={multipleDocMode} variant='dark' size='sm' className='rounded-pill mt-2 overlay px-4 btn-document' style={{ left:'3.5%', bottom: '5%' }} onClick={() => {
-                    if(modifyMode){
+                  <Button disabled={multipleDocMode} variant='dark' size='sm' className='rounded-pill mt-2 overlay px-4 btn-document' style={{ left: '3.5%', bottom: '5%' }} onClick={() => {
+                    if (modifyMode) {
                       setSelectedArea(null);
                     }
-                    
+
                     setSelectedLocation(null);
-                    
+
                     setModifyMode((mode) => !mode)
                   }}>
-                    <span className='h6' style={{ fontSize: '16px' }}>{modifyMode ? 'Disable' : 'Enable'} drag / add new location for a document</span>
+                    <span className='h6' style={{ fontSize: '16px' }}>{modifyMode ? 'Disable' : 'Enable'} Drag / Add a new location for a document</span>
                   </Button>
 
                   <div>
-                    {modifyMode && <span className='col text-end mx-5 mb-1' style={{ position: 'absolute', zIndex: 1000, textShadow: '#000000 0px 0px 20px', left: '450px', bottom: '5%', color: 'white' }}>Drag / Add new document enabled</span>}
+                    {modifyMode && (
+                      <div className='col text-end mx-5 mb-1' style={{
+                        position: 'absolute',
+                        zIndex: 1000,
+                        textShadow: '#000000 0px 0px 20px',
+                        left: '450px',
+                        bottom: '4%',
+                        color: 'white',
+                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                        padding: '5px',
+                        borderRadius: '7px',
+                        border: '1px solid white'
+                      }}>
+                        Drag / Add a new document enabled
+                      </div>
+                    )}
+                    {/* {modifyMode && <span className='col text-end mx-5 mb-1' style={{ position: 'absolute', zIndex: 1000, textShadow: '#000000 0px 0px 20px', left: '450px', bottom: '5%', color: 'white' }}>Drag / Add new document enabled</span>} */}
                   </div>
                 </div>
               </div>
@@ -1090,35 +1105,36 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
       )}
 
       {/* [BUTTON] Select multiple documents */}
-      <button 
-        className='btn-multipleselect' 
-        data-tooltip-id='multipleselect' 
-        data-tooltip-content={'Select Multiple Documents'} 
-        data-tooltip-place='left-start' 
-        style={ { backgroundColor: multipleDocMode &&  'darkseagreen', border: multipleDocMode &&  'solid 3px green'} }
+      <button
+        className='btn-multipleselect'
+        data-tooltip-id='multipleselect'
+        data-tooltip-content={'Select Multiple Documents'}
+        data-tooltip-place='left-start'
+        style={{ backgroundColor: multipleDocMode && 'darkseagreen', border: multipleDocMode && 'solid 3px green' }}
         onClick={() => {
+          z
           console.log('Here 1');
-          if(multipleDocMode) {
-            
+          if (multipleDocMode) {
+
             setMultipleDocuments([]);
             setMultipleAreas([]);
           } else {
-            
+
             setSelectedMarker(null);
             setSelectedDocument(null);
             setSelectedLocation(null);
             setModifyMode(false);
           }
 
-          
+
           setMultipleDocMode(!multipleDocMode);
         }
-      }
+        }
       >
         <img src='src/icon/multipleselect.svg' height={32} width={32} alt="Multiple Select"/>
         <Tooltip border={'solid 1px grey'} className='py-1' id='multipleselect' variant='light' delayShow={500}/>
       </button>
-      
+
 
       {/* [MODAL] Create New Area */}
       <Modal

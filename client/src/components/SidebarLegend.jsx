@@ -31,7 +31,7 @@ function SidebarLegend () {
             <Card.Body className='mt-2'>
             {/* Node Types */}
             <div className='mb-4'>
-              <h6>Node types</h6>
+              <h6>Document types</h6>
               <div className='ms-3 mt-3'>
                 <div className='d-flex my-1'>
                   <img id="design_doc" src='/src/icon/000000/design_doc.svg' alt="design document" style={{marginRight: '10px', width:'20px'}} />

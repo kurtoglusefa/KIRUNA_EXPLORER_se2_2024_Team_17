@@ -161,10 +161,10 @@ function ModifyDocument() {
     };
 
     const fetchLocationsArea = async () => {
-  
+
       API.getAllLocationsArea()
         .then((res) => {
-  
+
           const locationsById = res.reduce((acc, location) => {
             acc[location.IdLocation] = location;
             return acc;
@@ -289,21 +289,21 @@ function ModifyDocument() {
 
   const handleAddDocumentType = async () => {
     // here call api to add a document type
-    await API.createTypeDocument(newDocumentType_name,'other.svg');
+    await API.createTypeDocument(newDocumentType_name, 'other.svg');
     const res = await API.getAllTypesDocument();
     setTypes(res);
     setNewDocumentType_name("");
     setShowAddDocumentType(false);
   };
   const addResourcesDocument = async () => {
-      try {
-        // Send FormData to your API function
-        await API.addResourcesToDocument(documentId, addResources);
-        setAddResources([]);
-        setMessage("");
-      } catch (err) {
-        setMessage("Error uploading resources:" + err);
-      }
+    try {
+      // Send FormData to your API function
+      await API.addResourcesToDocument(documentId, addResources);
+      setAddResources([]);
+      setMessage("");
+    } catch (err) {
+      setMessage("Error uploading resources:" + err);
+    }
   };
   const addAttachmentsDocument = async () => {
     try {
@@ -375,7 +375,7 @@ function ModifyDocument() {
         }
         else if (locationType === "Point" && selectedArea) {
           const result = await API.addLocationPoint("Point", latitude, longitude);
-          locationId= await result.locationId;
+          locationId = await result.locationId;
           await API.updateDocument(
             documentId,
             title,
@@ -403,14 +403,13 @@ function ModifyDocument() {
             selectedArea.IdLocation
           );
         }
-        else
-        {
+        else {
           alert('Unable to update');
 
         }
-        
-    } else {
-        if ( locationType === "Point" && latitude && longitude) {
+
+      } else {
+        if (locationType === "Point" && latitude && longitude) {
           // insert the document which is a point
           //check to be here the type of the document BEACYSE MUST BE NOT NULL
           let result = await API.addDocument(
@@ -429,7 +428,7 @@ function ModifyDocument() {
           );
           result = await result.idDocument;
           documentId = result;
-        } else{
+        } else {
           //insert the document inside an area
           let result = await API.addDocumentArea(
             title,
@@ -453,7 +452,7 @@ function ModifyDocument() {
           console.error(err);
         }
       }
-      if(addAttachments.length > 0) {
+      if (addAttachments.length > 0) {
         try {
           await addAttachmentsDocument();
         } catch (err) {
@@ -464,8 +463,8 @@ function ModifyDocument() {
       const newDocument = await API.getDocumentById(documentId);
       const stakeholders = await API.getStakeholderByDocumentId(documentId);
 
-      setNewDocument({...newDocument,IdStakeholder: stakeholders});
-      
+      setNewDocument({ ...newDocument, IdStakeholder: stakeholders });
+
       navigate("/home");
     }
   };
@@ -532,321 +531,318 @@ function ModifyDocument() {
   return (
     <>
 
-      <Card className="container bg-light rounded form" style={{marginTop:'140px', minHeight:'680px'}}>
+      <Card className="container bg-light rounded form" style={{ marginTop: '140px', minHeight: '680px' }}>
         <Card.Title>
           <h3 className="text-center mt-4">
             {documentId ? "Update" : "Create"} Document
           </h3>
         </Card.Title>
         <Card.Body>
-        { loading ? (
-          <Spinner animation="border" role="status" style={{marginTop:'50px'}} />
-        ) : (
-          <Row>
-            {/* ---------------------- Left Column --------------------------- */}
-            <Col md={6}>
-              <Form.Group controlid="title" className="mb-2 text-start">
-              <Form.Label as="strong">Title*</Form.Label>
-                <Form.Control
-                  className={formSubmitted && !title ? "blink" : ""}
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  id="title"
-                />
-              </Form.Group>
-
-              <Form.Group controlid="scale" className="mb-2 text-start">
-                <Form.Label as="strong">Scale*</Form.Label>
-                <InputGroup>
-                  <Form.Select
-                    id="scale"
-                    required
-                    value={documentScale ? documentScale.id : 0}
-                    style={{ width: "20%" }}
-                    onChange={(event) =>
-                      handleTypeScaleChange(event.target.value)
-                    }
-                    className={formSubmitted && !documentScale ? "font-size-20 blink" : "font-size-20"}
-                  >
-                    <option value="0">Select scale</option>
-                    {scales &&
-                      scales.map((scale) => (
-                        <option key={scale.id} value={scale.id}>
-                          {scale.scale_text}
-                        </option>
-                      ))}
-                  </Form.Select>
-                  {documentScale && documentScale.id > 3 && (
-                    <>
-                      <Form.Control
-                        type="text"
-                        placeholder="1:"
-                        value="1:"
-                        disabled
-                        style={{ width: "10%", textAlign: "right" }}
-                        className="mt-0 font-size-20"
-                      />
-
-                              <Form.Control
-                                required
-                                type="number"
-                                placeholder="XXXX"
-                                value={oldScale_number ? oldScale_number : ""}
-                                onChange={(event) => handleScaleChange(event.target.value)}
-                                className="mt-0 font-size-20"
-                                style={{ textAlign: "left" }}
-                              />
-                            </>
-                          )}
-                          <Button
-                          variant="outline-secondary"
-                          onClick={()=> setShowAddScale(true)}
-                          style={{ textAlign: "left" }}
-                          id ="addScale"
-                        >
-                          Add New Scale
-                        </Button>
-                        </InputGroup>
-                      </Form.Group>
-                      
-                      <Form.Group controlid="language" className="mb-2 text-start">
-                      <Form.Label as="strong">Language</Form.Label>
-                          <Form.Select
-                              placeholder='language'
-                              value={language}
-                              onChange={(e) => setLanguage(e.target.value)}
-                              id="language"
-                            >
-                              <option>Select Language</option>
-                              <option value="English">English</option>
-                              <option value="Swedish">Swedish</option>
-                          </Form.Select>
-                      </Form.Group>
-                      
-                      <div className='d-flex justify-content-between mb-2'>
-                        <Form.Group controlid="pages" className='col-3 d-flex align-items-center'>
-                        <strong className="me-3">Pages</strong>
-                        <Form.Control
-                              defaultValue={0}
-                              type="number"
-                              className="text-end"
-                              value={pages}
-                              onChange={(e) => setPages(e.target.value)}
-                              min={0}
-                              />
-                        </Form.Group>
-                        <Form.Group controlid="issuanceDate" className="d-flex align-items-center">
-                          <strong className="me-3">Issuance Date</strong>
-                          <Form.Control
-                            controlid='year' 
-                            id='year'
-                            className={formSubmitted && !issuanceDate.year ? "mx-1 blink" : "mx-1"}
-                            type='number' 
-                            style={{width:'10ch'}}
-                            maxLength={4} 
-                            min={2000} 
-                            max={2024} 
-                            value={issuanceDate.year}
-                            onChange={(e)=>setIssuanceDate({year: e.target.value, month: issuanceDate.month, day: issuanceDate.day})} required
-                          />
-                          */
-                          <Form.Control
-                            controlid='month' 
-                            className='mx-1' 
-                            type='number' 
-                            maxLength={2} 
-                            style={{width:'8ch'}} 
-                            min={1} 
-                            max={12} 
-                            value={issuanceDate.month} 
-                            onInput={(e) => {if(e.target.value < 10) e.target.value = '0' + e.target.value}} 
-                            onChange={(e)=>setIssuanceDate({year: issuanceDate.year, month: e.target.value, day: issuanceDate.day})}
-                          />
-                          /
-                          <Form.Control
-                            controlid='day' 
-                            className='mx-1' 
-                            type='number'
-                            maxLength={2} 
-                            style={{width:'8ch'}} 
-                            min={1} 
-                            max={31} 
-                            value={issuanceDate.day}
-                            onInput={(e) => {if(e.target.value < 10) e.target.value = '0' + e.target.value}} 
-                            onChange={(e)=>setIssuanceDate({year: issuanceDate.year, month: issuanceDate.month, day: e.target.value})}
-                            />
-                        </Form.Group>
-                      </div>
-
-              {documentId && (
-                <div className="mb-2 text-start">
-                  <Form.Label as="strong" className="text-start">Connections: </Form.Label>{connections.length}
-                  <div className=" d-flex justify-content-between mt-1">
-                    <div className="col-7 text-start me-3">
-                      {connections.length > 0 ? (
-                        <ListGroup id="connections" variant="flush" className="mb-2" style={{ fontSize:'12px',maxHeight:'100px', overflowY:'auto'}}>
-                          {connections.map((conn, index) => (
-                            <ListGroup.Item key={index}>
-                              {conn.IdDocument1 == documentId
-                                ? `${
-                                    documents.find(
-                                      (document) =>
-                                        document.IdDocument == conn.IdDocument2
-                                    ).Title
-                                  } - ${
-                                    typeConnections[conn.IdConnection].Type
-                                  }`
-                                : `${
-                                    documents.find(
-                                      (document) =>
-                                        document.IdDocument == conn.IdDocument1
-                                    ).Title
-                                  } - ${
-                                    typeConnections[conn.IdConnection].Type
-                                  }`}
-                            </ListGroup.Item>
-                          ))}
-                        </ListGroup>
-                      ) : (
-                        <p className="text-muted text-center">No connections added yet.</p>
-                      )}
-                    </div>
-                    <div className="text-center me-5">
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        className="rounded-pill"
-                        id="add-connection"
-                        onClick={() => setShowAddConnection(true)}
-                      >
-                        Add Connection
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div className="text-start">
-                <Form.Group controlId="formFileMultiple" className="mb-2">
-                <Form.Label as="strong">Original Attachments: </Form.Label>{attachedDocuments?.length}
-                  <div className="d-flex">
-                    <div className="col-7 me-2">
-                    {/* List of attachments */}
-                    {attachedDocuments?.length > 0 ? (
-                      <ListGroup variant="flush" className="mb-2">
-                        <div style={{ overflowY: "auto", maxHeight: "100px", fontSize:'12px' }}>
-                          {attachedDocuments.map((res, index) => (
-                            <ListGroup.Item
-                            key={index+crypto.getRandomValues(array)}
-                              className="d-flex justify-content-between align-items-center"
-                              >
-                              {/* Attachment Link */}
-                              <a
-                                href={`http://localhost:3001${res.url}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{ textDecoration: "underline" }}
-                                >
-                                {res.filename}
-                              </a>
-
-                              {/* Cancel/Delete Button */}
-                              <CloseButton onClick={() => handleDeleteAttachment(res)}></CloseButton>
-                            </ListGroup.Item>
-                          ))}
-                        </div>
-                      </ListGroup>
-                    ) : (
-                      <p className="text-muted text-center">No resources added yet.</p>
-                    )}
-                    </div>
-                    <div className="col">
-                      {/* Form to upload new attachments */}
-                      <Form.Control
-                        type="file"
-                        onChange={(e) => setAddAttachments(e.target.files)}
-                        size="sm"
-                        multiple
-                        />
-                    </div>  
-                  </div>
-                  <Form.Label as="strong">Original Resources: </Form.Label>{resources.length}
-                  <div className="d-flex">
-                    <div className="col-7 me-2">
-                    {/* List of resources */}
-                    {resources.length > 0 ? (
-                      <ListGroup variant="flush" className="mb-2">
-                        <div style={{ overflowY: "auto", maxHeight: "100px", fontSize:'12px' }}>
-                          {resources.map((res, index) => (
-                            <ListGroup.Item
-                            key={index+crypto.getRandomValues(array)}
-                              className="d-flex justify-content-between align-items-center"
-                              >
-                              {/* Resource Link */}
-                              <a
-                                href={`http://localhost:3001${res.url}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{ textDecoration: "underline" }}
-                                >
-                                {res.filename}
-                              </a>
-
-                              {/* Cancel/Delete Button */}
-                              <CloseButton onClick={() => handleDeleteResource(res)}></CloseButton>
-                            </ListGroup.Item>
-                          ))}
-                        </div>
-                      </ListGroup>
-                    ) : (
-                      <p className="text-muted text-center">No resources added yet.</p>
-                    )}
-                    </div>
-                    <div className="col">
-                      {/* Form to upload new resources */}
-                      <Form.Control
-                        type="file"
-                        onChange={(e) => setAddResources(e.target.files)}
-                        size="sm"
-                        multiple
-                        />
-                    </div>  
-                  </div>
-                </Form.Group>
-              </div>
-            </Col>
-
-            {/* ---------------------- Right Column --------------------------- */}
-            <Col className="text-start" md={6}>
-              <FormGroup
-                controlId="stakeholder"
-                className="mb-3"
-              >
-              <Form.Label as="strong">Stakeholders*</Form.Label>
-                <InputGroup className="align-items-center">
-                  <Select
-                    options={stakeholders.map((stk) => ({
-                      id: `stakeholder-${stk.id}`, // Add a unique id here
-                      value: stk.id,
-                      label: stk.name,
-                    }))}
-                    isMulti
-                    placeholder="Select Stakeholder"
-                    id="stakeholders"
-                    value={selectedStakeholders}
-                    onChange={(selected) => setSelectedStakeholders(selected)}
-                    className={formSubmitted && selectedStakeholders <= 0 ? "col-9 blink" : "col-9"}
+          {loading ? (
+            <Spinner animation="border" role="status" style={{ marginTop: '50px' }} />
+          ) : (
+            <Row>
+              {/* ---------------------- Left Column --------------------------- */}
+              <Col md={6}>
+                <Form.Group controlid="title" className="mb-2 text-start">
+                  <Form.Label as="strong">Title*</Form.Label>
+                  <Form.Control
+                    className={formSubmitted && !title ? "blink" : ""}
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    id="title"
                   />
-                  <Button
-                    variant="outline-secondary"
-                    onClick={() => setShowAddStakeholder(true)}
-                    className="rounded-end col"
-                    id="addStakeholder"
+                </Form.Group>
+
+                <Form.Group controlid="scale" className="mb-2 text-start">
+                  <Form.Label as="strong">Scale*</Form.Label>
+                  <InputGroup>
+                    <Form.Select
+                      id="scale"
+                      required
+                      value={documentScale ? documentScale.id : 0}
+                      style={{ width: "20%" }}
+                      onChange={(event) =>
+                        handleTypeScaleChange(event.target.value)
+                      }
+                      className={formSubmitted && !documentScale ? "font-size-20 blink" : "font-size-20"}
+                    >
+                      <option value="0">Select scale</option>
+                      {scales &&
+                        scales.map((scale) => (
+                          <option key={scale.id} value={scale.id}>
+                            {scale.scale_text}
+                          </option>
+                        ))}
+                    </Form.Select>
+                    {documentScale && documentScale.id > 3 && (
+                      <>
+                        <Form.Control
+                          type="text"
+                          placeholder="1:"
+                          value="1:"
+                          disabled
+                          style={{ width: "10%", textAlign: "right" }}
+                          className="mt-0 font-size-20"
+                        />
+
+                        <Form.Control
+                          required
+                          type="number"
+                          placeholder="XXXX"
+                          value={oldScale_number ? oldScale_number : ""}
+                          onChange={(event) => handleScaleChange(event.target.value)}
+                          className="mt-0 font-size-20"
+                          style={{ textAlign: "left" }}
+                        />
+                      </>
+                    )}
+                    <Button
+                      variant="outline-secondary"
+                      onClick={() => setShowAddScale(true)}
+                      style={{ textAlign: "left" }}
+                      id="addScale"
+                    >
+                      Add New Scale
+                    </Button>
+                  </InputGroup>
+                </Form.Group>
+
+                <Form.Group controlid="language" className="mb-2 text-start">
+                  <Form.Label as="strong">Language</Form.Label>
+                  <Form.Select
+                    placeholder='language'
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                    id="language"
                   >
-                    Add Stakeholder
-                  </Button>
-                </InputGroup>
-              </FormGroup>
+                    <option>Select Language</option>
+                    <option value="English">English</option>
+                    <option value="Swedish">Swedish</option>
+                  </Form.Select>
+                </Form.Group>
+
+                <div className='d-flex justify-content-between mb-2'>
+                  <Form.Group controlid="pages" className='col-3 d-flex align-items-center'>
+                    <strong className="me-3">Pages</strong>
+                    <Form.Control
+                      defaultValue={0}
+                      type="number"
+                      className="text-end"
+                      value={pages}
+                      onChange={(e) => setPages(e.target.value)}
+                      min={0}
+                    />
+                  </Form.Group>
+                  <Form.Group controlid="issuanceDate" className="d-flex align-items-center">
+                    <strong className="me-3">Issuance Date</strong>
+                    <Form.Control
+                      controlid='year'
+                      id='year'
+                      className={formSubmitted && !issuanceDate.year ? "mx-1 blink" : "mx-1"}
+                      type='number'
+                      style={{ width: '10ch' }}
+                      maxLength={4}
+                      min={2000}
+                      max={2024}
+                      value={issuanceDate.year}
+                      onChange={(e) => setIssuanceDate({ year: e.target.value, month: issuanceDate.month, day: issuanceDate.day })} required
+                    />
+                    */
+                    <Form.Control
+                      controlid='month'
+                      className='mx-1'
+                      type='number'
+                      maxLength={2}
+                      style={{ width: '8ch' }}
+                      min={1}
+                      max={12}
+                      value={issuanceDate.month}
+                      onInput={(e) => { if (e.target.value < 10) e.target.value = '0' + e.target.value }}
+                      onChange={(e) => setIssuanceDate({ year: issuanceDate.year, month: e.target.value, day: issuanceDate.day })}
+                    />
+                    /
+                    <Form.Control
+                      controlid='day'
+                      className='mx-1'
+                      type='number'
+                      maxLength={2}
+                      style={{ width: '8ch' }}
+                      min={1}
+                      max={31}
+                      value={issuanceDate.day}
+                      onInput={(e) => { if (e.target.value < 10) e.target.value = '0' + e.target.value }}
+                      onChange={(e) => setIssuanceDate({ year: issuanceDate.year, month: issuanceDate.month, day: e.target.value })}
+                    />
+                  </Form.Group>
+                </div>
+
+                {documentId && (
+                  <div className="mb-2 text-start">
+                    <Form.Label as="strong" className="text-start">Connections: </Form.Label>{connections.length}
+                    <div className=" d-flex justify-content-between mt-1">
+                      <div className="col-7 text-start me-3">
+                        {connections.length > 0 ? (
+                          <ListGroup id="connections" variant="flush" className="mb-2" style={{ fontSize: '12px', maxHeight: '100px', overflowY: 'auto' }}>
+                            {connections.map((conn, index) => (
+                              <ListGroup.Item key={index}>
+                                {conn.IdDocument1 == documentId
+                                  ? `${documents.find(
+                                    (document) =>
+                                      document.IdDocument == conn.IdDocument2
+                                  ).Title
+                                  } - ${typeConnections[conn.IdConnection].Type
+                                  }`
+                                  : `${documents.find(
+                                    (document) =>
+                                      document.IdDocument == conn.IdDocument1
+                                  ).Title
+                                  } - ${typeConnections[conn.IdConnection].Type
+                                  }`}
+                              </ListGroup.Item>
+                            ))}
+                          </ListGroup>
+                        ) : (
+                          <p className="text-muted text-center">No connections added yet.</p>
+                        )}
+                      </div>
+                      <div className="text-center me-5">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="rounded-pill"
+                          id="add-connection"
+                          onClick={() => setShowAddConnection(true)}
+                        >
+                          Add Connection
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div className="text-start">
+                  <Form.Group controlId="formFileMultiple" className="mb-2">
+                    <Form.Label as="strong">Original Attachments: </Form.Label>{attachedDocuments?.length}
+                    <div className="d-flex">
+                      <div className="col-7 me-2">
+                        {/* List of attachments */}
+                        {attachedDocuments?.length > 0 ? (
+                          <ListGroup variant="flush" className="mb-2">
+                            <div style={{ overflowY: "auto", maxHeight: "100px", fontSize: '12px' }}>
+                              {attachedDocuments.map((res, index) => (
+                                <ListGroup.Item
+                                  key={index + crypto.getRandomValues(array)}
+                                  className="d-flex justify-content-between align-items-center"
+                                >
+                                  {/* Attachment Link */}
+                                  <a
+                                    href={`http://localhost:3001${res.url}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{ textDecoration: "underline" }}
+                                  >
+                                    {res.filename}
+                                  </a>
+
+                                  {/* Cancel/Delete Button */}
+                                  <CloseButton onClick={() => handleDeleteAttachment(res)}></CloseButton>
+                                </ListGroup.Item>
+                              ))}
+                            </div>
+                          </ListGroup>
+                        ) : (
+                          <p className="text-muted text-center">No resources added yet.</p>
+                        )}
+                      </div>
+                      <div className="col">
+                        {/* Form to upload new attachments */}
+                        <Form.Control
+                          type="file"
+                          onChange={(e) => setAddAttachments(e.target.files)}
+                          size="sm"
+                          multiple
+                          accept=".mp4,.mp3,jpg,.jpeg,.png,.gif"
+                        />
+                      </div>
+                    </div>
+                    <Form.Label as="strong">Original Resources: </Form.Label>{resources.length}
+                    <div className="d-flex">
+                      <div className="col-7 me-2">
+                        {/* List of resources */}
+                        {resources.length > 0 ? (
+                          <ListGroup variant="flush" className="mb-2">
+                            <div style={{ overflowY: "auto", maxHeight: "100px", fontSize: '12px' }}>
+                              {resources.map((res, index) => (
+                                <ListGroup.Item
+                                  key={index + crypto.getRandomValues(array)}
+                                  className="d-flex justify-content-between align-items-center"
+                                >
+                                  {/* Resource Link */}
+                                  <a
+                                    href={`http://localhost:3001${res.url}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{ textDecoration: "underline" }}
+                                  >
+                                    {res.filename}
+                                  </a>
+
+                                  {/* Cancel/Delete Button */}
+                                  <CloseButton onClick={() => handleDeleteResource(res)}></CloseButton>
+                                </ListGroup.Item>
+                              ))}
+                            </div>
+                          </ListGroup>
+                        ) : (
+                          <p className="text-muted text-center">No resources added yet.</p>
+                        )}
+                      </div>
+                      <div className="col">
+                        {/* Form to upload new resources */}
+                        <Form.Control
+                          type="file"
+                          onChange={(e) => setAddResources(e.target.files)}
+                          size="sm"
+                          multiple
+                        />
+                      </div>
+                    </div>
+                  </Form.Group>
+                </div>
+              </Col>
+
+              {/* ---------------------- Right Column --------------------------- */}
+              <Col className="text-start" md={6}>
+                <FormGroup
+                  controlId="stakeholder"
+                  className="mb-3"
+                >
+                  <Form.Label as="strong">Stakeholders*</Form.Label>
+                  <InputGroup className="align-items-center">
+                    <Select
+                      options={stakeholders.map((stk) => ({
+                        id: `stakeholder-${stk.id}`, // Add a unique id here
+                        value: stk.id,
+                        label: stk.name,
+                      }))}
+                      isMulti
+                      placeholder="Select Stakeholder"
+                      id="stakeholders"
+                      value={selectedStakeholders}
+                      onChange={(selected) => setSelectedStakeholders(selected)}
+                      className={formSubmitted && selectedStakeholders <= 0 ? "col-9 blink" : "col-9"}
+                    />
+                    <Button
+                      variant="outline-secondary"
+                      onClick={() => setShowAddStakeholder(true)}
+                      className="rounded-end col"
+                      id="addStakeholder"
+                    >
+                      Add Stakeholder
+                    </Button>
+                  </InputGroup>
+                </FormGroup>
                 <FormGroup controlid="type" className="mb-3">
                   <Form.Label as="strong">Document Type*</Form.Label>
                   <InputGroup className="align-items-center">
@@ -886,7 +882,7 @@ function ModifyDocument() {
                 </Form.Group>
 
                 <Form.Group controlid="location" className="mb-5 d-flex justify-content-between">
-                  <div  className="ms-3">
+                  <div className="ms-3">
                     <Form.Label as="strong" className="">Type Location</Form.Label>
                     <div className="ms-3 mt-2">
                       <Form.Check
@@ -910,7 +906,7 @@ function ModifyDocument() {
                     </div>
                   </div>
 
-                      
+
 
                   <div className="mt-4">
                     {locationType === "Point" ? (
@@ -927,7 +923,7 @@ function ModifyDocument() {
                               maxLength={7}
                               className="ms-2"
                               size="sm"
-                              />
+                            />
                           </div>
                         </div>
                         <div className="d-flex justify-content-between col-9">
@@ -935,74 +931,74 @@ function ModifyDocument() {
                             Longitude
                           </Form.Label>
                           <div className="col-6 text-end">
-                          <Form.Control
-                            id="longitude"
-                            value={longitude}
-                            onChange={(e) => setLongitude(e.target.value)}
-                            maxLength={7}
-                            size="sm"
-                            className="ms-2"
+                            <Form.Control
+                              id="longitude"
+                              value={longitude}
+                              onChange={(e) => setLongitude(e.target.value)}
+                              maxLength={7}
+                              size="sm"
+                              className="ms-2"
                             />
                           </div>
                         </div>
                       </>
                     ) : (
                       <div className="d-flex align-items-center me-5">
-                          <Form.Label as='strong' className="mt-1 me-3">
-                            Area
-                          </Form.Label>
-                          <Form.Select
-                            value={selectedArea ? selectedArea.IdLocation : ""}
-                            onChange={(e) => {
-                              const area = locationsArea[e.target.value];
-                              setSelectedArea(area);
-                            }}
-                            size="sm"
-                            required={true}
-                            >
-                            <option>Select an Area</option>
-                            {Object.values(locationsArea).map((area) => (
-                              <option
+                        <Form.Label as='strong' className="mt-1 me-3">
+                          Area
+                        </Form.Label>
+                        <Form.Select
+                          value={selectedArea ? selectedArea.IdLocation : ""}
+                          onChange={(e) => {
+                            const area = locationsArea[e.target.value];
+                            setSelectedArea(area);
+                          }}
+                          size="sm"
+                          required={true}
+                        >
+                          <option>Select an Area</option>
+                          {Object.values(locationsArea).map((area) => (
+                            <option
                               key={area.IdLocation}
                               value={area.IdLocation}
-                              >
-                                {area.Area_Name || `Area ${area.IdLocation}`}
-                              </option>
-                            ))}
-                          </Form.Select>
+                            >
+                              {area.Area_Name || `Area ${area.IdLocation}`}
+                            </option>
+                          ))}
+                        </Form.Select>
                       </div>
                     )}
                   </div>
                 </Form.Group>
-              
-        <div className="d-flex justify-content-center mb-4 mx-5">
-          <Button
-            variant="outline-secondary"
-            className="mx-2 rounded-pill px-4"
-            onClick={() => navigate('/home')}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant=""
-            className="mx-2 btn-document rounded-pill px-4"
-            onClick={handleUpdate}
-          >
-            Save
-          </Button>
-        </div>
-            </Col>
-            {message && (
-              <Alert
-                variant="danger"
-                dismissible
-                onClick={() => {setMessage(""); setFormSubmitted(false)}}
-              >
-                {message}
-              </Alert>
-            )}
-          </Row>
-      ) }
+
+                <div className="d-flex justify-content-center mb-4 mx-5">
+                  <Button
+                    variant="outline-secondary"
+                    className="mx-2 rounded-pill px-4"
+                    onClick={() => navigate('/home')}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant=""
+                    className="mx-2 btn-document rounded-pill px-4"
+                    onClick={handleUpdate}
+                  >
+                    Save
+                  </Button>
+                </div>
+              </Col>
+              {message && (
+                <Alert
+                  variant="danger"
+                  dismissible
+                  onClick={() => { setMessage(""); setFormSubmitted(false) }}
+                >
+                  {message}
+                </Alert>
+              )}
+            </Row>
+          )}
         </Card.Body>
       </Card>
 
@@ -1040,7 +1036,7 @@ function ModifyDocument() {
               >
                 {filteredDocuments.map((doc) => (
                   <ListGroup.Item
-                    
+
                     key={doc.IdDocument}
                     action
                     onClick={() => handleSelectDocument(doc)}
