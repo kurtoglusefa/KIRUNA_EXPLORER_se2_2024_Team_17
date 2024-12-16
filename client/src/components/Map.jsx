@@ -1112,8 +1112,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
         data-tooltip-place='left-start'
         style={{ backgroundColor: multipleDocMode && 'darkseagreen', border: multipleDocMode && 'solid 3px green' }}
         onClick={() => {
-          z
-          console.log('Here 1');
           if (multipleDocMode) {
 
             setMultipleDocuments([]);

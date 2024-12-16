@@ -18,6 +18,7 @@ import {
 } from "react-bootstrap";
 
 function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
+  const loggedIn = useContext(AppContext).loginState.loggedIn;
   const selectedDocument = useContext(AppContext).selectedDocument;
   const setSelectedDocument = useContext(AppContext).setSelectedDocument;
   const [numberofconnections, setNumberofconnections] = useState(0);
@@ -741,7 +742,7 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
               edges={edges}
               edgeTypes={edgeTypes} // Use custom edge types
               nodeTypes={{ svgNode: SvgNode }}
-              onConnect={handleConnect}
+              onConnect={loggedIn ? handleConnect : null}
               onNodeClick={handleNodeClick}
               onEdgeClick={handleEdgeClick}
               onNodeDrag={modifyMode ? onNodeDrag : null} // Only enable drag if modifyMode is true

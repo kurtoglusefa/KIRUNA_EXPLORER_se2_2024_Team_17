@@ -321,11 +321,11 @@ function CardDocument({ document, locationType, latitude, longitude, handleMarke
                       : "Unknown"
                   }</Card.Text>}
 
-              {document?.Pages &&
-                <Card.Text style={{ fontSize: '16px' }}>
-                  <strong>Pages:</strong> {document?.Pages}
-                </Card.Text>
-              }
+                  {document?.Pages!=null && 
+                    <Card.Text style={{ fontSize: '16px' }}>
+                      <strong>Pages:</strong> {document?.Pages ? document?.Pages : 0}
+                    </Card.Text>
+                  }
 
               <strong>Connections:</strong> {numberofconnections}
               {numberofconnections > 0 && (

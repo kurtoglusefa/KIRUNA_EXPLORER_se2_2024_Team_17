@@ -62,8 +62,10 @@ function MyNavbar({ documents, setDocuments }) {
       // filter documents safely
       let filteredResults = allDocuments.filter((doc) => {
         const title = doc?.Title || ""; // default to an empty string
+        const Description = doc?.Description || ""; // default to an empty string
         return (
           title.toLowerCase().includes(searchTerm.toLowerCase())
+          || Description.toLowerCase().includes(searchTerm.toLowerCase())
         );
       });
       //filter by stakeholder
