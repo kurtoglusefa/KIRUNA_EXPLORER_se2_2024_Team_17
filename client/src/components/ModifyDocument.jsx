@@ -471,7 +471,8 @@ function ModifyDocument() {
 
   const handleAddConnection = async () => {
     if (selectedDocument && connectionType) {
-      await API.createDocumentConnection(
+      await API.updateDocumentConnection(
+        null,
         documentId,
         selectedDocument.IdDocument,
         connectionType

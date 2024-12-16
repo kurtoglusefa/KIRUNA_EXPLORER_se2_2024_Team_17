@@ -58,22 +58,13 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
   const updateConnection = async () => {
 
     try {
-      if (newConnection == true) {
-        await API.createDocumentConnection(
-          selectedDocument.IdDocument,
-          selectedDestinationDocument.IdDocument,
-          parseInt(selectConnectionType)
-        );
-      }
-      else {
-        // Call updateConnection API with the new values
-        await API.updateDocumentConnection(
-          selectedEdge.IdConnectionDocuments,
-          selectedEdge.IdDocument1,
-          selectedDestinationDocument.IdDocument,
-          parseInt(selectConnectionType)
-        );
-      }
+      // Call updateConnection API with the new values
+      await API.updateDocumentConnection(
+        newConnection ? null : selectedEdge.IdConnectionDocuments,
+        selectedEdge.IdDocument1,
+        selectedDestinationDocument.IdDocument,
+        parseInt(selectConnectionType)
+      );
       // Update the connections after the API call
       await fetchConnections();
 

@@ -134,7 +134,7 @@ function Home(props) {
 
   const handleAddConnection = async () => {
     if (selectedDocument && connectionType) {
-      await API.createDocumentConnection(selectedDocument.IdDocument, selectDocumentSearch.IdDocument, connectionType);
+      await API.updateDocumentConnection(null, selectedDocument.IdDocument, selectDocumentSearch.IdDocument, connectionType);
       setSelectedDocument('');
       setConnectionType('');
       setShowAddConnection(false);

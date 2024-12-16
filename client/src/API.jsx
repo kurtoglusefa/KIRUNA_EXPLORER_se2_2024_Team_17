@@ -19,15 +19,15 @@ function getUsers() {
           response
             .json()
             .then((message) => {
-              reject(message);
+              reject(new Error(message));
             }) // error message in the response body
             .catch(() => {
-              reject({ error: "Cannot parse server response." });
+              reject(new Error("Cannot parse server response."));
             }); // something else
         }
       })
       .catch(() => {
-        reject({ error: "Cannot communicate with the server." });
+        reject(new Error("Cannot communicate with the server."));
       }); // connection errors
   });
 }
@@ -297,33 +297,46 @@ const getDocumentConnection = (id) => {
   });
 };
 
-const createDocumentConnection = (IdDocument1, IdDocument2, connection_type) => {
-  return new Promise((resolve, reject) => {
-    fetch(URL + "/document-connections", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ IdDocument1: IdDocument1, IdDocument2: IdDocument2, IdConnection: connection_type }),
-      credentials: "include",
+// const createDocumentConnection = (IdDocument1, IdDocument2, connection_type) => {
+//   return new Promise((resolve, reject) => {
+//     fetch(URL + "/document-connections", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({ IdDocument1: IdDocument1, IdDocument2: IdDocument2, IdConnection: connection_type }),
+//       credentials: "include",
 
-    }).then((response) => {
-      if (response.ok) {
-        resolve(response.json());
-      } else {
-        response.json().then((message) => {
-          reject(message);
-        });
-      }
-    }).catch(() => {
-      reject({ error: "Cannot communicate with the server!" });
-    });
-  });
-};
+//     }).then((response) => {
+//       if (response.ok) {
+//         resolve(response.json());
+//       } else {
+//         response.json().then((message) => {
+//           reject(message);
+//         });
+//       }
+//     }).catch(() => {
+//       reject({ error: "Cannot communicate with the server!" });
+//     });
+//   });
+// };
 const updateDocumentConnection = (Id_documents_connection,IdDocument1, IdDocument2, connection_type) => {
   return new Promise((resolve, reject) => {
-    fetch(URL + "/document-connections/"+Id_documents_connection, {
-      method: "PATCH",
+    let method;
+    let Url;
+
+    if(Id_documents_connection) {
+      // Update connection
+      method = "PATCH";
+      Url = URL + "/document-connections/" + Id_documents_connection;
+    } else {
+      // Create new connection
+      method = "POST";
+      Url = URL + "/document-connections";
+    }
+
+    fetch(Url , {
+      method: method,
       headers: {
         "Content-Type": "application/json",
       },
@@ -335,11 +348,11 @@ const updateDocumentConnection = (Id_documents_connection,IdDocument1, IdDocumen
         resolve(response.json());
       } else {
         response.json().then((message) => {
-          reject(message);
+          reject(new Error(message));
         });
       }
     }).catch(() => {
-      reject({ error: "Cannot communicate with the server!" });
+      reject(new Error( "Cannot communicate with the server!" ));
     });
   });
 };
@@ -896,6 +909,6 @@ const updateScale = (id, scale_number) => {
   });
 };
 
-const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, createDocumentConnection, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea, getDocumentResources, addResourcesToDocument, addArea,deleteResource,getScales,addScale,updateScale,addStakeholder,getStakeholderByDocumentId,createTypeDocument,addLocationPoint,updateDocumentConnection,deleteDocumentConnection,getDocumentAttachments,addAttachmentsToDocument,deleteAttachment};
+const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea, getDocumentResources, addResourcesToDocument, addArea,deleteResource,getScales,addScale,updateScale,addStakeholder,getStakeholderByDocumentId,createTypeDocument,addLocationPoint,updateDocumentConnection,deleteDocumentConnection,getDocumentAttachments,addAttachmentsToDocument,deleteAttachment};
 
 export default API;
