@@ -354,4 +354,23 @@ describe("Attachment API", () => {
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body.length).toBe(2);
   });
+  it("should return 404 if the file does not exist", async () => {
+        const response = await agent.delete("/api/documents/9999/attachments/testfile.txt");
+        expect(response.status).toBe(404);
+        expect(response.body).toEqual({ message: "Attachment not found." });
+  });
+  
+  it("should return 500 if file deletion fails", async () => {
+        fs.unlink.mockImplementation((path, callback) => callback(new Error("Deletion error")));
+        const response = await agent.delete(`/api/documents/${documentId}/attachments/testfile.txt`);
+        expect(response.status).toBe(500);
+        expect(response.body).toEqual({ message: "Failed to delete the attachment." });
+  });
+  
+  it("should return 200 for successful file deletion", async () => {
+        fs.unlink.mockImplementation((path, callback) => callback(null));
+        const response = await agent.delete(`/api/documents/${documentId}/attachments/testfile.txt`);
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ message: "Attachment deleted successfully." });
+  });
 });

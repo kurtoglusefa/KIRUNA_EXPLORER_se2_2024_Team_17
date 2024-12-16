@@ -1,6 +1,7 @@
 server/db.db
 /uploads/*
 uploads/*
+
 *.db
 server/db.db
 server/db.db
