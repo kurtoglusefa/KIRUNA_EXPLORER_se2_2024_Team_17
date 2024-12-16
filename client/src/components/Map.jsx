@@ -18,14 +18,13 @@ import MarkerClusterGroup from "react-leaflet-cluster"
 import PropTypes from 'prop-types';
 import {Tooltip} from 'react-tooltip';
 
-function MapComponent({ locations, setLocations, locationsArea, documents, setSelectedLocation, propsDocument, selectedLocation, handleDocumentClick, numberofconnections, fetchLocationsArea }) {
+function MapComponent({ locations, setLocations, locationsArea, documents, setSelectedLocation, selectedLocation, handleDocumentClick, numberofconnections, fetchLocationsArea }) {
   const context = useContext(AppContext);
   const navigate = useNavigate();
   const selectedDocument = useContext(AppContext).selectedDocument;
   const setSelectedDocument = useContext(AppContext).setSelectedDocument;
   const [selectedMarker, setSelectedMarker] = useState(selectedDocument);
   const [showCreateArea, setShowCreateArea] = useState(false);
-  const [connectionType, setConnectionType] = useState('');
   const isLogged = context.loginState.loggedIn;
   const [documentTypes, setDocumentTypes] = useState([]);
   const [stakeholders, setStakeholders] = useState([]);
@@ -55,7 +54,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   const initialXFromRight = 70; // Distance from the right edge in pixels
 
   const crypto = window.crypto || window.msCrypto;
-  var array = new Uint32Array(1);
+  let array = new Uint32Array(1);
 
   useEffect(() => {
     if(!selectedDocument){
@@ -70,7 +69,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
         console.log(oldDocuments);
         return oldDocuments.filter(item => item !== document);
       });
-      //setSelectedMarker(document);
       if(locationsArea[document.IdLocation]) {
         let area = locationsArea[document.IdLocation];
         area = Array.isArray(area.Area_Coordinates) ? area.Area_Coordinates : JSON.parse(area.Area_Coordinates);
@@ -88,7 +86,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
       if(locationsArea[document.IdLocation]) {
         let area = locationsArea[document.IdLocation];
         area = Array.isArray(area.Area_Coordinates) ? area.Area_Coordinates : JSON.parse(area.Area_Coordinates);
-        //area.push(area[0]);
         console.log(area);
         setMultipleAreas((oldAreas) => {
           return [...oldAreas, area];
@@ -224,7 +221,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
         .catch((err) => {
           console.error("Error adding area:", err);
         });
-      setConnectionType("");
       setShowCreateArea(false);
     } else {
       alert("Please fill in all fields.");
@@ -297,7 +293,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
     useEffect(() => {
       if (selectedMarker && position != [undefined, undefined]) {
         try {
-          map.setView(position ? position : map.getLatLng(), map.getZoom());
+          map.setView(position, map.getZoom());
         } catch (e) {
           console.error(e);
         }
@@ -306,6 +302,9 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
 
     return null;
   }
+  MarkerFocus.propTypes = {
+    position: PropTypes.arrayOf(PropTypes.number).isRequired,
+  };
   
 
   function LocationMarker() {
@@ -376,10 +375,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
         locationButton.innerHTML = '<i class="bi bi-crosshair" style="font-size: 20px; color: black;"></i>';
 
         // add click functionality to center the map
-        locationButton.onclick = (e) => {
-          e.preventDefault();
-          map.setView([67.8558, 20.2253], 12); // Center the map to the given coordinates
-        };
+        locationButton.onclick = handleLocationButtonClick;
 
         return container;
       };
@@ -390,6 +386,11 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
         map.removeControl(centerControl);
       };
     }, [map]);
+
+    const handleLocationButtonClick = (e) => {
+      e.preventDefault();
+      map.setView([67.8558, 20.2253], 12); // Center the map to the given coordinates
+    };
 
     return null;
   };
@@ -437,7 +438,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
 
   return (
     <>
-      {loading == true ? (
+      {loading ? (
         <Spinner animation="border" variant="primary" />
       ) : (
         <div style={{maxHeight: '100%', maxWidth:'100%'}}>
@@ -684,7 +685,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                         <>
                           {/*show markers instead of area  */}
                           {!showPolygons && (
-                            <Marker key={`marker-${index}`} position={[area.Latitude, area.Longitude]}
+                            <Marker key={`marker-${area.IdLocation}`} position={[area.Latitude, area.Longitude]}
                             icon={
                               new L.divIcon({
                                 html: `
@@ -864,15 +865,15 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
               </>
               ) : (
 
-                selectedMarker ? (
+                  selectedMarker ? (
                   
-                  <MarkerFocus position={locationsArea[selectedMarker?.IdLocation] ? {lat: locationsArea[selectedMarker?.IdLocation].Latitude, lng:locationsArea[selectedMarker?.IdLocation].Longitude} : {lat:locations[selectedMarker?.IdLocation]?.Latitude, lng: locations[selectedMarker?.IdLocation]?.Longitude}} />
+                  <MarkerFocus position={locationsArea[selectedMarker?.IdLocation] ? {lat: locationsArea[selectedMarker?.IdLocation]?.Latitude, lng:locationsArea[selectedMarker?.IdLocation]?.Longitude} : {lat:locations[selectedMarker?.IdLocation]?.Latitude, lng: locations[selectedMarker?.IdLocation]?.Longitude}} />
                 ) : (
-                  selectedArea && <MarkerFocus position={{lat: locationsArea[selectedArea?.IdLocation].Latitude, lng:locationsArea[selectedArea?.IdLocation].Longitude}} />
+                  selectedArea && <MarkerFocus position={{lat: locationsArea[selectedArea?.IdLocation]?.Latitude, lng:locationsArea[selectedArea?.IdLocation]?.Longitude}} />
                 )
               ) 
             ) : (
-              selectedDocument && <MarkerFocus position={locationsArea[selectedDocument?.IdLocation] ? {lat: locationsArea[selectedDocument?.IdLocation].Latitude, lng:locationsArea[selectedDocument?.IdLocation].Longitude} : {lat:locations[selectedDocument?.IdLocation]?.Latitude, lng: locations[selectedDocument?.IdLocation]?.Longitude}} />
+              selectedDocument && <MarkerFocus position={locationsArea[selectedDocument?.IdLocation] ? {lat: locationsArea[selectedDocument?.IdLocation]?.Latitude, lng:locationsArea[selectedDocument?.IdLocation]?.Longitude} : {lat:locations[selectedDocument?.IdLocation]?.Latitude, lng: locations[selectedDocument?.IdLocation]?.Longitude}} />
             )}
 
             <GeoJSON
@@ -885,8 +886,8 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
               })}
             />
 
-            {multipleDocMode && multipleAreas && 
-                multipleAreas.map((area, index) => {
+            {multipleDocMode &&  
+                multipleAreas?.map((area, index) => {
                   const name = locationsArea[multipleDocuments[index].IdLocation]?.Area_Name;
                   return (
                     <Polygon
@@ -995,8 +996,8 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                         </>                          
                         ) : (
                         <>
-                          <h6><strong>Latitude:</strong> {locations[selectedDocument.IdLocation]?.Latitude.toFixed(4)}<br></br>
-                            <strong>Longitude:</strong> {locations[selectedDocument.IdLocation]?.Longitude.toFixed(4)}</h6>
+                          <h6><strong>Latitude:</strong> {locations[selectedDocument?.IdLocation]?.Latitude?.toFixed(4)}<br></br>
+                            <strong>Longitude:</strong> {locations[selectedDocument?.IdLocation]?.Longitude?.toFixed(4)}</h6>
                         </>
                         )
                       ) : (
@@ -1114,7 +1115,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
         }
       }
       >
-        <img src='src/icon/multipleselect.svg' height={32} width={32}/>
+        <img src='src/icon/multipleselect.svg' height={32} width={32} alt="Multiple Select"/>
         <Tooltip border={'solid 1px grey'} className='py-1' id='multipleselect' variant='light' delayShow={500}/>
       </button>
       
@@ -1160,7 +1161,6 @@ MapComponent.propTypes = {
   locationsArea: PropTypes.object,
   documents: PropTypes.array,
   setSelectedLocation: PropTypes.func,
-  propsDocument: PropTypes.object,
   selectedLocation: PropTypes.object,
   handleDocumentClick: PropTypes.func,
   numberofconnections: PropTypes.number,
