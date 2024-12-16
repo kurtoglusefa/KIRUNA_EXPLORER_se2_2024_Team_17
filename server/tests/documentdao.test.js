@@ -139,4 +139,25 @@ describe("documentDao", () => {
       );
     });
   });
+  describe("deleteDocument", () => {
+    it("should return an error when deleting a document fails", async () => {
+      db.run.mockImplementation((sql, callback) => {
+        callback(new Error("Failed to reset documents."));
+      });
+  
+      await expect(documentDao.resetDocument()).rejects.toThrow(
+        "Failed to reset documents."
+      );
+    });
+  
+    it("should return true when deleting a document is successful", async () => {
+      db.run.mockImplementation((sql, callback) => {
+        callback(null);
+      });
+  
+      const result = await documentDao.resetDocument();
+      expect(result).toBe(true);
+    });
+  });
+  
 });

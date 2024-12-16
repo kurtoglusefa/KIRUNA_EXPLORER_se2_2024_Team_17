@@ -152,7 +152,7 @@ exports.resetDocument = () => {
     const sql = "DELETE FROM Document";
     db.run(sql, function (err) {
       if (err) {
-        reject(err);
+        reject(new Error("Failed to reset documents."));
         return;
       }
       resolve(true);
