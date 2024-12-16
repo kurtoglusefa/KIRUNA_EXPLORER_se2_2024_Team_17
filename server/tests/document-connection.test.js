@@ -1,6 +1,6 @@
 import request from "supertest";
 
-import { app, server } from "../index.js";
+import { app } from "../index.js";
 
 const DocumentConnectionDao = require("../dao/document-connection-dao.js");
 const UserDao = require("../dao/user-dao.js");
