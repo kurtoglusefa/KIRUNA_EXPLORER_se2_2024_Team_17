@@ -45,7 +45,7 @@ function LoginForm() {
     return (
 
         <Form onSubmit={handleSubmit}>
-            <Form.Label as='h2' className='my-4 text-center'>Login</Form.Label>
+            <Form.Label as='h2' className='my-4 mt-5 text-center'>Login</Form.Label>
             {errMsg ? <Alert variant='danger' dismissible onClick={() => setErrMsg('')}>{errMsg}</Alert> : undefined}
             <FloatingLabel controlId="username" label="Username" className="mb-3" style={{ width: '300px', margin: '0 auto' }}>
                 <Form.Control type="email" name='username' value={username} onChange={ev => setUsername(ev.target.value)} />
@@ -81,9 +81,9 @@ function Login() {
                 }}></i>
             </Link>
             <Card style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.5)', // Black background with 50% opacity
+                backgroundColor: 'rgba(0, 0, 0, 0.7)', // Black background with 50% opacity
                 borderRadius: '15px',
-                padding: '20px 40px',
+                padding: '50px 100px',
                 textAlign: 'center',
                 color: '#fff',
                 marginBottom: '40px'

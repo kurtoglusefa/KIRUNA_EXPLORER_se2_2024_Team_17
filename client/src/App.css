@@ -13,7 +13,7 @@
 
 .leaflet-container {
   margin-top: 5px;
-  height:88vh;
+  height:89vh;
   z-index: 0;
   /* Increase margin for more space below navbar */
 
@@ -159,10 +159,20 @@
   cursor: pointer ;
 }
 
-.btn-multipleselect {
+.buttons-container {
   position: absolute;
   right: 10px;
-  bottom: 60px;
+  bottom: 40px;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  border-radius: 12px;
+}
+
+#btn-overlay {
+  margin-top: 10px;
+}
+
+.btn-multipleselect {
   width: 50px;
   height: 50px;
   background-color: #ffffff;
@@ -174,5 +184,51 @@
 }
 
 .btn-multipleselect:active {
+  background-color: #aaaaaa;
+}
+
+.btn-add {
+  display: flex;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  width: 50px;
+  height: 50px;
+  padding: 0px 0px;
+  background-color: darkorange;
+  color: white;
+}
+
+.btn-add:hover {
+  background-color: orangered;
+}
+
+.btn-add:active {
+  background-color: darkred;
+}
+
+.btn-add:disabled {
+  background-color: #aaa8a4;
+  color: #4f4f4f;
+}
+
+.btn-drag {
+  display: flex;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  width: 50px;
+  height: 50px;
+  padding: 0px 0px;
+  background-color: #ffffff;
+}
+
+.btn-drag:hover {
+  background-color: #cccccc;
+}
+
+.btn-drag:active {
   background-color: #aaaaaa;
 }

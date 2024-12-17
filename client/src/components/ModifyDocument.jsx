@@ -523,7 +523,7 @@ function ModifyDocument() {
   return (
     <>
 
-      <Card className="container bg-light rounded form" style={{ marginTop: '140px', minHeight: '680px' }}>
+      <Card className="container bg-light form" style={{ marginTop: '140px', minHeight: '680px', boxShadow: '0 10px 50px #000000', borderRadius: '20px' }}>
         <Card.Title>
           <h3 className="text-center mt-4">
             {documentId ? "Update" : "Create"} Document
@@ -539,7 +539,7 @@ function ModifyDocument() {
                 <Form.Group controlid="title" className="mb-2 text-start">
                   <Form.Label as="strong">Title*</Form.Label>
                   <Form.Control
-                    className={formSubmitted}
+                    className={formSubmitted && !title ? "blink" : ""}
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
@@ -558,7 +558,7 @@ function ModifyDocument() {
                       onChange={(event) =>
                         handleTypeScaleChange(event.target.value)
                       }
-                      className={formSubmitted}
+                      className={formSubmitted && !documentScale ? "font-size-20 blink" : "font-size-20"}
                     >
                       <option value="0">Select scale</option>
                       {scales &&
@@ -632,7 +632,7 @@ function ModifyDocument() {
                     <Form.Control
                       controlid='year'
                       id='year'
-                      className={formSubmitted}
+                      className={formSubmitted && !issuanceDate.year ? "mx-1 blink" : "mx-1"}
                       type='number'
                       style={{ width: '10ch' }}
                       maxLength={4}
@@ -823,12 +823,12 @@ function ModifyDocument() {
                       id="stakeholders"
                       value={selectedStakeholders}
                       onChange={(selected) => setSelectedStakeholders(selected)}
-                      className={formSubmitted}
+                      className={formSubmitted && selectedStakeholders <= 0 ? "col blink" : "col"}
                     />
                     <Button
                       variant="outline-secondary"
                       onClick={() => setShowAddStakeholder(true)}
-                      className="rounded-end col"
+                      className="rounded-end col-4"
                       id="addStakeholder"
                     >
                       Add Stakeholder
@@ -841,7 +841,7 @@ function ModifyDocument() {
                     <Form.Select
                       value={type.id}
                       onChange={(e) => setType(e.target.value)}
-                      className={formSubmitted}
+                      className={formSubmitted && !title ? "col-8 blink" : "col-8"}
                       id="documentType"
                     >
                       <option>Select Document Type</option>
@@ -856,6 +856,7 @@ function ModifyDocument() {
                       variant="outline-secondary"
                       onClick={() => setShowAddDocumentType(true)}
                       id="addDocumentType"
+                      className="col-4"
                     >
                       Add Document Type
                     </Button>
@@ -864,7 +865,7 @@ function ModifyDocument() {
                 <Form.Group controlid="description" className="mb-3">
                   <Form.Label as="strong">Description*</Form.Label>
                   <Form.Control
-                    className={formSubmitted}
+                    className={formSubmitted && !description ? "mt-auto blink" : "mt-auto"}
                     as="textarea"
                     style={{ height: "150px" }}
                     value={description}

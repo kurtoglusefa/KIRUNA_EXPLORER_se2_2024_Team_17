@@ -29,6 +29,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   const [documentTypes, setDocumentTypes] = useState([]);
   const [stakeholders, setStakeholders] = useState([]);
   const [modifyMode, setModifyMode] = useState(false);
+  const [dragMode, setDragMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const offsetDistance = 0.0001; //offset distance between markers
   const mapRef = useRef(null); // To get a reference to the map instance
@@ -51,7 +52,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   //for setting the initial position of the draggable box (using Rnd) for creating a new document  
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const componentWidth = 300; // Width of your component in pixels
-  const initialXFromRight = 70; // Distance from the right edge in pixels
+  const initialXFromRight = 100; // Distance from the right edge in pixels
 
   const crypto = window.crypto || window.msCrypto;
   let array = new Uint32Array(1);
@@ -528,7 +529,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                                   className: 'document-icon',
                                 })
                             }
-                            draggable={modifyMode}
+                            draggable={dragMode}
                             eventHandlers={{
                               dragend: (e) => {
                                 if (isLogged) {
@@ -622,7 +623,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                                     className: 'document-icon',
                                   })
                               }
-                              draggable={modifyMode}
+                              draggable={dragMode}
                               eventHandlers={{
                                 dragend: (e) => {
                                   if (isLogged) {
@@ -951,7 +952,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
               <Rnd
                 default={{
                   x: windowWidth - componentWidth - initialXFromRight,
-                  y: -270,
+                  y: -280,
                   width: 280,
                 }}
                 bounds={'window'}
@@ -1059,79 +1060,108 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
               </Rnd>
             </div>
           }
-          {/* Button enable */}
-          {isLogged &&
-            <>
-              <div className='d-flex mt-2 align-items-center justify-content-between ms-3'>
-                <div className='d-flex align-items-center'>
-                  <Button disabled={multipleDocMode} variant='dark' size='sm' className='rounded-pill mt-2 overlay px-4 btn-document' style={{ left: '3.5%', bottom: '5%' }} onClick={() => {
-                    if (modifyMode) {
-                      setSelectedArea(null);
-                    }
-
-                    setSelectedLocation(null);
-
-                    setModifyMode((mode) => !mode)
-                  }}>
-                    <span className='h6' style={{ fontSize: '16px' }}>{modifyMode ? 'Disable' : 'Enable'} Drag / Add a new location for a document</span>
-                  </Button>
-
-                  <div>
-                    {modifyMode && (
-                      <div className='col text-end mx-5 mb-1' style={{
-                        position: 'absolute',
-                        zIndex: 1000,
-                        textShadow: '#000000 0px 0px 20px',
-                        left: '450px',
-                        bottom: '4%',
-                        color: 'white',
-                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                        padding: '5px',
-                        borderRadius: '7px',
-                        border: '1px solid white'
-                      }}>
-                        Drag / Add a new document enabled
-                      </div>
-                    )}
-                    {/* {modifyMode && <span className='col text-end mx-5 mb-1' style={{ position: 'absolute', zIndex: 1000, textShadow: '#000000 0px 0px 20px', left: '450px', bottom: '5%', color: 'white' }}>Drag / Add new document enabled</span>} */}
-                  </div>
-                </div>
-              </div>
-
-            </>
-          }
         </div>
       )}
 
-      {/* [BUTTON] Select multiple documents */}
-      <button
-        className='btn-multipleselect'
-        data-tooltip-id='multipleselect'
-        data-tooltip-content={'Select Multiple Documents'}
-        data-tooltip-place='left-start'
-        style={{ backgroundColor: multipleDocMode && 'darkseagreen', border: multipleDocMode && 'solid 3px green' }}
-        onClick={() => {
-          if (multipleDocMode) {
+      <div className='buttons-container '>
+        {/* [BUTTON] Select multiple documents */}
+        <button
+          id='btn-overlay'
+          className='btn-multipleselect mt-auto'
+          data-tooltip-id='tooltip'
+          data-tooltip-content={'Select Multiple Documents'}
+          data-tooltip-place='left-start'
+          style={{ backgroundColor: multipleDocMode && 'darkseagreen', border: multipleDocMode && 'solid 3px green' }}
+          onClick={() => {
+            if (multipleDocMode) {
 
-            setMultipleDocuments([]);
-            setMultipleAreas([]);
-          } else {
+              setMultipleDocuments([]);
+              setMultipleAreas([]);
+            } else {
 
-            setSelectedMarker(null);
-            setSelectedDocument(null);
-            setSelectedLocation(null);
-            setModifyMode(false);
+              setSelectedMarker(null);
+              setSelectedDocument(null);
+              setSelectedLocation(null);
+              setModifyMode(false);
+            }
+
+
+            setMultipleDocMode(!multipleDocMode);
           }
+          }
+        >
+          <img src='src/icon/multipleselect.svg' height={32} width={32} alt="Multiple Select"/>
+        </button>
 
+        {isLogged && (
+        <>
+        {/* [BUTTON] Drag documents */}
+        <button 
+            id='btn-overlay'
+            className="btn-drag"
+            data-tooltip-id='tooltip'
+            data-tooltip-content={'Move documents in the map'}
+            data-tooltip-place='left-start'
+            style={{//glow effect
+              border: dragMode && 'solid 3px pink',
+              backgroundColor: dragMode && 'violet'
+              }}
+            onClick={() => {
+              setDragMode((mode) => !mode);
+            }}
+          >
+            <i className="bi bi-arrows-move"></i>
+          </button>
 
-          setMultipleDocMode(!multipleDocMode);
-        }
-        }
-      >
-        <img src='src/icon/multipleselect.svg' height={32} width={32} alt="Multiple Select"/>
-        <Tooltip border={'solid 1px grey'} className='py-1' id='multipleselect' variant='light' delayShow={500}/>
-      </button>
+          {/* [BUTTON] Add documents */}
+          <button 
+            id='btn-overlay'
+            className="btn-add"
+            data-tooltip-id='tooltip'
+            data-tooltip-content={'Add a new document or area'}
+            data-tooltip-place='left-start'
+            disabled={multipleDocMode}
+            style={{//glow effect
+              border: modifyMode && 'solid 3px yellow',
+              backgroundColor: modifyMode && 'darkorange'
+              }}
+            onClick={() => {
+              if (modifyMode) {
+                setSelectedArea(null);
+              }
 
+              setSelectedLocation(null);
+
+              setModifyMode((mode) => !mode)
+            }}
+          >
+            <i className="bi bi-plus"></i>
+          </button>
+          
+        </>  
+        )}
+      </div>
+      
+      <Tooltip border={'solid 1px grey'} className='py-1' id='tooltip' variant='light' delayShow={500}/>
+
+      <div>
+        {dragMode && (
+          <div className='col text-end mx-5 mb-1 px-4' style={{
+            position: 'absolute',
+            zIndex: 1000,
+            textShadow: '#000000 0px 0px 20px',
+            left: '40%',
+            bottom: '40px',
+            color: 'white',
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            padding: '5px',
+            borderRadius: '7px',
+            border: '1px solid white'
+          }}>
+            Drag documents enabled
+          </div>
+        )}
+      </div>
 
       {/* [MODAL] Create New Area */}
       <Modal
