@@ -220,26 +220,6 @@ function CardDocument({ document, locationType, latitude, longitude, handleMarke
                   <Placeholder xs={10} />
                 </Placeholder>
               </div>
-              <div className="text-center mt-4">
-                {isLogged &&
-                  locationType == 'Point' ? (
-                  <>
-                    <Placeholder as='strong' animation="wave">
-                      <Placeholder xs={6} />
-                    </Placeholder><br></br>
-                    <Placeholder as='strong' animation="wave">
-                      <Placeholder xs={6} />
-                    </Placeholder>
-                  </>
-                ) : (
-                  <>
-                    <Placeholder as='strong' animation="wave">
-                      <Placeholder xs={6} />
-                    </Placeholder>
-                  </>
-                )
-                }
-              </div>
             </div>
             <div className="m-1 col-6">
               <Placeholder as={Card.Text} animation="wave">
@@ -295,10 +275,10 @@ function CardDocument({ document, locationType, latitude, longitude, handleMarke
               <Card.Text style={{ fontSize: '16px' }}><strong>Date:</strong> {document?.Issuance_Date}</Card.Text>
 
               <Card.Text style={{ fontSize: '16px' }}><strong>Scale Name:</strong> {scales[document?.IdScale] ? scales[document?.IdScale].scale_text : ""}</Card.Text>
-              {scales[document?.IdScale] && scales[document?.IdScale].scale_number !== '' ? (
+              {document?.IdScale> 4 ? (
                 <Card.Text style={{ fontSize: '16px' }}>
                   <strong>Scale Number: </strong>
-                  {scales[document?.IdScale].scale_number}
+                  {scales[document?.IdScale]?.scale_number}
                 </Card.Text>
               ) : null}
 
@@ -314,7 +294,7 @@ function CardDocument({ document, locationType, latitude, longitude, handleMarke
               {document?.IdStakeholder && stakeholders &&
                 <Card.Text style={{ fontSize: '16px' }}>
                   <strong>Stakeholders: </strong> {
-                    document.IdStakeholder && Array.isArray(document.IdStakeholder)
+                    Array.isArray(document.IdStakeholder)
                       ? document.IdStakeholder
                         .map((stakeholder) => stakeholder.Name || "Unknown")
                         .join(", ") // Join the names into a comma-separated string
@@ -323,7 +303,7 @@ function CardDocument({ document, locationType, latitude, longitude, handleMarke
 
                   {document?.Pages!=null && 
                     <Card.Text style={{ fontSize: '16px' }}>
-                      <strong>Pages:</strong> {document?.Pages ? document?.Pages : 0}
+                      <strong>Pages:</strong> {document?.Pages}
                     </Card.Text>
                   }
 
@@ -456,6 +436,7 @@ CardDocument.propTypes = {
   locationType: PropTypes.string.isRequired,
   latitude: PropTypes.number.isRequired,
   longitude: PropTypes.number.isRequired,
+  handleMarkerClick: PropTypes.func.isRequired,
   setSelectedDocument: PropTypes.func.isRequired,
   isLogged: PropTypes.bool.isRequired,
   area: PropTypes.string,

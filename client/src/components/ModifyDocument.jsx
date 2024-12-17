@@ -17,10 +17,8 @@ import {
 } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import Select from "react-select";
-
 import API from "../API";
 import AppContext from "../AppContext";
-
 
 function ModifyDocument() {
   let { documentId } = useParams();
@@ -42,15 +40,8 @@ function ModifyDocument() {
   const [pages, setPages] = useState("");
   const [stakeholder, setStakeholder] = useState([]);
   const [type, setType] = useState("");
-  const [latitude, setLatitude] = useState(
-    selectedLocation.lat ? selectedLocation.lat : ""
-  );
-  const [longitude, setLongitude] = useState(
-    selectedLocation.lng ? selectedLocation.lng : ""
-  );
-  const [area, setArea] = useState(
-    location.state.area ? location.state.area : null
-  );
+  const [latitude, setLatitude] = useState(selectedLocation?.lat );
+  const [longitude, setLongitude] = useState(selectedLocation?.lng );
   const [resources, setResources] = useState([]);
   const [addResources, setAddResources] = useState([]);
   const [addAttachments, setAddAttachments] = useState([]);
@@ -90,7 +81,7 @@ function ModifyDocument() {
   const [formSubmitted, setFormSubmitted] = useState(false);
 
   const crypto = window.crypto || window.msCrypto;
-  var array = new Uint32Array(1);
+  let array = new Uint32Array(1);
 
   const fetchResources = async () => {
     try {
@@ -114,69 +105,96 @@ function ModifyDocument() {
       }
     }
   };
-  useEffect(() => {
-    const fetchStakeholdersbyDocumentId = async (id) => {
-      try {
-        const res = await API.getStakeholderByDocumentId(id);
-        setSelectedStakeholders(
-          res.map((stk) => ({ value: stk.IdStakeholder, label: stk.Name }))
-        );
-      } catch (err) {
-        console.error(err);
-      }
-    };
+  const fetchStakeholdersbyDocumentId = async (id) => {
+    try {
+      const res = await API.getStakeholderByDocumentId(id);
+      setSelectedStakeholders(
+        res.map((stk) => ({ value: stk.IdStakeholder, label: stk.Name }))
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  useEffect(() => {  
     if (documentId) {
       fetchStakeholdersbyDocumentId(documentId);
       fetchResources();
       fetchAttachedDocuments();
     }
   }, [addResources]);
+  const getStakeholders = async () => {
+    try {
+      const res = await API.getAllStakeholders();
+      setStakeholders(res);
+      setStakeholder(res[0].id);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  const getTypes = async () => {
+    try {
+      const res = await API.getAllTypesDocument();
+      setTypes(res);
+      setType(res[0].id);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  const fetchDocuments = async () => {
+    try {
+      const res = await API.getAllDocuments();
+      setDocuments(res);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  const fetchLocationsArea = async () => {
+
+    API.getAllLocationsArea()
+      .then((res) => {
+
+        const locationsById = res.reduce((acc, location) => {
+          acc[location.IdLocation] = location;
+          return acc;
+        }, {});
+        // Set the transformed object to state
+        setLocationsArea(locationsById);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+  const getAllTypeConnections = async () => {
+    try {
+      const res = await API.getAllTypeConnections();
+
+      const typeConnectionId = res.reduce((acc, conn) => {
+        acc[conn.IdConnection] = conn;
+        return acc;
+      }, {});
+      setTypeConnections(typeConnectionId);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  const getDocumentConnections = async () => {
+    try {
+      const res = await API.getDocumentConnection(documentId);
+      setConnections(res);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  const getAllScales = async () => {
+    try {
+      const res = await API.getScales();
+      setScales(res);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
-    const getStakeholders = async () => {
-      try {
-        const res = await API.getAllStakeholders();
-        setStakeholders(res);
-        setStakeholder(res[0].id);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    const getTypes = async () => {
-      try {
-        const res = await API.getAllTypesDocument();
-        setTypes(res);
-        setType(res[0].id);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    const fetchDocuments = async () => {
-      try {
-        const res = await API.getAllDocuments();
-        setDocuments(res);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    const fetchLocationsArea = async () => {
-
-      API.getAllLocationsArea()
-        .then((res) => {
-
-          const locationsById = res.reduce((acc, location) => {
-            acc[location.IdLocation] = location;
-            return acc;
-          }, {});
-          // Set the transformed object to state
-          setLocationsArea(locationsById);
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-    };
-
     const fetchDocument = async () => {
       try {
         const res = await API.getDocumentById(documentId);
@@ -208,35 +226,6 @@ function ModifyDocument() {
         console.error(err);
       }
       setLoading(false);
-    };
-    const getAllTypeConnections = async () => {
-      try {
-        const res = await API.getAllTypeConnections();
-
-        const typeConnectionId = res.reduce((acc, conn) => {
-          acc[conn.IdConnection] = conn;
-          return acc;
-        }, {});
-        setTypeConnections(typeConnectionId);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    const getDocumentConnections = async () => {
-      try {
-        const res = await API.getDocumentConnection(documentId);
-        setConnections(res);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    const getAllScales = async () => {
-      try {
-        const res = await API.getScales();
-        setScales(res);
-      } catch (err) {
-        console.error(err);
-      }
     };
     setLoading(true);
     fetchLocationsArea();
@@ -550,7 +539,7 @@ function ModifyDocument() {
                 <Form.Group controlid="title" className="mb-2 text-start">
                   <Form.Label as="strong">Title*</Form.Label>
                   <Form.Control
-                    className={formSubmitted && !title ? "blink" : ""}
+                    className={formSubmitted}
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
@@ -564,12 +553,12 @@ function ModifyDocument() {
                     <Form.Select
                       id="scale"
                       required
-                      value={documentScale ? documentScale.id : 0}
+                      value={documentScale?.id}
                       style={{ width: "20%" }}
                       onChange={(event) =>
                         handleTypeScaleChange(event.target.value)
                       }
-                      className={formSubmitted && !documentScale ? "font-size-20 blink" : "font-size-20"}
+                      className={formSubmitted}
                     >
                       <option value="0">Select scale</option>
                       {scales &&
@@ -594,7 +583,7 @@ function ModifyDocument() {
                           required
                           type="number"
                           placeholder="XXXX"
-                          value={oldScale_number ? oldScale_number : ""}
+                          value={oldScale_number}
                           onChange={(event) => handleScaleChange(event.target.value)}
                           className="mt-0 font-size-20"
                           style={{ textAlign: "left" }}
@@ -643,7 +632,7 @@ function ModifyDocument() {
                     <Form.Control
                       controlid='year'
                       id='year'
-                      className={formSubmitted && !issuanceDate.year ? "mx-1 blink" : "mx-1"}
+                      className={formSubmitted}
                       type='number'
                       style={{ width: '10ch' }}
                       maxLength={4}
@@ -834,7 +823,7 @@ function ModifyDocument() {
                       id="stakeholders"
                       value={selectedStakeholders}
                       onChange={(selected) => setSelectedStakeholders(selected)}
-                      className={formSubmitted && selectedStakeholders <= 0 ? "col-9 blink" : "col-9"}
+                      className={formSubmitted}
                     />
                     <Button
                       variant="outline-secondary"
@@ -852,7 +841,7 @@ function ModifyDocument() {
                     <Form.Select
                       value={type.id}
                       onChange={(e) => setType(e.target.value)}
-                      className={formSubmitted && !title ? "col-8 blink" : "col-8"}
+                      className={formSubmitted}
                       id="documentType"
                     >
                       <option>Select Document Type</option>
@@ -875,7 +864,7 @@ function ModifyDocument() {
                 <Form.Group controlid="description" className="mb-3">
                   <Form.Label as="strong">Description*</Form.Label>
                   <Form.Control
-                    className={formSubmitted && !description ? "mt-auto blink" : "mt-auto"}
+                    className={formSubmitted}
                     as="textarea"
                     style={{ height: "150px" }}
                     value={description}
