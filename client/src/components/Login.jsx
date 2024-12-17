@@ -43,22 +43,21 @@ function LoginForm() {
     }
 
     return (
-        <Card className='px-5 pb-3 form border-color-main bg-color-main-light'>
-            <Form onSubmit={handleSubmit}>
-                <Form.Label as='h2' className='my-4 text-center'>Login</Form.Label>
-                {errMsg ? <Alert variant='danger' dismissible onClick={() => setErrMsg('')}>{errMsg}</Alert> : undefined}
-                <FloatingLabel controlId="username" label="Username" className="mb-3">
-                    <Form.Control type="email" name='username' value={username} onChange={ev => setUsername(ev.target.value)} />
-                </FloatingLabel>
-                <FloatingLabel controlId="password" label="Password" className="mb-3">
-                    <Form.Control type="password" name='password' value={password} onChange={ev => setPassword(ev.target.value)} />
-                </FloatingLabel>
-                <Button type='submit' className='my-2 p-2 px-4 rounded-pill bg-color-main border-color-main' style={{ fontWeight: 600, fontSize: 18 }}>Confirm</Button>
-            </Form>
-        </Card>
+
+        <Form onSubmit={handleSubmit}>
+            <Form.Label as='h2' className='my-4 text-center'>Login</Form.Label>
+            {errMsg ? <Alert variant='danger' dismissible onClick={() => setErrMsg('')}>{errMsg}</Alert> : undefined}
+            <FloatingLabel controlId="username" label="Username" className="mb-3" style={{ width: '300px', margin: '0 auto' }}>
+                <Form.Control type="email" name='username' value={username} onChange={ev => setUsername(ev.target.value)} />
+            </FloatingLabel>
+            <FloatingLabel controlId="password" label="Password" className="mb-3" style={{ width: '300px', margin: '0 auto' }}>
+                <Form.Control type="password" name='password' value={password} onChange={ev => setPassword(ev.target.value)} />
+            </FloatingLabel>
+            <Button type='submit' variant='dark' className='my-2 p-2 px-4' style={{ borderColor: 'white', fontWeight: 600, fontSize: 18, borderRadius: '15px' }}>Sign in</Button>
+        </Form>
+
     );
 }
-
 function Login() {
     return (
         <div className="login-page" style={{
@@ -81,20 +80,24 @@ function Login() {
                     fontSize: '40px', position: 'absolute', top: '10px', left: '30px'
                 }}></i>
             </Link>
-            <h1 style={{
-                fontSize: '80px',
-                fontWeight: 600,
-                fontFamily: 'Calibri',
+            <Card style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.5)', // Black background with 50% opacity
+                borderRadius: '15px',
+                padding: '20px 40px',
+                textAlign: 'center',
                 color: '#fff',
                 marginBottom: '40px'
-            }}>Kiruna eXplorer</h1>
-            <Container className="text-center">
-                <Row className="justify-content-center">
-                    <Col md={6} lg={4}>
-                        <LoginForm />
-                    </Col>
-                </Row>
-            </Container>
+            }}>
+                <h1 style={{
+                    fontSize: '80px',
+                    fontWeight: 600,
+                    fontFamily: 'Calibri',
+                    margin: 0
+                }}>
+                    Kiruna eXplorer
+                </h1>
+                <LoginForm />
+            </Card>
         </div>
     );
 }
