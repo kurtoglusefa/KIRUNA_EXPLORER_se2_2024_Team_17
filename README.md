@@ -240,7 +240,7 @@ You will see the kiruna explore at address: http://localhost:5173/
     }
     ```
 
-- GET /api/documents/title/:title
+- GET `/api/documents/title/:title`
 
   - Description: Allows all user to get the document of the system by giving title.
   - Request: No request.
@@ -264,7 +264,7 @@ You will see the kiruna explore at address: http://localhost:5173/
   }
   ```
 
-- PATCH /api/documents/:documentid
+- PATCH `/api/documents/:documentid`
 
   - Description: Allows an authenticated urban planner to update a specific document by its ID. This endpoint updates the document's details and reassigns its stakeholders.
 
@@ -304,7 +304,7 @@ You will see the kiruna explore at address: http://localhost:5173/
   }
   ```
 
-- PATCH /api/documents/:documentId/connection
+- PATCH `/api/documents/:documentId/connection`
 
   - Description: Allows an authenticated urban planner to Updates the connection details between two documents. This allows modifying the relationship or connection type between a document and another specified document.
 
@@ -346,6 +346,19 @@ You will see the kiruna explore at address: http://localhost:5173/
       "filename": "file1234_20241110_145302.pdf"
     }
     ```
+
+- DELETE `/api/documents/:documentId/resources/:filename`
+
+  - Description: Deletes a specific resource (file) associated with a document.
+  - Request Parameters: `documentId` (Integer, required) The unique ID of the document. and `filename` (String, required) The name of the file to be deleted.
+  - Response: `200 OK` File deleted successfully. `404 Not Found` The specified file does not exist. `500 Internal Server Error` If an unexpected error occurs during file deletion.
+  - Response Body on success:
+
+  ```json
+  {
+    "message": "File deleted successfully."
+  }
+  ```
 
 - GET `/api/documents/:documentId/resources`
 
