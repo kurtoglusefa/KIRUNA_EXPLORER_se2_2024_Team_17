@@ -19,7 +19,7 @@ To run the web app refer to the following step:
 
 - Open a browser window, in the URL field, type `http://localhost:5173/` and press Enter. The client is loaded. The user can interact with the server through the client.
 
-## Docker 
+## Docker
 
 ### Prerequisites
 
@@ -27,7 +27,7 @@ To run the web app refer to the following step:
 
 ### Building the Docker container
 
-To start your application  easily with Docker, you first need to open docker desktop on you machine
+To start your application easily with Docker, you first need to open docker desktop on you machine
 Then open a terminal or a shell in the root of the project and run the following command:
 
 ```sh
@@ -62,8 +62,6 @@ docker-compose up --build
 
 You will see the kiruna explore at address: http://localhost:5173/
 
-
-
 ## How to test the backend API's app
 
 - Open a terminal
@@ -74,6 +72,7 @@ You will see the kiruna explore at address: http://localhost:5173/
   - Decide what you want to test between users,documents then run the appropriate command (for example, to test users):
   - `npm test users`
   - You will see the total time taken to execute these tests and the different API calls.
+
 ## How to test the fronted app
 
 - Open two terminals (reffered to as 'terminal 1' and 'terminal 2')
@@ -93,9 +92,9 @@ You will see the kiruna explore at address: http://localhost:5173/
   - `cd client`
   - `npm run cypress:run`
   - You will see the total time taken to execute these tests and the components/view tested.
-Important: You can also run this command
+    Important: You can also run this command
   - `npm run cypress:open`
-In the e2e testing you can see the different test files with the possibility to execute each one.
+    In the e2e testing you can see the different test files with the possibility to execute each one.
 
   ## React Client Application Routes
 
@@ -221,6 +220,7 @@ In the e2e testing you can see the different test files with the possibility to 
     ]
     ```
 - GET `/api/documents/:documentId`
+
   - Description: Allows all user to get the document of the system by giving id.
   - Request: No request.
   - Response: returns `200 OK` (created) or `400 Bad Request` (invalid data ) or `500 Internal Server Error `If an unexpected error occurs or `404 Not Found`.
@@ -239,6 +239,91 @@ In the e2e testing you can see the different test files with the possibility to 
       "idLocation": 1
     }
     ```
+
+- GET /api/documents/title/:title
+
+  - Description: Allows all user to get the document of the system by giving title.
+  - Request: No request.
+  - Response: returns `200 OK` (created) or `400 Bad Request` (invalid data
+    ) or `500 Internal Server Error `If an unexpected error occurs or `404 Not Found`.
+  - Response Body: On success (`200 OK`), the body contains the object with the details of
+    the documents.
+
+  ```json
+  {
+    "documentId": 123,
+    "title": "Sample Title",
+    "idStakeholder": 1,
+    "scale": "National",
+    "issuance_Date": "04/2019",
+    "language": "English",
+    "pages": 50,
+    "description": "A description for the document",
+    "idType": 2,
+    "idLocation": 1
+  }
+  ```
+
+- PATCH /api/documents/:documentid
+
+  - Description: Allows an authenticated urban planner to update a specific document by its ID. This endpoint updates the document's details and reassigns its stakeholders.
+
+  - Request Parameters: documentid (Integer, required): The unique ID of the document to be updated.
+
+  - Request Body: A JSON object containing the updated document details. The idStakeholder field (array) is optional but will overwrite existing stakeholders if provided.
+
+  ```json
+  {
+    "title": "Updated Document Title",
+    "IdScale": 1,
+    "issuance_Date": "2024-06-17",
+    "language": "English",
+    "pages": 100,
+    "description": "Updated description of the document",
+    "idtype": 2,
+    "idLocation": 3,
+    "idStakeholder": [1, 2, 3]
+  }
+  ```
+
+  - Response: returns `200 OK` (created) or `400 Bad Request` (invalid data) or `500 Internal Server Error `If an unexpected error occurs or `404 Not Found`. `400 Bad Request` if Missing required fields.
+  - Response Body: On success (`200 OK`), the body contains the object with the details of
+    the documents.
+
+  ```json
+  {
+    "idDocument": 1,
+    "title": "Updated Document Title",
+    "IdScale": 1,
+    "issuance_Date": "2024-06-17",
+    "language": "English",
+    "pages": 100,
+    "description": "Updated description of the document",
+    "idtype": 2,
+    "idLocation": 3
+  }
+  ```
+
+- PATCH /api/documents/:documentId/connection
+
+  - Description: Allows an authenticated urban planner to Updates the connection details between two documents. This allows modifying the relationship or connection type between a document and another specified document.
+
+  - Request Parameters: documentId (Integer, required): The unique ID of the document to be connected to.
+
+  - Request Body: A JSON object containing the new connection details. The idStakeholder field
+
+  ```json
+  {
+    "IdDocument2": 2,
+    "IdConnection": 1
+  }
+  ```
+
+  - Response: `200 OK` Connection updated successfully.
+    `400 Bad Request` Missing required fields (IdDocument2 or IdConnection).
+    `404 Not Found` if the Document not found.
+    `500 Internal Server Error` If an unexpected error occurs.
+
 - **POST** `/api/documents/:documentId/resources`
 
   - **Description**: Allows users to upload a file for a specific document, given its `documentId`.
@@ -451,6 +536,7 @@ In the e2e testing you can see the different test files with the possibility to 
       "Color": "#8C6760"
     }
     ```
+
 - POST `/api/stakeholders`
   - **Description**: Add a stakeholder.
     - **Request Body**:
@@ -476,49 +562,52 @@ In the e2e testing you can see the different test files with the possibility to 
     - **Response**: Returns `200 OK` with a JSON array of stakeholders if successful, or `500 Internal Server Error` if an unexpected error occurs.
       - **Response Body on Success**:
         ```json
-          [
-            {
-              "IdStakeholder": 1,
-              "Name": "Municipality",
-              "Color": "#8C6760"
-            }
-          ]
+        [
+          {
+            "IdStakeholder": 1,
+            "Name": "Municipality",
+            "Color": "#8C6760"
+          }
+        ]
         ```
 - GET `/api/stakeholders/:stakeholderId/documents`
+
   - **Description**: Retrieves all documents associated with a specific stakeholder.
     - **Request Parameters**:
       - `stakeholderId` (String, required): The unique ID of the stakeholder.
     - **Response**: Returns `200 OK` with a JSON array of documents if successful, or `500 Internal Server Error` if an unexpected error occurs.
       - **Response Body on Success**:
       ```json
-          [
-            {
-              "documentId": 123,
-              "title": "Sample Title",
-              "idStakeholder": 1,
-              "scale": "National",
-              "issuance_Date": "04/2019",
-              "language": "English",
-              "pages": 50,
-              "description": "A description for the document",
-              "idType": 2,
-              "idLocation": 1
-            }
-          ]
+      [
+        {
+          "documentId": 123,
+          "title": "Sample Title",
+          "idStakeholder": 1,
+          "scale": "National",
+          "issuance_Date": "04/2019",
+          "language": "English",
+          "pages": 50,
+          "description": "A description for the document",
+          "idType": 2,
+          "idLocation": 1
+        }
+      ]
       ```
 
 - DELETE `/api/documents/:documentId/stakeholders`
   - **Description**: Clears all stakeholders from a specific document.
     - **Request Parameters**:
-        - `documentId` (String, required): The unique ID of the document.
+      - `documentId` (String, required): The unique ID of the document.
     - **Response**: Returns `200 OK` with a success message if stakeholders are removed, `404 Not Found` if no stakeholders are found to remove, or `500 Internal Server Error` if an unexpected error occurs.
       - **Response Body on Success**:
         ```json
         {
-            "message": "Stakeholders removed successfully."
+          "message": "Stakeholders removed successfully."
         }
         ```
+
 # Type API
+
 - GET `/api/types`
 
   - **Description**: Retrieves a list of all document types.
@@ -548,23 +637,26 @@ In the e2e testing you can see the different test files with the possibility to 
       "Name": "Report",
       "Description": "A detailed report document type."
     }
-- POST `/api/types`
-    - **Description**: Allows an urban planner to add a new type with an associated icon.
-    - **Request Body**:
-    ```json
-    {
-      "type": "New type",
-      "iconSrc" : "abc.jpg" 
-    }
     ```
-    - **Responses**:
-      - `201 Created`: If the type is successfully added. The response contains the `typeId` of the newly added type and a success message or `400 Bad Request`: If either `type` or `iconSrc` is missing from the request body. The response contains an error message or `500 Internal Server Error`: If there is an error while adding the type. The response contains an error message.
-        ```json
-        {
-          "typeId": "12345",
-          "message": "Type added successfully."
-        }
-        ```
+
+- POST `/api/types`
+  - **Description**: Allows an urban planner to add a new type with an associated icon.
+  - **Request Body**:
+  ```json
+  {
+    "type": "New type",
+    "iconSrc": "abc.jpg"
+  }
+  ```
+  - **Responses**:
+    - `201 Created`: If the type is successfully added. The response contains the `typeId` of the newly added type and a success message or `400 Bad Request`: If either `type` or `iconSrc` is missing from the request body. The response contains an error message or `500 Internal Server Error`: If there is an error while adding the type. The response contains an error message.
+      ```json
+      {
+        "typeId": "12345",
+        "message": "Type added successfully."
+      }
+      ```
+
 ## Database Tables
 
 **User**
@@ -651,7 +743,8 @@ In the e2e testing you can see the different test files with the possibility to 
 - **App.jsx**: The root component that renders the entire application, integrating routing and layout to ensure smooth app functionality.
 - **WelcomePage.jsx**: The main UI component where the users can start using the application and navigate related pages.
 - **Diagram.jsx** : this Page show the diagram where the users can see the different connections and relationship among documents.
-- 
+-
+
 ## Screenshots
 
 ![Screenshot](/images/welcomepage.png)
