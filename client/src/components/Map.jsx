@@ -18,7 +18,7 @@ import MarkerClusterGroup from "react-leaflet-cluster"
 import PropTypes from 'prop-types';
 import { Tooltip } from 'react-tooltip';
 
-function MapComponent({ locations, setLocations, locationsArea, documents, setSelectedLocation, selectedLocation, handleDocumentClick, numberofconnections, fetchLocationsArea }) {
+function MapComponent({ locations, setLocations, locationsArea, documents, setSelectedLocation, selectedLocation, handleDocumentClick, fetchLocationsArea }) {
   const context = useContext(AppContext);
   const navigate = useNavigate();
   const selectedDocument = useContext(AppContext).selectedDocument;
@@ -328,7 +328,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
         if (modifyMode) {
           mapRef.current.getContainer().style.cursor = "pointer";
         } else {
-          mapRef.current.getContainer().style.cursor = "";
+          mapRef.current.getContainer().style.cursor = "default";
         }
       }
     });
@@ -468,7 +468,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
             <CenterMapControl />
             {/* Layers */}
             <LayersControl position="topright" collapsed={false}>
-              <LayersControl.Overlay name="All Documents">
+              <LayersControl.Overlay name="All Documents" checked>
                 <LayerGroup>
                   <MarkerClusterGroup
                     iconCreateFunction={createClusterDocumentCustomIcon}
@@ -565,7 +565,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                   </MarkerClusterGroup>
                 </LayerGroup>
               </LayersControl.Overlay>
-              <LayersControl.Overlay name="Documents belong to municipal area">
+              <LayersControl.Overlay name="Documents belonging to municipal area">
                 <LayerGroup>
                   <MarkerClusterGroup
                     iconCreateFunction={createClusterDocumentCustomIcon}
@@ -660,7 +660,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                   </MarkerClusterGroup>
                 </LayerGroup>
               </LayersControl.Overlay>
-              <LayersControl.Overlay name="Area" checked={modifyMode}>
+              <LayersControl.Overlay name="Areas" checked={modifyMode}>
               <LayerGroup>
                 <MarkerClusterGroup
                  iconCreateFunction={createClusterAreaCustomIcon}
@@ -940,7 +940,6 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                   handleMarkerClick={handleMarkerClick}
                   isLogged={isLogged}
                   viewMode='map'
-                  numberofconnections={numberofconnections}
                   area={locationsArea[selectedMarker?.IdLocation]}
                 />
               </Rnd>
@@ -1177,7 +1176,6 @@ MapComponent.propTypes = {
   setSelectedLocation: PropTypes.func,
   selectedLocation: PropTypes.object,
   handleDocumentClick: PropTypes.func,
-  numberofconnections: PropTypes.number,
   fetchLocationsArea: PropTypes.func
 };
 

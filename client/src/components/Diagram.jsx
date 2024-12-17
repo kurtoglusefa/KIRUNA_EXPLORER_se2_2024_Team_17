@@ -21,7 +21,6 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
   const loggedIn = useContext(AppContext).loginState.loggedIn;
   const selectedDocument = useContext(AppContext).selectedDocument;
   const setSelectedDocument = useContext(AppContext).setSelectedDocument;
-  const [numberofconnections, setNumberofconnections] = useState(0);
   const [typeConnections, setTypeConnections] = useState([]);
   const [connections, setConnections] = useState([]);
 
@@ -147,12 +146,10 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
 
 
   const OffsetEdge = ({ id, sourceX, sourceY, targetX, targetY, style, data }) => {
-    console.log('Edge data:', data); // Log the edge's data for debugging
     const offset = data?.offset || 50; // Use offset from data (default: 50)
     const connectionDetails = data?.connectionDetails; // Extract connection details
     const [showTooltip, setShowTooltip] = useState(false);  // Tooltip visibility state
     // Log connectionDetails to verify if they're correctly populated
-    console.log('Connection Details:', connectionDetails);
     // Calculate control points for a Bezier curve
     const controlX = (sourceX + targetX) / 2; // Midpoint horizontally
     const controlY = Math.min(sourceY, targetY) - offset; // Apply offset to the curve
@@ -290,7 +287,6 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
   const fetchConnections = async () => {
     try {
       const res = await API.getAllDocumentConnections();
-      console.log('Fetched Connections:', res);  // Log the fetched connections
 
       const offsetObjects = [];
 
@@ -301,9 +297,6 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
       let edges = res.map((connection) => {
 
         const connectionId = connection.IdConnection.toString();
-        console.log('Connection ID:', connectionId);  // Log the connection ID
-        console.log('Type from typeConnections:', typeConnections[connectionId]);  // Log the corresponding type
-
 
         const type = typeConnections[connectionId]?.Type || 'Unknown';
         const sourceDocument = documents.find((doc) => doc.IdDocument === connection.IdDocument1)?.Title || 'Unknown';
@@ -358,7 +351,6 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
           },
         };
       });
-      console.log('Edges:', edges);  // Log the edges with the enriched connectionDetails
       setConnections(res);
       setEdges(edges);
     } catch (err) {
@@ -524,7 +516,6 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
   const handleNodeClick = async (event, node) => {
     setSelectedEdge(null);
     const res = await API.getDocumentConnection(parseInt(node.id));
-    setNumberofconnections(res.length);
     setSelectedDocument(documents.find((doc) => doc.IdDocument === parseInt(node.id)));
   };
   const handleEdgeClick = (event, edge) => {
@@ -857,7 +848,6 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
               setSelectedMarker={setSelectedDocument}
               viewMode='map'
               isLogged={isLogged}
-              numberofconnections={numberofconnections}
               area={locationsArea[selectedDocument?.IdLocation]}
             />
           </Rnd>

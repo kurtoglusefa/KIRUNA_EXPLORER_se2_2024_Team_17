@@ -297,8 +297,10 @@ function ModifyDocument() {
   };
   const addResourcesDocument = async () => {
     try {
+      console.log(" mi arrivano queste resources");
+      console.log(addResources);
       // Send FormData to your API function
-      await API.addResourcesToDocument(documentId, addResources);
+      await API.addFilesToDocument('resources',documentId, addResources);
       setAddResources([]);
       setMessage("");
     } catch (err) {
@@ -310,7 +312,7 @@ function ModifyDocument() {
       // Send FormData to your API function
       console.log(" mi arrivano questi attachments");
       console.log(addAttachments);
-      await API.addAttachmentsToDocument(documentId, addAttachments);
+      await API.addFilesToDocument('attachments',documentId, addAttachments);
       setAddAttachments([]);
       setMessage("");
     } catch (err) {
@@ -445,7 +447,7 @@ function ModifyDocument() {
           documentId = result;
         }
       }
-      if (addResources.lenght > 0) {
+      if (addResources.length > 0) {
         try {
           await addResourcesDocument();
         } catch (err) {

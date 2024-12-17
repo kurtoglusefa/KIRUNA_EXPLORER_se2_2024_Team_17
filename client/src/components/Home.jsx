@@ -21,7 +21,6 @@ function Home(props) {
   const [stakeholders, setStakeholders] = useState([]);
   const [locations, setLocations] = useState([]);
   const [locationsArea, setLocationsArea] = useState([]);
-  const [numberofconnections, setNumberofconnections] = useState(0);
   const [documentTypes, setDocumentTypes] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [showAddConnection, setShowAddConnection] = useState(false);
@@ -127,7 +126,6 @@ function Home(props) {
   const handleDocumentClick = async (doc) => {
     // Fetch the number of connections for the selected document
     const res = await API.getDocumentConnection(doc.IdDocument);
-    setNumberofconnections(res.length);
     setSelectedDocument(doc);
 
   };
@@ -173,7 +171,7 @@ function Home(props) {
           loading ? (
             <Spinner animation="border" variant="primary" />
           ) : (
-            <MapComponent locations={locations} setLocations={setLocations} locationsArea={locationsArea} documents={props.documents} setSelectedLocation={setSelectedLocation} setSelectedDocument={setSelectedDocument} selectedLocation={selectedLocation} handleDocumentClick={handleDocumentClick} numberofconnections={numberofconnections} fetchLocationsArea={fetchLocationsArea} />
+            <MapComponent locations={locations} setLocations={setLocations} locationsArea={locationsArea} documents={props.documents} setSelectedLocation={setSelectedLocation} setSelectedDocument={setSelectedDocument} selectedLocation={selectedLocation} handleDocumentClick={handleDocumentClick} fetchLocationsArea={fetchLocationsArea} />
           )
 
         )}
@@ -216,7 +214,6 @@ function Home(props) {
                         isLogged={isLogged}
                         viewMode={viewMode}
                         handleMarkerClick={setSelectedDocument}
-                        numberofconnections={numberofconnections}
                         area={locationsArea[selectedDocument?.IdLocation]}
                         stakeholders={stakeholders}
                       />

@@ -680,7 +680,8 @@ const getDocumentAttachments = async (id) => {
   });
 }
 
-const addResourcesToDocument = (idDocument, files) => {
+// Add resources or attachments to a document (ex addResourcesToDocument | addAttachmentsToDocument)
+const addFilesToDocument = (type, idDocument, files) => {
   return new Promise((resolve, reject) => {
     const formData = new FormData();
     // Check if files is an array (handling multiple files)
@@ -690,14 +691,21 @@ const addResourcesToDocument = (idDocument, files) => {
       });
     } else {
       console.error("No files provided for upload.");
-      reject({ error: "No files provided for upload." });
+      reject(new Error("No files provided for upload."));
       return;
     }
 
     formData.append('idDocument', idDocument); // Add the document ID to the form data
 
+    console.log(type);
+    
+    if(type !== "resources" || type !== "attachments")
+      reject(new Error("Invalid type"));
+
+
+
     // Make the fetch request
-    fetch(URL+ `/documents/`+idDocument+`/resources`, {
+    fetch(URL+ `/documents/`+idDocument+`/` + type, {
       method: "POST",
       body: formData,
       credentials: "include", // Include cookies if needed
@@ -722,47 +730,47 @@ const addResourcesToDocument = (idDocument, files) => {
   });
 };
 
-const addAttachmentsToDocument = (idDocument, files) => {
-  return new Promise((resolve, reject) => {
-    const formData = new FormData();
-    // Check if files is an array (handling multiple files)
-    if (files && files.length > 0) {
-      Array.from(files).forEach((file) => {
-        formData.append('files', file); // Append each file individually
-      });
-    } else {
-      console.error("No files provided for upload.");
-      reject({ error: "No files provided for upload." });
-      return;
-    }
+// const addAttachmentsToDocument = (idDocument, files) => {
+//   return new Promise((resolve, reject) => {
+//     const formData = new FormData();
+//     // Check if files is an array (handling multiple files)
+//     if (files && files.length > 0) {
+//       Array.from(files).forEach((file) => {
+//         formData.append('files', file); // Append each file individually
+//       });
+//     } else {
+//       console.error("No files provided for upload.");
+//       reject({ error: "No files provided for upload." });
+//       return;
+//     }
 
-    formData.append('idDocument', idDocument); // Add the document ID to the form data
+//     formData.append('idDocument', idDocument); // Add the document ID to the form data
 
-    // Make the fetch request
-    fetch(URL+ `/documents/`+idDocument+`/attachments`, {
-      method: "POST",
-      body: formData,
-      credentials: "include", // Include cookies if needed
-    })
-      .then((response) => {
-        if (response.ok) {
-          return response.json(); // Return the JSON response
-        } else {
-          // Return the response's error message if available
-          return response.json().then((message) => {
-            throw new Error(message.error || "Upload failed");
-          });
-        }
-      })
-      .then((data) => {
-        resolve(data); // Resolve with the successful response data
-      })
-      .catch((error) => {
-        console.error("Error uploading files:", error);
-        reject({ error: error.message || "Cannot communicate with the server." });
-      });
-  });
-};
+//     // Make the fetch request
+//     fetch(URL+ `/documents/`+idDocument+`/attachments`, {
+//       method: "POST",
+//       body: formData,
+//       credentials: "include", // Include cookies if needed
+//     })
+//       .then((response) => {
+//         if (response.ok) {
+//           return response.json(); // Return the JSON response
+//         } else {
+//           // Return the response's error message if available
+//           return response.json().then((message) => {
+//             throw new Error(message.error || "Upload failed");
+//           });
+//         }
+//       })
+//       .then((data) => {
+//         resolve(data); // Resolve with the successful response data
+//       })
+//       .catch((error) => {
+//         console.error("Error uploading files:", error);
+//         reject({ error: error.message || "Cannot communicate with the server." });
+//       });
+//   });
+// };
 
 const deleteResource = (resource) => {
   return new Promise((resolve, reject) => {
@@ -909,6 +917,6 @@ const updateScale = (id, scale_number) => {
   });
 };
 
-const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea, getDocumentResources, addResourcesToDocument, addArea,deleteResource,getScales,addScale,updateScale,addStakeholder,getStakeholderByDocumentId,createTypeDocument,addLocationPoint,updateDocumentConnection,deleteDocumentConnection,getDocumentAttachments,addAttachmentsToDocument,deleteAttachment};
+const API = { getUsers, login, logout, getUserInfo, getAllTypesDocument, getTypeDocument, getAllStakeholders, getStakeholder, addDocument, getAllDocumentConnections, getDocumentConnection, getAllDocuments, getDocumentById, getAllLocations, updateLocationDocument, getLocationById, getAllTypeConnections,updateDocument,getAllLocationsArea,addDocumentArea, getDocumentResources, addFilesToDocument, addArea,deleteResource,getScales,addScale,updateScale,addStakeholder,getStakeholderByDocumentId,createTypeDocument,addLocationPoint,updateDocumentConnection,deleteDocumentConnection,getDocumentAttachments,deleteAttachment};
 
 export default API;

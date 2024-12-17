@@ -5,7 +5,7 @@ import API from "../API";
 import PropTypes from 'prop-types';
 import AppContext from "../AppContext";
 
-function CardDocument({ document, locationType, latitude, longitude, handleMarkerClick, setSelectedDocument, isLogged, area, numberofconnections }) {
+function CardDocument({ document, locationType, latitude, longitude, handleMarkerClick, setSelectedDocument, isLogged, area }) {
 
   //check prototype
   const navigate = useNavigate();
@@ -327,8 +327,8 @@ function CardDocument({ document, locationType, latitude, longitude, handleMarke
                     </Card.Text>
                   }
 
-              <strong>Connections:</strong> {numberofconnections}
-              {numberofconnections > 0 && (
+              <strong>Connections:</strong> {connections.length}
+              {connections.length > 0 && (
                 <div
                   className="mb-3 me-2"
                   style={{
@@ -459,7 +459,6 @@ CardDocument.propTypes = {
   setSelectedDocument: PropTypes.func.isRequired,
   isLogged: PropTypes.bool.isRequired,
   area: PropTypes.string,
-  numberofconnections: PropTypes.number, // Ensure this matches the expected type
 };
 Document.propTypes = {
   IdDocument: PropTypes.number.isRequired,
