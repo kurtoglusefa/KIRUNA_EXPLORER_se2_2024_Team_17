@@ -1071,7 +1071,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
           data-tooltip-id='tooltip'
           data-tooltip-content={'Select Multiple Documents'}
           data-tooltip-place='left-start'
-          style={{ backgroundColor: multipleDocMode && 'darkseagreen', border: multipleDocMode && 'solid 3px green' }}
+          style={{ backgroundColor: multipleDocMode && 'darkseagreen', border: multipleDocMode && 'solid 3px lightgreen' }}
           onClick={() => {
             if (multipleDocMode) {
 
@@ -1123,7 +1123,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
             disabled={multipleDocMode}
             style={{//glow effect
               border: modifyMode && 'solid 3px yellow',
-              backgroundColor: modifyMode && 'darkorange'
+              backgroundColor: modifyMode && 'orangered'
               }}
             onClick={() => {
               if (modifyMode) {

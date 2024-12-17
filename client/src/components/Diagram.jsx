@@ -794,37 +794,52 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
               </svg>
             </ReactFlow>
           </ReactFlowProvider>
-          {isLogged &&
-            <>
-              <div className='d-flex mt-2 align-items-center justify-content-between ms-3'>
-                <div className='d-flex align-items-center'>
-                  <Button variant='dark' size='sm' className='rounded-pill mt-2 overlay px-4 btn-document' style={{ left: '3.5%', bottom: '10%' }} onClick={() => {
-                    setModifyMode((mode) => !mode)
-                  }}>
-                    <span className='h6' style={{ fontSize: '16px' }}>{modifyMode ? 'Disable' : 'Enable'} drag document</span>
-                  </Button>
-
-                  <div>
-                    {modifyMode && <span className='col text-end mx-5 mb-1'
-                      style={{
-                        position: 'absolute',
-                        zIndex: 1000, textShadow: '#000000 0px 0px 20px',
-                        left: '300px',
-                        bottom: '65px',
-                        borderRadius: '7px',
-                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                        padding: '4px',
-                        border: '1px solid white',
-                        color: 'white'
-                      }}>Drag  document enabled</span>}
-                  </div>
-                </div>
-              </div>
-
-            </>
-          }
+          
         </div>
       </div>
+
+      {/* [BUTTON] Drag documents */}
+
+        <button 
+            id='btn-overlay'
+            className="btn-drag"
+            data-tooltip-id='tooltip'
+            data-tooltip-content={'Adjust documents in the diagram (inside same year only)'}
+            data-tooltip-place='left-start'
+            style={{//glow effect
+              position: 'absolute',
+              top: '120px',
+              right: '30px',
+              border: modifyMode ? 'solid 3px purple' : 'solid 2px black',
+              backgroundColor: modifyMode && 'pink',
+              }}
+            onClick={() => {
+              setModifyMode((mode) => !mode)
+            }}
+          >
+            <i className="bi bi-arrows-move"></i>
+          </button>
+          <Tooltip border={'solid 1px grey'} className='py-1' id='tooltip' variant='light' delayShow={500}/>
+
+          <div>
+            {modifyMode && (
+              <div className='col text-end mx-5 mb-1 px-4' style={{
+                position: 'absolute',
+                zIndex: 1000,
+                textShadow: '#000000 0px 0px 20px',
+                left: '40%',
+                bottom: '100px',
+                color: 'white',
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                padding: '5px',
+                borderRadius: '7px',
+                border: '1px solid white'
+              }}>
+                Drag documents enabled
+              </div>
+            )}
+          </div>
+
 
       {/* Card Document */}
 
@@ -832,7 +847,7 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
         <div className='document-card overlay col-lg-3 col-md-6 col-sm-9'>
           <Rnd
             default={{
-              x: 60,
+              x: 80,
               y: -730
             }}
             minHeight={650}
