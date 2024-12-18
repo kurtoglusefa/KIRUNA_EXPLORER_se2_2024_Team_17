@@ -387,15 +387,16 @@ You will see the kiruna explore at address: http://localhost:5173/
   - Description: Uploads one or more attachment files to a specific document.
 
   - Request Parameters: `documentId` (Integer, required): The unique ID of the document to which the attachments will be added.
-  - Request Body: The request must use multipart/form-data format, containing the files to be uploaded
+  - URL Parameter: `documentId` (integer) - the unique ID of the document to which the resource will be associated.
 
-  ```json
-    Content-Type: multipart/form-data
-  {
-    files: [file1, file2, ...]
-  }
-
-  ```
+    - Body: `multipart/form-data` (file upload). The file will be uploaded using the field name `file`.
+      - Example Body:
+        ```bash
+        Content-Type: multipart/form-data
+        {
+            file: <file_to_upload>
+        }
+        ```
 
   - Response Body in case of success:
 
