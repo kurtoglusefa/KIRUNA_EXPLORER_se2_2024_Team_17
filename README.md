@@ -815,21 +815,16 @@ You will see the kiruna explore at address: http://localhost:5173/
       "scale_number": 100
     }
     ```
-  - **Responses**:
-
-    - `201 Created`: If the scale is successfully added. The response contains the `scaleId` of the newly added scale and a success message.
-    - `400 Bad Request`: If either `scale_text` or `scale_number` is missing from the request body. The response contains an error message.
-    - `500 Internal Server Error`: If there is an error while adding the scale. The response contains an error message.
-
-      ```json
-      {
-        "scaleId": "12345",
-        "message": "Scale added successfully."
-      }
-      ```
+  - **Responses**: Returns `201 Created` if the scale is successfully added, `400 Bad Request` if the `scale_text` or `scale_number` is missing from the request body, or `500 Internal Server Error` if an unexpected error occurs.
+  - **Response Body on Success**: The response contains the `scaleId` of the newly added scale and a success message.
+    ```json
+    {
+      "scaleId": "12345",
+      "message": "Scale added successfully."
+    }
+    ```
 
 - PATCH `/api/scales/:scaleid`
-
   - **Description**: Allows an urban planner to update an existing scale by its ID.
   - **Request Parameters**:
     - `scaleid` (Number, required): The ID of the scale to update.
@@ -839,18 +834,13 @@ You will see the kiruna explore at address: http://localhost:5173/
       "scale_number": 200
     }
     ```
-  - **Response**:
-
-    - `200 OK`: If the scale is successfully updated. The response contains a success message.
-    - `404 Not Found`: If the scale does not exist. The response contains an error message.
-    - `400 Bad Request`: If either `scale_text` or `scale_number` is missing from the request body. The response contains an error message.
-    - `500 Internal Server Error`: If there is an error while updating the scale. The response contains an error message.
-
-      ```json
-      {
-        "message": "Scale updated successfully."
-      }
-      ```
+  - **Response**: Returns `200 OK` with a success message if the scale is updated, `404 Not Found` if the scale does not exist, `400 Bad Request` if the `scale_number` is missing from the request body, or `500 Internal Server Error` if an unexpected error occurs.
+  - **Response Body on Success**:
+    ```json
+    {
+      "message": "Scale updated successfully."
+    }
+    ```
 
 ## Database Tables
 
