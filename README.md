@@ -106,7 +106,7 @@ You will see the kiruna explore at address: http://localhost:5173/
 
 ## API Server
 
-### USER API
+### User API
 
 - POST `/api/sessions`
 
@@ -145,7 +145,7 @@ You will see the kiruna explore at address: http://localhost:5173/
   }
   ```
 
-## DOCUMENT API
+## Document API
 
 - POST `/api/documents`
 
@@ -242,9 +242,9 @@ You will see the kiruna explore at address: http://localhost:5173/
 
 - GET `/api/documents/title/:title`
 
-  - Description: Allows all user to get the document of the system by giving title.
-  - Request: No request.
-  - Response: returns `200 OK` (created) or `400 Bad Request` (invalid data
+  - **Description**: Allows all user to get the document of the system by giving title.
+  - **Request**: No request.
+  - **Response**: returns `200 OK` (created) or `400 Bad Request` (invalid data
     ) or `500 Internal Server Error `If an unexpected error occurs or `404 Not Found`.
   - Response Body: On success (`200 OK`), the body contains the object with the details of
     the documents.
@@ -324,7 +324,7 @@ You will see the kiruna explore at address: http://localhost:5173/
     `404 Not Found` if the Document not found.
     `500 Internal Server Error` If an unexpected error occurs.
 
-# RESOURCES API
+# Resources API
 
 - **POST** `/api/documents/:documentId/resources`
 
@@ -351,10 +351,10 @@ You will see the kiruna explore at address: http://localhost:5173/
 
 - DELETE `/api/documents/:documentId/resources/:filename`
 
-  - Description: Deletes a specific resource (file) associated with a document.
-  - Request Parameters: `documentId` (Integer, required) The unique ID of the document. and `filename` (String, required) The name of the file to be deleted.
-  - Response: `200 OK` File deleted successfully. `404 Not Found` The specified file does not exist. `500 Internal Server Error` If an unexpected error occurs during file deletion.
-  - Response Body on success:
+  - **Description**: Deletes a specific resource (file) associated with a document.
+  - **Request Parameters**: `documentId` (Integer, required) The unique ID of the document. and `filename` (String, required) The name of the file to be deleted.
+  - **Response**: `200 OK` File deleted successfully. `404 Not Found` The specified file does not exist. `500 Internal Server Error` If an unexpected error occurs during file deletion.
+  - **Response Body on success**:
 
   ```json
   {
@@ -380,13 +380,13 @@ You will see the kiruna explore at address: http://localhost:5173/
     ]
     ```
 
-# ATTACHMENTS API
+# Attachments API
 
 - POST `/api/documents/:documentId/attachments`
 
-  - Description: Uploads one or more attachment files to a specific document.
+  - **Description**: Uploads one or more attachment files to a specific document.
 
-  - Request Parameters: `documentId` (Integer, required): The unique ID of the document to which the attachments will be added.
+  - **Request Parameters**: `documentId` (Integer, required): The unique ID of the document to which the attachments will be added.
 
     - Body: `multipart/form-data` (file upload). The file will be uploaded using the field name `file`.
       - Example Body:
@@ -397,7 +397,7 @@ You will see the kiruna explore at address: http://localhost:5173/
         }
         ```
 
-  - Response Body in case of success:
+  - **Response Body in case of success**:
 
     ```json
     {
@@ -418,14 +418,14 @@ You will see the kiruna explore at address: http://localhost:5173/
 
 - DELETE `/api/documents/:documentId/attachments/:filename`
 
-  - Description: Deletes a specific attachment file associated with a document.
+  - **Description**: Deletes a specific attachment file associated with a document.
 
-  - Request Parameters: `documentId` (String, required): The unique ID of the document.
+  - **Request Parameters**: `documentId` (String, required): The unique ID of the document.
     `filename` (String, required): The name of the attachment file to delete.
-  - Response: Returns `200 OK` Attachment successfully deleted.
+  - **Response**: Returns `200 OK` Attachment successfully deleted.
     `404 Not Found` The specified attachment does not exist.
     `500 Internal Server Error` If an unexpected error occurs during the deletion.
-  - Response Body in case of success:
+  - **Response Body in case of success**:
 
   ```json
   {
@@ -434,12 +434,12 @@ You will see the kiruna explore at address: http://localhost:5173/
   ```
 
 - GET `/api/documents/:documentId/attachments`
-  - Description: Retrieves a list of attachments associated with a document.
-  - Request Parameters: `documentId` (Integer, required): The unique ID of the document.
-  - Response: Returns `200 OK` A list of attachments associated with the document.
+  - **Description**: Retrieves a list of attachments associated with a document.
+  - **Request Parameters**: `documentId` (Integer, required): The unique ID of the document.
+  - **Response**: Returns `200 OK` A list of attachments associated with the document.
     `404 Not Found` The specified document does not exist.
     `500 Internal Server Error` If an unexpected error occurs during the retrieval.
-  - Response Body in case of success:
+  - **Response Body in case of success**:
   ```json
   [
     {
@@ -455,7 +455,7 @@ You will see the kiruna explore at address: http://localhost:5173/
   ]
   ```
 
-# DOCUMENT CONNECTION API
+# Document Connection API
 
 - GET `/api/document-connections`
 
@@ -525,7 +525,7 @@ You will see the kiruna explore at address: http://localhost:5173/
     }
     ```
 
-# LOCATION API
+# Location API
 
 - GET `/api/locations`
 
@@ -541,6 +541,24 @@ You will see the kiruna explore at address: http://localhost:5173/
         "Latitude": 45.0,
         "Longitude": 9.0,
         "AreaCoordinates": null
+      }
+    ]
+    ```
+
+- GET `/api/locations/area`
+
+  - **Description**: Retrieves a list of all area locations.
+  - **Request**: No request body required.
+  - **Response**: Returns `200 OK` with a JSON array of area locations if successful, or `500 Internal Server Error` if an unexpected error occurs.
+  - **Response Body on Success**:
+    ```json
+    [
+      {
+        "IdLocation": 1,
+        "LocationType": "Area",
+        "Latitude": 45.0,
+        "Longitude": 9.0,
+        "AreaCoordinates": "[(45.0, 9.0), (45.1, 9.1), (45.2, 9.2)]"
       }
     ]
     ```
