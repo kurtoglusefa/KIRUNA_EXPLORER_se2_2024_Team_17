@@ -249,20 +249,20 @@ You will see the kiruna explore at address: http://localhost:5173/
   - Response Body: On success (`200 OK`), the body contains the object with the details of
     the documents.
 
-  ```json
-  {
-    "documentId": 123,
-    "title": "Sample Title",
-    "idStakeholder": 1,
-    "scale": "National",
-    "issuance_Date": "04/2019",
-    "language": "English",
-    "pages": 50,
-    "description": "A description for the document",
-    "idType": 2,
-    "idLocation": 1
-  }
-  ```
+    ```json
+    {
+      "documentId": 123,
+      "title": "Sample Title",
+      "idStakeholder": 1,
+      "scale": "National",
+      "issuance_Date": "04/2019",
+      "language": "English",
+      "pages": 50,
+      "description": "A description for the document",
+      "idType": 2,
+      "idLocation": 1
+    }
+    ```
 
 - PATCH `/api/documents/:documentid`
 
@@ -272,37 +272,37 @@ You will see the kiruna explore at address: http://localhost:5173/
 
   - Request Body: A JSON object containing the updated document details. The idStakeholder field (array) is optional but will overwrite existing stakeholders if provided.
 
-  ```json
-  {
-    "title": "Updated Document Title",
-    "IdScale": 1,
-    "issuance_Date": "2024-06-17",
-    "language": "English",
-    "pages": 100,
-    "description": "Updated description of the document",
-    "idtype": 2,
-    "idLocation": 3,
-    "idStakeholder": [1, 2, 3]
-  }
-  ```
+    ```json
+    {
+      "title": "Updated Document Title",
+      "IdScale": 1,
+      "issuance_Date": "2024-06-17",
+      "language": "English",
+      "pages": 100,
+      "description": "Updated description of the document",
+      "idtype": 2,
+      "idLocation": 3,
+      "idStakeholder": [1, 2, 3]
+    }
+    ```
 
   - Response: returns `200 OK` (created) or `400 Bad Request` (invalid data) or `500 Internal Server Error `If an unexpected error occurs or `404 Not Found`. `400 Bad Request` if Missing required fields.
   - Response Body: On success (`200 OK`), the body contains the object with the details of
     the documents.
 
-  ```json
-  {
-    "idDocument": 1,
-    "title": "Updated Document Title",
-    "IdScale": 1,
-    "issuance_Date": "2024-06-17",
-    "language": "English",
-    "pages": 100,
-    "description": "Updated description of the document",
-    "idtype": 2,
-    "idLocation": 3
-  }
-  ```
+    ```json
+    {
+      "idDocument": 1,
+      "title": "Updated Document Title",
+      "IdScale": 1,
+      "issuance_Date": "2024-06-17",
+      "language": "English",
+      "pages": 100,
+      "description": "Updated description of the document",
+      "idtype": 2,
+      "idLocation": 3
+    }
+    ```
 
 - PATCH `/api/documents/:documentId/connection`
 
@@ -312,12 +312,12 @@ You will see the kiruna explore at address: http://localhost:5173/
 
   - Request Body: A JSON object containing the new connection details. The idStakeholder field
 
-  ```json
-  {
-    "IdDocument2": 2,
-    "IdConnection": 1
-  }
-  ```
+    ```json
+    {
+      "IdDocument2": 2,
+      "IdConnection": 1
+    }
+    ```
 
   - Response: `200 OK` Connection updated successfully.
     `400 Bad Request` Missing required fields (IdDocument2 or IdConnection).
@@ -399,22 +399,22 @@ You will see the kiruna explore at address: http://localhost:5173/
 
   - Response Body in case of success:
 
-  ```json
-  {
-    "message": "Attachments uploaded successfully!",
-    "documentId": 1,
-    "files": [
-      {
-        "filename": "example1.pdf",
-        "path": "attachments/1/example1.pdf"
-      },
-      {
-        "filename": "example2.docx",
-        "path": "attachments/1/example2.docx"
-      }
-    ]
-  }
-  ```
+    ```json
+    {
+      "message": "Attachments uploaded successfully!",
+      "documentId": 1,
+      "files": [
+        {
+          "filename": "example1.pdf",
+          "path": "attachments/1/example1.pdf"
+        },
+        {
+          "filename": "example2.docx",
+          "path": "attachments/1/example2.docx"
+        }
+      ]
+    }
+    ```
 
 - DELETE `/api/documents/:documentId/attachments/:filename`
 
@@ -748,6 +748,89 @@ You will see the kiruna explore at address: http://localhost:5173/
       {
         "typeId": "12345",
         "message": "Type added successfully."
+      }
+      ```
+
+# Scale API
+
+- GET `/api/scales`
+- **Description**: Retrieves a list of all available scales.
+- **Response**: Returns `200 OK` with a JSON array of scales if successful, or
+  `500 Internal Server Error` if an unexpected error occurs.
+- **Response Body on Success**:
+
+  ```json
+  [
+    {
+      "IdScale": 1,
+      "scale_text": "1:100",
+      "scale_number": 100
+    },
+    {
+      "IdScale": 2,
+      "scale_text": "1:200",
+      "scale_number": 200
+    }
+  ]
+  ```
+
+- GET `/api/scales/:scaleid`
+
+  - **Description**: Retrieves a specific scale by its ID.
+  - **Response**: Returns `200 OK` with the scale data if successful, or `404 Not Found` if the scale does not exist, or `500 Internal Server Error` if an unexpected error occurs.
+  - **Response Body on Success**:
+    ```json
+    {
+      "IdScale": 1,
+      "scale_text": "1:100",
+      "scale_number": 100
+    }
+    ```
+
+- POST `/api/scales`
+
+  - **Description**: Allows an urban planner to add a new scale.
+  - **Request Body**:
+    ```json
+    {
+      "scale_text": "1:100",
+      "scale_number": 100
+    }
+    ```
+  - **Responses**:
+
+    - `201 Created`: If the scale is successfully added. The response contains the `scaleId` of the newly added scale and a success message.
+    - `400 Bad Request`: If either `scale_text` or `scale_number` is missing from the request body. The response contains an error message.
+    - `500 Internal Server Error`: If there is an error while adding the scale. The response contains an error message.
+
+      ```json
+      {
+        "scaleId": "12345",
+        "message": "Scale added successfully."
+      }
+      ```
+
+- PATCH `/api/scales/:scaleid`
+
+  - **Description**: Allows an urban planner to update an existing scale by its ID.
+  - **Request Parameters**:
+    - `scaleid` (Number, required): The ID of the scale to update.
+  - **Request Body**: A JSON object containing the updated numeric value for the scale.
+    ```json
+    {
+      "scale_number": 200
+    }
+    ```
+  - **Response**:
+
+    - `200 OK`: If the scale is successfully updated. The response contains a success message.
+    - `404 Not Found`: If the scale does not exist. The response contains an error message.
+    - `400 Bad Request`: If either `scale_text` or `scale_number` is missing from the request body. The response contains an error message.
+    - `500 Internal Server Error`: If there is an error while updating the scale. The response contains an error message.
+
+      ```json
+      {
+        "message": "Scale updated successfully."
       }
       ```
 
