@@ -296,30 +296,6 @@ const getDocumentConnection = (id) => {
       )
   });
 };
-
-// const createDocumentConnection = (IdDocument1, IdDocument2, connection_type) => {
-//   return new Promise((resolve, reject) => {
-//     fetch(URL + "/document-connections", {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify({ IdDocument1: IdDocument1, IdDocument2: IdDocument2, IdConnection: connection_type }),
-//       credentials: "include",
-
-//     }).then((response) => {
-//       if (response.ok) {
-//         resolve(response.json());
-//       } else {
-//         response.json().then((message) => {
-//           reject(message);
-//         });
-//       }
-//     }).catch(() => {
-//       reject({ error: "Cannot communicate with the server!" });
-//     });
-//   });
-// };
 const updateDocumentConnection = (Id_documents_connection,IdDocument1, IdDocument2, connection_type) => {
   return new Promise((resolve, reject) => {
     let method;

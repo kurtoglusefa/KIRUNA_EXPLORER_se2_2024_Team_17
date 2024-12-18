@@ -124,10 +124,7 @@ function Home(props) {
   }, []);
 
   const handleDocumentClick = async (doc) => {
-    // Fetch the number of connections for the selected document
-    const res = await API.getDocumentConnection(doc.IdDocument);
     setSelectedDocument(doc);
-
   };
 
   const handleAddConnection = async () => {

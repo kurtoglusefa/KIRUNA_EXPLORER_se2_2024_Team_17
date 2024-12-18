@@ -22,8 +22,9 @@ function CardDocument({ document, locationType, latitude, longitude, handleMarke
   const [documentTypes, setDocumentTypes] = useState([]);
   const [attachedDocuments, setAttachedDocuments] = useState([]);
 
-  // mock function to fetch attached documents from an API
-
+  
+  const crypto = window.crypto || window.msCrypto;
+  let array = new Uint32Array(1);
 
 
   const getIcon = () => {
@@ -356,7 +357,7 @@ function CardDocument({ document, locationType, latitude, longitude, handleMarke
                   {attachedDocuments.length > 0 ? (
                     attachedDocuments.map((res, index) => (
                       <>
-                        <a href={`http://localhost:3001${res.url}`} target="_blank" key={index} style={{ fontSize: '13px' }} ><u>{res.filename}</u></a>
+                        <a href={`http://localhost:3001${res.url}`} target="_blank" key={index+ crypto.getRandomValues(array)} style={{ fontSize: '13px' }} ><u>{res.filename}</u></a>
                         <br></br>
                       </>
                     ))
@@ -373,7 +374,7 @@ function CardDocument({ document, locationType, latitude, longitude, handleMarke
                   {resource.length > 0 ? (
                     resource.map((res, index) => (
                       <>
-                        <a href={`http://localhost:3001${res.url}`} target="_blank" key={index} style={{ fontSize: '13px' }} ><u>{res.filename}</u></a>
+                        <a href={`http://localhost:3001${res.url}`} target="_blank" key={index+crypto.getRandomValues(array)} style={{ fontSize: '13px' }} ><u>{res.filename}</u></a>
                         <br></br>
                       </>
                     ))

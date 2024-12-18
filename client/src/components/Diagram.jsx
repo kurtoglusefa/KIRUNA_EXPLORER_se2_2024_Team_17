@@ -54,14 +54,16 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
   const [viewport, setViewport] = useState({ x: 0, y: 0 }); // Track viewport position
   const offsetY = -150; // Offset for the Y position of the nodes
   const offsetX = 60;
+  const crypto = window.crypto || window.msCrypto;
+  let array = new Uint32Array(1);
   const updateConnection = async () => {
 
     try {
       // Call updateConnection API with the new values
       await API.updateDocumentConnection(
         newConnection ? null : selectedEdge.IdConnectionDocuments,
-        selectedEdge.IdDocument1,
-        selectedDestinationDocument.IdDocument,
+        newConnection ? selectedDocument.IdDocument : selectedEdge?.IdDocument1,
+        selectedDestinationDocument?.IdDocument,
         parseInt(selectConnectionType)
       );
       // Update the connections after the API call
@@ -515,7 +517,6 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
 
   const handleNodeClick = async (event, node) => {
     setSelectedEdge(null);
-    const res = await API.getDocumentConnection(parseInt(node.id));
     setSelectedDocument(documents.find((doc) => doc.IdDocument === parseInt(node.id)));
   };
   const handleEdgeClick = (event, edge) => {
@@ -607,7 +608,7 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
           {data.stakeholder &&
             Array.isArray(data.stakeholder) &&
             data.stakeholder.map((stk, index) => (
-              <div key={index}>Stakeholder: {stk.Name}</div>
+              <div key={index+ crypto.getRandomValues(array)}>Stakeholder: {stk.Name}</div>
             ))}
         </Tooltip>
       </div>
@@ -775,7 +776,7 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
                 {
                   Object.entries(scaleRanges).map(([key], index) => (
                     (key === "Blueprints/Effects") ? <text
-                      key={index}
+                      key={index+ crypto.getRandomValues(array)}
                       x={10} // Fixed X position for labels
                       y={gapx * (index + 1) + viewport.y + offsetY}  // Correct Y position adjustment
                       style={{ fontSize: 12, fill: 'black' }}
@@ -783,7 +784,7 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
                       {key}
                     </text> :
                       <text
-                        key={index}
+                        key={index+ crypto.getRandomValues(array)}
                         x={10} // Fixed X position for labels
                         y={gapx * index + viewport.y + offsetY}  // Correct Y position adjustment
                         style={{ fontSize: 12, fill: 'black' }}
@@ -976,7 +977,7 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
             className="btn-document"
             onClick={updateConnection}
           >
-            Update Connection
+            {newConnection? "Create connection":"Update Connection"}
           </Button>
         </Modal.Footer>
       </Modal>
