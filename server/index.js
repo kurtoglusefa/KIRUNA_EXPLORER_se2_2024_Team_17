@@ -983,8 +983,8 @@ app.post(
       req.params.documentId,
       req.params.stakeholderId
     )
-      .then((result) => {
-        if (result)
+      .then((resul) => {
+        if (resul)
           res.status(201).json({ message: "Stakeholder added successfully." });
         else res.status(400).json({ error: "Failed to add stakeholder." });
       })

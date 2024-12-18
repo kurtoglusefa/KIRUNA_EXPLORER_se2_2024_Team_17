@@ -265,7 +265,7 @@ function CardDocument({ document, locationType, latitude, longitude, handleMarke
           }}
         />
         <Card.Header className='px-4 d-flex align-items-center'>
-          <img src={getIcon()} style={{ height: '50px' }} />
+          <img alt="Document Icon" src={getIcon()} style={{ height: '50px' }} />
           <Card.Title className="my-3 mx-5 col"><strong>{document?.Title}</strong></Card.Title>
         </Card.Header>
         <Card.Body className='document-card text-start' style={{ overflowY: 'auto', maxHeight: '520px' }}>
@@ -332,6 +332,7 @@ function CardDocument({ document, locationType, latitude, longitude, handleMarke
                       <span>{typeConnections[conn.IdConnection]?.Type || "Unknown"} - </span>
                       <span
                         className="link"
+                        role="button"
                         onClick={() =>
                           conn.IdDocument1 === document?.IdDocument
                             ? handleConnectedDocument(conn.IdDocument2)
@@ -404,11 +405,9 @@ function CardDocument({ document, locationType, latitude, longitude, handleMarke
                         </Card.Text>
                       </>
                     ) : (
-                      <>
                         <Card.Text style={{ fontSize: '16px' }}>
                           <strong>Area:</strong> {area?.Area_Name}
                         </Card.Text>
-                      </>
                     )
                     }
                   </Badge>

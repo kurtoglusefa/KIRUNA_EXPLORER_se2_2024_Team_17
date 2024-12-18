@@ -914,7 +914,7 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
         onHide={() => setShowAddConnection(false)}
       >
         <Modal.Header closeButton>
-          <Modal.Title>{newConnection == false ? "Update Connection" : "New Connection"}</Modal.Title>
+          <Modal.Title>{newConnection ? "Update Connection" : "New Connection"}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form.Group controlid="formDocument" style={{ position: "relative" }}>

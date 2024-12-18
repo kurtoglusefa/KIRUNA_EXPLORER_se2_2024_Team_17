@@ -667,7 +667,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                  iconCreateFunction={createClusterAreaCustomIcon}
                 >
                 {locationsArea &&
-                  Object.values(locationsArea).map((area, index) => {
+                  Object.values(locationsArea).map((area) => {
                     let coordinates;
                     try {
                       coordinates = Array.isArray(area.Area_Coordinates)
@@ -983,21 +983,20 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                   <div className='mx-3'>
                     <h5>Selected Location:</h5>
                     {selectedLocation ? (
-                      <>
-                        <h6><strong>Latitude:</strong> {selectedLocation?.lat.toFixed(4)}<br></br>
-                          <strong>Longitude:</strong> {selectedLocation?.lng.toFixed(4)}</h6>
-                      </>
+                      
+                      <h6><strong>Latitude:</strong> {selectedLocation?.lat.toFixed(4)}<br></br>
+                      <strong>Longitude:</strong> {selectedLocation?.lng.toFixed(4)}</h6>
+                      
                     ) : (
                       selectedDocument ? (
                         locationsArea[selectedDocument.IdLocation] ? (
-                          <>
                           <h6><strong>Area:</strong> {locationsArea[selectedDocument.IdLocation]?.Area_Name}</h6>
-                        </>                          
+                                                  
                         ) : (
-                        <>
+                        
                           <h6><strong>Latitude:</strong> {locations[selectedDocument?.IdLocation]?.Latitude?.toFixed(4)}<br></br>
-                            <strong>Longitude:</strong> {locations[selectedDocument?.IdLocation]?.Longitude?.toFixed(4)}</h6>
-                        </>
+                          <strong>Longitude:</strong> {locations[selectedDocument?.IdLocation]?.Longitude?.toFixed(4)}</h6>
+                        
                         )
                       ) : (
                       <Form.Group>

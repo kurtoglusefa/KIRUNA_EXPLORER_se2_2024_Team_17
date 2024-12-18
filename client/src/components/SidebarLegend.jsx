@@ -13,6 +13,7 @@ function SidebarLegend () {
     <>
         {/* Info Button */}
         <i 
+          tabIndex="0"
           className="bi bi-info-circle-fill h2 info-button" 
           onClick={() => setInfoOpened(!infoOpened)} 
           style={{color:'FDFDFD'}} 
@@ -91,7 +92,7 @@ function SidebarLegend () {
                         fill="#000000" // Circle fill color
                       />
                     </svg>
-                    <label className='ms-3'>LKAB</label>
+                    <span className='ms-3'>LKAB</span >
                   </div>
                   <div className='d-flex my-1 align-items-center'>
                     <svg width="20" height="20">
@@ -102,7 +103,7 @@ function SidebarLegend () {
                         fill="#8C6760" // Circle fill color
                       />
                     </svg>
-                    <label className='ms-3'>Municipality</label>
+                    <span className='ms-3'>Municipality</span>
                   </div>              
                   <div className='d-flex my-1 align-items-center'>
                     <svg width="20" height="20">
@@ -113,7 +114,7 @@ function SidebarLegend () {
                         fill="#702F36" // Circle fill color
                       />
                     </svg>
-                    <label className='ms-3'>Norrbotten Country</label>
+                    <span className='ms-3'>Norrbotten Country</span>
                   </div>              
                 </div>
                 <div className='ms-3'>
@@ -126,7 +127,7 @@ function SidebarLegend () {
                         fill="#B6AD9D" // Circle fill color
                       />
                     </svg>
-                    <label className='ms-3'>Architecture Firms</label>
+                    <span className='ms-3'>Architecture Firms</span>
                   </div>              
                   <div className='d-flex my-1 align-items-center'>
                     <svg width="20" height="20">
@@ -137,7 +138,7 @@ function SidebarLegend () {
                         fill="#B3D0D3" // Circle fill color
                       />
                     </svg>
-                    <label className='ms-3'>Citizens</label>
+                    <span className='ms-3'>Citizens</span>
                   </div>              
                   <div className='d-flex my-1 align-items-center'>
                     <svg width="20" height="20">
@@ -148,7 +149,7 @@ function SidebarLegend () {
                         fill="#8A9FA4" // Circle fill color
                       />
                     </svg>
-                    <label className='ms-3'>Others</label>
+                    <span className='ms-3'>Others</span>
                   </div>
                 </div> 
               </div>
@@ -168,7 +169,7 @@ function SidebarLegend () {
                       strokeDasharray='0'
                       />
                   </svg>
-                  <label className='ms-3'>Direct consequence</label>
+                  <span className='ms-3'>Direct consequence</span>
                 </div>
                 <div className='d-flex my-1 align-items-center'>
                   <svg width="50" height="20">
@@ -182,7 +183,7 @@ function SidebarLegend () {
                       strokeDasharray='5,5'
                       />
                   </svg>
-                  <label className='ms-3'>Collateral consequence</label>
+                  <span className='ms-3'>Collateral consequence</span>
                 </div>
                 <div className='d-flex my-1 align-items-center'>
                   <svg width="50" height="20">
@@ -196,7 +197,7 @@ function SidebarLegend () {
                       strokeDasharray='1,3'
                       />
                   </svg>
-                  <label className='ms-3'>Projection</label>
+                  <span className='ms-3'>Projection</span>
                 </div>
                 <div className='d-flex my-1 align-items-center'>
                   <svg width="50" height="20">
@@ -210,7 +211,7 @@ function SidebarLegend () {
                       strokeDasharray='8,4,1,4'
                       />
                   </svg>
-                  <label className='ms-3'>Update</label>
+                  <span className='ms-3'>Update</span>
                 </div>
               </div>
             </div>

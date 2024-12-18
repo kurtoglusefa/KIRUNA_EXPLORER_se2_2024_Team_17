@@ -1,5 +1,5 @@
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import { Row, Col, Form, Alert, Button, Container, Card, FloatingLabel } from 'react-bootstrap';
+import { Form, Alert, Button, Card, FloatingLabel } from 'react-bootstrap';
 import { useContext, useState } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 import API from '../API';

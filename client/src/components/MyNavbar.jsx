@@ -126,7 +126,7 @@ function MyNavbar({ documents, setDocuments }) {
   };
 
   return (
-    <>
+    
       <Navbar sticky='top' bg="light" variant="dark" className='justify-content-between'>
           <Navbar.Brand href='/'>
               <img
@@ -341,8 +341,6 @@ function MyNavbar({ documents, setDocuments }) {
             )}
           </Nav>
       </Navbar>
-    </>
-
   );
 }
 MyNavbar.propTypes = {
