@@ -620,7 +620,7 @@ function ModifyDocument() {
                     <Form.Control
                       defaultValue={0}
                       type="number"
-                      className="text-end"
+                      className="text-start"
                       value={pages}
                       onChange={(e) => setPages(e.target.value)}
                       min={0}

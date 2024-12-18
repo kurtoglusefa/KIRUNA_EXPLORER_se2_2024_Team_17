@@ -39,7 +39,7 @@ function CardDocument({ document, locationType, latitude, longitude, handleMarke
 
   const handleConnectedDocument = async (id) => {
     const doc = await API.getDocumentById(id);
-    const stakeholders = await API.getStakeholderByDocumentId(doc.IdDocument);
+    const stakeholders = await API.getStakeholderByDocumentId(doc?.IdDocument);
     handleMarkerClick({ ...doc, IdStakeholder: stakeholders });
   };
 
@@ -73,7 +73,7 @@ function CardDocument({ document, locationType, latitude, longitude, handleMarke
     };
     const fetchResources = async () => {
       try {
-        const res = await API.getDocumentResources(document.IdDocument);
+        const res = await API.getDocumentResources(document?.IdDocument);
         setResource(res);
         setLoading(false);
       } catch (err) {
@@ -86,7 +86,7 @@ function CardDocument({ document, locationType, latitude, longitude, handleMarke
     };
     const fetchAttachedDocuments = async () => {
       try {
-        const docs = await API.getDocumentAttachments(document.IdDocument);
+        const docs = await API.getDocumentAttachments(document?.IdDocument);
         setAttachedDocuments(docs);
         setLoading(false);
         return docs;
@@ -135,7 +135,7 @@ function CardDocument({ document, locationType, latitude, longitude, handleMarke
     };
     const fetchDocumentConnections = async () => {
       try {
-        const res = await API.getDocumentConnection(document.IdDocument);
+        const res = await API.getDocumentConnection(document?.IdDocument);
         setConnections(res);
         setLoading(false);
       }
@@ -143,6 +143,7 @@ function CardDocument({ document, locationType, latitude, longitude, handleMarke
         console.error(err);
       }
     };
+
     setLoading(true);
     fetchStakeholders();
     fetchDocumentConnections();
@@ -152,13 +153,14 @@ function CardDocument({ document, locationType, latitude, longitude, handleMarke
     fetchDocuments();
     getAllTypeConnections();
     fetchDocumentTypes();
+    
   }, [document?.IdDocument]);
 
 
 
   const handleModifyDocument = () => {
     if (document) {
-      navigate(`/documents/modify-document/${document.IdDocument}`, { state: { document: document, location: (locationType == "Point") ? { lat: latitude, lng: longitude, type: locationType } : { area: area, type: locationType }, type: locationType } });
+      navigate(`/documents/modify-document/${document?.IdDocument}`, { state: { document: document, location: (locationType == "Point") ? { lat: latitude, lng: longitude, type: locationType } : { area: area, type: locationType }, type: locationType } });
     }
   };
 

@@ -58,7 +58,7 @@ function MyNavbar({ documents, setDocuments }) {
     e.preventDefault();
     if (searchTerm.trim() !== "" || stakeholder || issuanceYear || typeDocument) {
       const allDocuments = await API.getAllDocuments(); // fetch all documents
-
+      
       // filter documents safely
       let filteredResults = allDocuments.filter((doc) => {
         const title = doc?.Title || ""; // default to an empty string
@@ -201,9 +201,9 @@ function MyNavbar({ documents, setDocuments }) {
                 </ToggleButtonGroup>
               </Nav>
             }
-            {loginState.loggedIn && location.pathname === '/home' &&
+            {location.pathname === '/home' &&
               <Nav>
-                <Form className="d-flex align-items-center" onSubmit={handleSearch}>
+                <Form className="d-flex align-items-center" onReset={handleSearch} onSubmit={handleSearch}>
                   <InputGroup>
                   <Button
                       className="rounded-start btn-filter"
@@ -221,17 +221,35 @@ function MyNavbar({ documents, setDocuments }) {
                         (<i className="bi bi-funnel h5" />)
                       }
                     </Button>
-                    <Form.Control
-                      type="text"
-                      placeholder="Search Document"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className=" mx-3"
-                      style={{
-                        borderColor: '#A89559',
-                      }}
-                      
-                    />
+                    <div>
+
+                      <Form.Control
+                        type="text"
+                        placeholder="Search Document"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className=" mx-3"
+                        style={{
+                          borderColor: '#A89559',
+                        }}
+                      />
+                      {searchTerm && <Button
+                        variant="close"
+                        size='sm'
+                        type='reset'
+                        onClick={async (e) => {
+                          setSearchTerm('');
+                          setSelectedDocument(null);
+                        }}
+                        style={{
+                          position: 'absolute',
+                          right: '50px',
+                          bottom: '10px',
+                          zIndex: 100,
+                        }}
+                      />}
+                    </div>
+
 
                     {/* Filters */}
                     <Collapse in={showFilters}>

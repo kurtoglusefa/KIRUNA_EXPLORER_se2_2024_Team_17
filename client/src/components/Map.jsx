@@ -61,6 +61,8 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
     if (!selectedDocument) {
       setSelectedMarker(null);
       setSelectedArea(null);
+    } else {
+      setSelectedMarker(selectedDocument);
     }
   }, [selectedDocument]);
 

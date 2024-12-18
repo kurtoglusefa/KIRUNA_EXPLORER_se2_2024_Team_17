@@ -210,7 +210,6 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
               {connectionDetails ? (
                 <>
                   <h5 style={{ margin: '0 0 4px', fontSize: '12px', fontWeight: 'bold' }}>Connection Details</h5>
-                  <p><strong>Type:</strong> {data.connectionDetails.type} </p>
                   <p>
                     <strong>Documents:</strong> {connectionDetails.sourceDocument} ↔ {connectionDetails.targetDocument}
                   </p>
