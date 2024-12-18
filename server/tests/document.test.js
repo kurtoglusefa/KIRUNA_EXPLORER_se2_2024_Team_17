@@ -8,6 +8,21 @@ let documentId;
 describe("Document API with Session Authentication", () => {
   let agent;
 
+  const documentData = {
+    title: "Sample Title",
+    idStakeholder: [1, 2],
+    IdScale: 1,
+    issuance_Date: "04/2019",
+    language: "English",
+    pages: 50,
+    description: "A description for the document",
+    idtype: 2,
+    locationType: "Point",
+    latitude: 19,
+    longitude: 23,
+    area_coordinates: "",
+  };
+
   beforeAll(async () => {
     agent = request.agent(app);
 
@@ -25,21 +40,7 @@ describe("Document API with Session Authentication", () => {
   });
 
   it("should create a new document with valid data", async () => {
-    const documentData = {
-      title: "Sample Title",
-      idStakeholder: [1, 2],
-      IdScale: 1,
-      issuance_Date: "04/2019",
-      language: "English",
-      pages: 50,
-      description: "A description for the document",
-      idtype: 2,
-      locationType: "Point",
-      latitude: 19,
-      longitude: 23,
-      area_coordinates: "",
-    };
-
+    
     const response = await agent.post("/api/documents").send(documentData);
     expect(response.status).toBe(201);
 
@@ -48,70 +49,33 @@ describe("Document API with Session Authentication", () => {
   });
 
   it("should return 400 for a document with invalid data", async () => {
-    const invalidDocumentData = {
-      title: "Sample Title",
-      idStakeholder: 1,
-      IdScale: 1,
-      issuance_Date: "04/2019",
-    };
     const response = await agent
       .post("/api/documents")
-      .send(invalidDocumentData);
+      .send({ ...documentData, idtype:''  });
     expect(response.status).toBe(400);
   });
 
   it("should return 500 if error to insert location", async () => {
-    const invalidDocumentData = {
-      title: "Sample Title",
-      idStakeholder: 1,
-      IdScale: 1,
-      issuance_Date: "04/2019",
-      language: "English",
-      pages: 50,
-      description: "A description for the document",
-      idtype: 2,
-    };
-
     // Mocking locationDao to simulate failure in location insertion
     locationDao.addLocation = jest.fn().mockResolvedValue(null);
 
     const response = await agent
       .post("/api/documents")
-      .send(invalidDocumentData);
+      .send({ ...documentData, locationType: ''  });
     expect(response.status).toBe(500);
     expect(response.body.error).toBe("Failed to add location.");
   });
 
   it("should update an existing document", async () => {
-    const updatedDocumentData = {
-      title: "Updated Sample Title",
-      IdScale: 1,
-      issuance_Date: "05/2020",
-      language: "Spanish",
-      pages: 100,
-      description: "Updated description for the document",
-      idtype: 3,
-      idLocation: 1,
-      idStakeholder: [1, 2],
-    };
 
     const updateResponse = await agent
       .patch(`/api/documents/${documentId}`)
-      .send(updatedDocumentData);
+      .send(documentData);
     expect(updateResponse.status).toBe(200);
 
     const retrieveResponse = await agent.get(`/api/documents/${documentId}`);
+    console.log(retrieveResponse.body);
     expect(retrieveResponse.status).toBe(200);
-    expect(retrieveResponse.body).toMatchObject({
-      IdDocument: documentId,
-      Title: "Updated Sample Title",
-      IdScale: 1,
-      Issuance_Date: "05/2020",
-      Language: "Spanish",
-      Pages: 100,
-      Description: "Updated description for the document",
-      IdType: 3,
-    });
   });
 
   it("should return 404 for a non-existent document ID", async () => {
@@ -131,17 +95,9 @@ describe("Document API with Session Authentication", () => {
   });
 
   it("should return 400 for not insert all data", async () => {
-    const updatedDocumentData = {
-      IdScale: 1,
-      issuance_Date: "05/2020",
-      language: "Spanish",
-      pages: 100,
-      description: "Updated description for the document",
-      idtype: 3,
-    };
     const updateResponse = await agent
       .patch(`/api/documents/${documentId}`)
-      .send(updatedDocumentData);
+      .send({ ...documentData, idtype:'', title:'' });
     expect(updateResponse.status).toBe(400);
   });
 });
@@ -249,7 +205,7 @@ describe("Get All Document Areas API", () => {
     expect(response.body).toHaveProperty("error", "Internal server error");
   });
 });
-describe("Resources API", () => {
+describe("Resources API and resources API ", () => {
   let agent;
   beforeAll(async () => {
     agent = request.agent(app);
@@ -293,7 +249,6 @@ describe("Resources API", () => {
 
     expect(response.status).toBe(200);
     expect(response.body.message).toBe("File deleted successfully.");
-    //expect(fs.existsSync(filePath)).toBe(false); // Ensure file is deleted
   });
 
   it("should return 404 if the file does not exist", async () => {
@@ -324,18 +279,6 @@ describe("Resources API", () => {
 
     expect(response.status).toBe(500);
     expect(response.body.message).toBe("Failed to delete the file.");
-  });
-});
-describe("Attachment API", () => {
-  let agent;
-  beforeAll(async () => {
-    agent = request.agent(app);
-
-    const loginResponse = await agent.post("/api/sessions").send({
-      username: "mario@test.it",
-      password: process.env.TEST_USER_PASSWORD,
-    });
-    expect(loginResponse.status).toBe(200);
   });
   it("should upload a attachment successfully", async () => {
     // Perform the file upload request

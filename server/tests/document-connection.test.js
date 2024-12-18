@@ -20,15 +20,15 @@ describe("Document Connections API", () => {
     });
   });
 
+  const mockConnections = [
+    { IdDocument1: 1, IdDocument2: 2, IdConnection: 1 },
+    { IdDocument1: 3, IdDocument2: 4, IdConnection: 2 },
+  ];
+
   describe("GET /api/document-connections", () => {
     it("should retrieve all document connections", async () => {
-      const mockConnections = [
-        { IdDocument1: 1, IdDocument2: 2, IdConnection: 1 },
-        { IdDocument1: 3, IdDocument2: 4, IdConnection: 2 },
-      ];
-      DocumentConnectionDao.getAllConnections.mockResolvedValue(
-        mockConnections
-      );
+      
+      DocumentConnectionDao.getAllConnections.mockResolvedValue(mockConnections);
       const response = await request(app).get("/api/document-connections");
 
       expect(response.status).toBe(200);
@@ -50,24 +50,14 @@ describe("Document Connections API", () => {
   describe("GET /api/document-connections/:documentId", () => {
     it("should retrieve all connections for a specific document", async () => {
       const documentId = 1;
-
-      const mockConnections = [
-        {
-          IdConnectionDocuments: 1,
-          IdDocument1: documentId,
-          IdDocument2: 2,
-          IdConnection: 3,
-        },
-      ];
-
-      DocumentConnectionDao.getConnections.mockResolvedValue(mockConnections);
+      DocumentConnectionDao.getConnections.mockResolvedValue({...mockConnections[0],IdConnectionDocuments:1});
 
       const response = await request(app).get(
         `/api/document-connections/${documentId}`
       );
 
       expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockConnections);
+      expect(response.body).toEqual({...mockConnections[0],IdConnectionDocuments:1});
     });
 
     it("should return 500 for database errors", async () => {
@@ -84,31 +74,24 @@ describe("Document Connections API", () => {
 
   describe("POST /api/document-connections", () => {
     it("should create a new document connection when authenticated", async () => {
-      const newConnection = {
-        IdDocument1: 1,
-        IdDocument2: 2,
-        IdConnection: 3,
-      };
+      
 
-      DocumentConnectionDao.createConnection.mockResolvedValue(newConnection);
+      DocumentConnectionDao.createConnection.mockResolvedValue(mockConnections[0]);
 
       const response = await agent
         .post("/api/document-connections")
-        .send(newConnection);
+        .send(mockConnections[0]);
 
       expect(response.status).toBe(201);
-      expect(response.body).toEqual(newConnection);
+      expect(response.body).toEqual(mockConnections[0]);
     });
 
     it("should return 400 if required fields are missing", async () => {
-      const incompleteConnection = {
-        IdDocument1: 1,
-        IdConnection: 3,
-      };
+
 
       const response = await agent
         .post("/api/document-connections")
-        .send(incompleteConnection);
+        .send({...mockConnections[0],IdConnection:''});
 
       expect(response.status).toBe(400);
       expect(response.body).toEqual({
@@ -117,15 +100,11 @@ describe("Document Connections API", () => {
     });
 
     it("should return 400 if a document tries to connect to itself", async () => {
-      const invalidConnection = {
-        IdDocument1: 1,
-        IdDocument2: 1,
-        IdConnection: 3,
-      };
+
 
       const response = await agent
         .post("/api/document-connections")
-        .send(invalidConnection);
+        .send({...mockConnections[0],IdDocument2:1,IdDocument1:1});
 
       expect(response.status).toBe(400);
       expect(response.body).toEqual({
@@ -134,18 +113,14 @@ describe("Document Connections API", () => {
     });
 
     it("should return 500 for database errors", async () => {
-      const validConnection = {
-        IdDocument1: 1,
-        IdDocument2: 2,
-        IdConnection: 3,
-      };
+      
       DocumentConnectionDao.createConnection.mockRejectedValue(
         new Error("Database error")
       );
 
       const response = await agent
         .post("/api/document-connections")
-        .send(validConnection);
+        .send(mockConnections[0]);
 
       expect(response.status).toBe(500);
     });
@@ -303,17 +278,12 @@ describe("Document Connections API", () => {
   describe("PATCH /api/document-connections/:connectionId", () => {
     it("should update the document connection successfully", async () => {
       const connectionId = 1;
-      const requestBody = {
-        IdDocument1: 1,
-        IdDocument2: 2,
-        IdConnection: 3,
-      };
 
       DocumentConnectionDao.updateConnection.mockResolvedValue(true);
 
       const response = await agent
         .patch(`/api/document-connections/${connectionId}`)
-        .send(requestBody);
+        .send(mockConnections[0]);
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
