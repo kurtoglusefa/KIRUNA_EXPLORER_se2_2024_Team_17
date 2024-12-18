@@ -1,10 +1,11 @@
 import request from "supertest";
-
-import {app} from '../index.js';
+import { app } from "../index.js";
 
 const locationDao = require("../dao/location-dao.js");
+const Location = require("../models/location");
 jest.mock("../dao/location-dao.js");
-require('dotenv').config();
+require("dotenv").config();
+
 describe("Location API", () => {
   let agent;
 
@@ -12,8 +13,37 @@ describe("Location API", () => {
     agent = request.agent(app);
     await agent
       .post("/api/sessions")
-      .send({ username: "mario@test.it", password: process.env.TEST_USER_PASSWORD });
+      .send({
+        username: "mario@test.it",
+        password: process.env.TEST_USER_PASSWORD,
+      });
   });
+
+  describe("Location Class", () => {
+    it("should create a Location object with the correct properties", () => {
+      const idLocation = 1;
+      const location_type = "Point";
+      const latitude = 12.34;
+      const longitude = 56.78;
+      const area_coordinates = "[[12.34, 56.78]]";
+
+      const location = new Location(
+        idLocation,
+        location_type,
+        latitude,
+        longitude,
+        area_coordinates
+      );
+
+      expect(location).toBeInstanceOf(Location);
+      expect(location.idLocation).toBe(idLocation);
+      expect(location.location_type).toBe(location_type);
+      expect(location.latitude).toBe(latitude);
+      expect(location.longitude).toBe(longitude);
+      expect(location.area_coordinates).toBe(area_coordinates);
+    });
+  });
+
   describe("GET /api/locations", () => {
     it("should retrieve all point locations", async () => {
       const mockLocations = [
@@ -89,15 +119,13 @@ describe("Location API", () => {
         location_type: "Point",
         center_lat: 67.85,
         center_lng: 20.22,
-        area_coordinates: "", // assuming this is optional for Point
-        areaName: "", // optional field
+        area_coordinates: "",
+        areaName: "",
       };
 
-      locationDao.addLocation.mockResolvedValue(1); // simulate database response with a new location ID
+      locationDao.addLocation.mockResolvedValue(1);
 
-      const response = await agent
-        .post("/api/locations")
-        .send(newLocation);
+      const response = await agent.post("/api/locations").send(newLocation);
 
       expect(response.status).toBe(201);
       expect(response.body).toEqual({
@@ -110,7 +138,7 @@ describe("Location API", () => {
       const incompleteLocation = {
         center_lat: 20.22,
         center_lng: 20.22,
-      }; // missing locationType
+      };
 
       const response = await agent
         .post("/api/locations")
@@ -127,15 +155,13 @@ describe("Location API", () => {
         location_type: "Point",
         center_lat: 67.85,
         center_lng: 20.22,
-        area_coordinates: "", // assuming this is optional for Point
-        areaName: "" // optional field
+        area_coordinates: "",
+        areaName: "",
       };
 
       locationDao.addLocation.mockRejectedValue(new Error("Database error"));
 
-      const response = await agent
-        .post("/api/locations")
-        .send(newLocation);
+      const response = await agent.post("/api/locations").send(newLocation);
 
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
@@ -149,10 +175,10 @@ describe("Location API", () => {
       const updatedLocation = {
         location_type: "Point",
         latitude: 12.34,
-        longitude: 56.78
+        longitude: 56.78,
       };
 
-      locationDao.getLocationById.mockResolvedValue({ IdLocation: 1 }); // checking if location exists
+      locationDao.getLocationById.mockResolvedValue({ IdLocation: 1 });
       locationDao.updateLocation.mockResolvedValue(true);
 
       const response = await agent
@@ -169,10 +195,10 @@ describe("Location API", () => {
       const updatedLocation = {
         location_type: "Point",
         latitude: 12.34,
-        longitude: 56.78
+        longitude: 56.78,
       };
 
-      locationDao.getLocationById.mockResolvedValue(null); // location does not exist
+      locationDao.getLocationById.mockResolvedValue(null);
 
       const response = await agent
         .patch("/api/locations/1")

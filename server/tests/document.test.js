@@ -1,5 +1,5 @@
 import request from "supertest";
-import { app, server } from "../index.js";
+import { app } from "../index.js";
 const locationDao = require("../dao/location-dao.js");
 const fs = require("fs");
 const path = require("path");
@@ -344,33 +344,47 @@ describe("Attachment API", () => {
       .attach("files", path.resolve(__dirname, "mock_file/testfile.txt"))
       .attach("files", path.resolve(__dirname, "mock_file/test2file.txt"))
       .set("Content-Type", "multipart/form-data");
-      expect(response.status).toBe(200);
-      expect(response.body.message).toBe("Attachments uploaded successfully!");
-      expect(response.body.documentId).toBe(documentId);
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe("Attachments uploaded successfully!");
+    expect(response.body.documentId).toBe(documentId);
   });
   it("should return the list of attachments for a document", async () => {
-    const response = await agent.get(`/api/documents/${documentId}/attachments`);
+    const response = await agent.get(
+      `/api/documents/${documentId}/attachments`
+    );
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body.length).toBe(2);
   });
   it("should return 404 if the file does not exist", async () => {
-        const response = await agent.delete("/api/documents/9999/attachments/testfile.txt");
-        expect(response.status).toBe(404);
-        expect(response.body).toEqual({ message: "Attachment not found." });
+    const response = await agent.delete(
+      "/api/documents/9999/attachments/testfile.txt"
+    );
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ message: "Attachment not found." });
   });
-  
+
   it("should return 500 if file deletion fails", async () => {
-        fs.unlink.mockImplementation((path, callback) => callback(new Error("Deletion error")));
-        const response = await agent.delete(`/api/documents/${documentId}/attachments/testfile.txt`);
-        expect(response.status).toBe(500);
-        expect(response.body).toEqual({ message: "Failed to delete the attachment." });
+    fs.unlink.mockImplementation((path, callback) =>
+      callback(new Error("Deletion error"))
+    );
+    const response = await agent.delete(
+      `/api/documents/${documentId}/attachments/testfile.txt`
+    );
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({
+      message: "Failed to delete the attachment.",
+    });
   });
-  
+
   it("should return 200 for successful file deletion", async () => {
-        fs.unlink.mockImplementation((path, callback) => callback(null));
-        const response = await agent.delete(`/api/documents/${documentId}/attachments/testfile.txt`);
-        expect(response.status).toBe(200);
-        expect(response.body).toEqual({ message: "Attachment deleted successfully." });
+    fs.unlink.mockImplementation((path, callback) => callback(null));
+    const response = await agent.delete(
+      `/api/documents/${documentId}/attachments/testfile.txt`
+    );
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      message: "Attachment deleted successfully.",
+    });
   });
 });

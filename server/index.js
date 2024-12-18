@@ -203,9 +203,7 @@ app.post("/api/test/reset-db", async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
-);
-
+});
 
 /*** User APIs ***/
 
@@ -570,29 +568,35 @@ app.delete(
   }
 );
 // API to get attachments for a specific document
-app.get("/api/documents/:documentId/attachments", checkDocumentExists, async (req, res) => {
-  const documentId = String(req.params.documentId);
-  const dirPath = path.join(__dirname, "attachments", documentId);
+app.get(
+  "/api/documents/:documentId/attachments",
+  checkDocumentExists,
+  async (req, res) => {
+    const documentId = String(req.params.documentId);
+    const dirPath = path.join(__dirname, "attachments", documentId);
 
-  try {
+    try {
       // Check if the attachments directory exists
       if (!fs.existsSync(dirPath)) {
-          return res.status(404).json({ message: "No attachments found for this document" });
+        return res
+          .status(404)
+          .json({ message: "No attachments found for this document" });
       }
 
       // Read the files in the directory
       const files = fs.readdirSync(dirPath);
       const attachments = files.map((file) => ({
-          documentId: Number(documentId),
-          filename: file,
-          url: `/attachments/${documentId}/${file}`, // Construct URL for accessing the attachment
+        documentId: Number(documentId),
+        filename: file,
+        url: `/attachments/${documentId}/${file}`, // Construct URL for accessing the attachment
       }));
 
       res.status(200).json(attachments);
-  } catch (error) {
+    } catch (error) {
       res.status(500).json({ message: "Server error", error });
+    }
   }
-});
+);
 
 // API TYPES
 app.get("/api/types", (req, res) => {
@@ -924,45 +928,48 @@ app.patch("/api/locations/:locationId", isUrbanPlanner, async (req, res) => {
     longitude,
     area_coordinates: areaCoordinates,
   } = req.body;
+
   if (!locationType) {
     return res.status(400).json({ error: "locationType is required." });
   }
-  if (locationType == "Point") {
-    // Check if both latitude and longitude are provided
-    if (latitude == null || longitude == null) {
-      return res.status(400).json({
-        error:
-          "For 'Point' locationType, both latitude and longitude are required.",
-      });
-    }
+
+  if (locationType === "Point" && (latitude == null || longitude == null)) {
+    return res.status(400).json({
+      error:
+        "For 'Point' locationType, both latitude and longitude are required.",
+    });
   }
-  if (locationType == "Area") {
-    // Check if areaCoordinates is provided
-    if (!areaCoordinates) {
-      return res.status(400).json({
-        error: "For 'Area' locationType, areaCoordinates are required.",
-      });
-    }
+
+  if (locationType === "Area" && !areaCoordinates) {
+    return res.status(400).json({
+      error: "For 'Area' locationType, areaCoordinates are required.",
+    });
   }
+
   try {
     const location = await locationDao.getLocationById(idLocation);
+
     if (!location) {
       return res.status(404).json({ error: "Location not found." });
     }
-    const result = await locationDao.updateLocation(
+
+    const updateSuccess = await locationDao.updateLocation(
       idLocation,
       locationType,
       latitude,
       longitude,
       areaCoordinates
     );
-    if (result) {
-      res.status(200).json({ message: "Location updated successfully." });
+
+    if (updateSuccess) {
+      return res
+        .status(200)
+        .json({ message: "Location updated successfully." });
     } else {
-      res.status(500).json({ error: "Failed to update location." });
+      return res.status(400).json({ error: "Failed to update location." });
     }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 });
 
@@ -1000,14 +1007,27 @@ app.get("/api/stakeholders/:stakeholderId/documents", (req, res) => {
 });
 
 // Clear stakeholders from a document
-app.delete("/api/documents/:documentId/stakeholders", (req, res) => {
-  DocumentStakeholderDao.clearStakeholdersFromDocument(req.params.documentId)
-    .then((result) => {
-      if (result)
-        res.status(200).json({ message: "Stakeholders removed successfully." });
-      else res.status(404).json({ error: "No stakeholders found to remove." });
-    })
-    .catch(() => res.status(500).end());
+app.delete("/api/documents/:documentId/stakeholders", async (req, res) => {
+  const documentId = parseInt(req.params.documentId);
+  if (isNaN(documentId)) {
+    return res.status(400).json({ error: "Invalid document ID." });
+  }
+  try {
+    const changes = await DocumentStakeholderDao.clearStakeholdersFromDocument(
+      documentId
+    );
+    if (changes) {
+      res.status(200).json({ message: "Stakeholders removed successfully." });
+    } else {
+      res.status(404).json({ error: "No stakeholders found to remove." });
+    }
+  } catch (error) {
+    console.error(
+      `Error clearing stakeholders for document ${documentId}:`,
+      error.message
+    );
+    res.status(500).json({ error: "An internal server error occurred." });
+  }
 });
 
 app.post("/api/stakeholders", isUrbanPlanner, async (req, res) => {
@@ -1044,6 +1064,9 @@ const isPortInUse = (port) => {
 const server = async () => {
   const isInUse = await isPortInUse(port);
   if (isInUse) {
+    console.error(
+      `Port ${port} is already in use. Please choose a different port.`
+    );
   } else {
     const server = app.listen(port, () => {
       console.log(`Server listening at http://localhost:${port}`);
