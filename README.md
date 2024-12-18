@@ -772,25 +772,25 @@ You will see the kiruna explore at address: http://localhost:5173/
 # Scale API
 
 - GET `/api/scales`
-- **Description**: Retrieves a list of all available scales.
-- **Response**: Returns `200 OK` with a JSON array of scales if successful, or
-  `500 Internal Server Error` if an unexpected error occurs.
-- **Response Body on Success**:
 
-  ```json
-  [
-    {
-      "IdScale": 1,
-      "scale_text": "1:100",
-      "scale_number": 100
-    },
-    {
-      "IdScale": 2,
-      "scale_text": "1:200",
-      "scale_number": 200
-    }
-  ]
-  ```
+  - **Description**: Retrieves a list of all available scales.
+  - **Response**: Returns `200 OK` with a JSON array of scales if successful, or`500 Internal Server Error` if an unexpected error occurs.
+  - **Response Body on Success**:
+
+    ```json
+    [
+      {
+        "IdScale": 1,
+        "scale_text": "1:100",
+        "scale_number": 100
+      },
+      {
+        "IdScale": 2,
+        "scale_text": "1:200",
+        "scale_number": 200
+      }
+    ]
+    ```
 
 - GET `/api/scales/:scaleid`
 
