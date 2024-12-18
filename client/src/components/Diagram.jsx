@@ -552,7 +552,7 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
 
     let path = "";
     if (data.stakeholder) {
-      path = `src/icon/${data.stakeholder[0]?.Color || "default"}/${data.iconSrc}`;
+      path = `src/icon/${data.stakeholder[0]?.Color || "8A9FA4"}/${data.iconSrc}`;
     } else {
       path = `src/icon/8A9FA4/${data.iconSrc}`;
     }
