@@ -202,7 +202,6 @@ function MyNavbar({ documents, setDocuments }) {
               </Nav>
             }
             {loginState.loggedIn && location.pathname === '/home' &&
-              <>
               <Nav>
                 <Form className="d-flex align-items-center" onSubmit={handleSearch}>
                   <InputGroup>
@@ -309,7 +308,6 @@ function MyNavbar({ documents, setDocuments }) {
                   </InputGroup>
                 </Form>
               </Nav>
-              </>
             }
           <Nav className=" d-flex justify-content-end">
             {loginState.loggedIn ? (

@@ -194,7 +194,7 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
         />
         {/* Tooltip */}
         {showTooltip && (
-          <foreignObject x={controlX - 50} y={controlY - 20} width={200} height={100}>
+          <foreignObject x={controlX - 30} y={controlY - 100} width={200} height={100}>
             <div
               style={{
                 background: 'black',
@@ -202,7 +202,7 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
                 borderRadius: '5px',
                 padding: '5px',
                 color: 'white',
-                fontSize: '11px',
+                fontSize: '13px',
                 boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
                 pointerEvents: 'none', // Prevent interaction with the tooltip
               }}
@@ -210,7 +210,7 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
               {connectionDetails ? (
                 <>
                   <h5 style={{ margin: '0 0 4px', fontSize: '12px', fontWeight: 'bold' }}>Connection Details</h5>
-                  <p><strong>Type:</strong> {connectionDetails?.type !== 'Unknown' ? connectionDetails.type : 'Loading...'}</p>
+                  <p><strong>Type:</strong> {data.connectionDetails.type} </p>
                   <p>
                     <strong>Documents:</strong> {connectionDetails.sourceDocument} ↔ {connectionDetails.targetDocument}
                   </p>
