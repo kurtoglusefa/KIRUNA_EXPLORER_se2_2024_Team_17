@@ -324,6 +324,8 @@ You will see the kiruna explore at address: http://localhost:5173/
     `404 Not Found` if the Document not found.
     `500 Internal Server Error` If an unexpected error occurs.
 
+# RESOURCES API
+
 - **POST** `/api/documents/:documentId/resources`
 
   - **Description**: Allows users to upload a file for a specific document, given its `documentId`.
@@ -378,6 +380,81 @@ You will see the kiruna explore at address: http://localhost:5173/
     ]
     ```
 
+# ATTACHMENTS API
+
+- POST `/api/documents/:documentId/attachments`
+
+  - Description: Uploads one or more attachment files to a specific document.
+
+  - Request Parameters: `documentId` (Integer, required): The unique ID of the document to which the attachments will be added.
+  - Request Body: The request must use multipart/form-data format, containing the files to be uploaded
+
+  ```json
+    Content-Type: multipart/form-data
+  {
+    files: [file1, file2, ...]
+  }
+
+  ```
+
+  - Response Body in case of success:
+
+  ```json
+  {
+    "message": "Attachments uploaded successfully!",
+    "documentId": 1,
+    "files": [
+      {
+        "filename": "example1.pdf",
+        "path": "attachments/1/example1.pdf"
+      },
+      {
+        "filename": "example2.docx",
+        "path": "attachments/1/example2.docx"
+      }
+    ]
+  }
+  ```
+
+- DELETE `/api/documents/:documentId/attachments/:filename`
+
+  - Description: Deletes a specific attachment file associated with a document.
+
+  - Request Parameters: `documentId` (String, required): The unique ID of the document.
+    `filename` (String, required): The name of the attachment file to delete.
+  - Response: Returns `200 OK` Attachment successfully deleted.
+    `404 Not Found` The specified attachment does not exist.
+    `500 Internal Server Error` If an unexpected error occurs during the deletion.
+  - Response Body in case of success:
+
+  ```json
+  {
+    "message": "Attachment deleted successfully."
+  }
+  ```
+
+- GET `/api/documents/:documentId/attachments`
+  - Description: Retrieves a list of attachments associated with a document.
+  - Request Parameters: `documentId` (Integer, required): The unique ID of the document.
+  - Response: Returns `200 OK` A list of attachments associated with the document.
+    `404 Not Found` The specified document does not exist.
+    `500 Internal Server Error` If an unexpected error occurs during the retrieval.
+  - Response Body in case of success:
+  ```json
+  [
+    {
+      "documentId": 1,
+      "filename": "attachment1.pdf",
+      "url": "/attachments/1/attachment1.pdf"
+    },
+    {
+      "documentId": 1,
+      "filename": "attachment2.docx",
+      "url": "/attachments/1/attachment2.docx"
+    }
+  ]
+  ```
+
 # DOCUMENT CONNECTION API
 
 - GET `/api/document-connections`
@@ -398,6 +475,10 @@ You will see the kiruna explore at address: http://localhost:5173/
     }
   ]
   ```
+
+  - Response: `200 OK` Attachments successfully uploaded. `400 Bad Request` Invalid or missing documentId, or no files uploaded.
+    `404 Not Found` Document with the given documentId does not exist.
+    `500 Internal Server Error` If an unexpected error occurs during the upload process.
 
 - GET `/api/document-connections/:idDocument`
 
