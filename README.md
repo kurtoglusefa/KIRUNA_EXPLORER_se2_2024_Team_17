@@ -878,15 +878,13 @@ You will see the kiruna explore at address: http://localhost:5173/
 
 - **IdDocument**: Unique identifier for each document
 - **Title**: Title of the document
-- **IdStakeholder**: Reference to the array of id stakeholders responsible for this document
-- **Scale**: Scope or scale of the document (e.g., National, Regional)
+- **IdScale**: Reference to the Scale associated with this document
 - **Issuance_Date**: Date when the document was issued
 - **Language**: Language of the document
 - **Pages**: Number of pages in the document
 - **Description**: Brief description of the document
 - **IdType**: Reference to the type of the document
 - **IdLocation**: Reference to the location associated with this document
-- **IdScale**: Reference to the Scale associated with this document
 
 **Location**
 
@@ -909,6 +907,12 @@ You will see the kiruna explore at address: http://localhost:5173/
 - **IdDocument1**: Reference to the first document in the connection
 - **IdDocument2**: Reference to the second document in the connection
 - **IdConnection**: Reference to the type of connection between the documents
+
+**DocumentStakeholder**
+
+- **IdDocumentStakeholder**: Unique identifier for each document stakeholder
+- **IdDocument**: Reference to the document
+- **IdStakeholder**: Reference to the stakeholder
 
 **Scale**
 
