@@ -98,9 +98,9 @@ You will see the kiruna explore at address: http://localhost:5173/
 
   ## React Client Application Routes
 
-- Route `/`: Welcome page of the kiruna explorer
-- Route `/login`: Login page to access as urban planner
-- Route `/documents`: Route for showing the documents.
+- Route `/`: Welcome page of the kiruna explorer.
+- Route `/home`: Route where the user can see the map/list/diagram of documents.
+- Route `/login`: Login page to access as urban planner.
 - Route `/documents/modify-document/:documentId`: Route for modifying the document given the id.
 - Route `/documents/create-document`: Route for create a document with all fields.
 
@@ -110,8 +110,8 @@ You will see the kiruna explore at address: http://localhost:5173/
 
 - POST `/api/sessions`
 
-  - Description: Unauthenticated, creates a new session.
-  - Request: The body contains an object with authentication credentials (Content-Type: `application/json`).
+  - **Description**: Unauthenticated, creates a new session.
+  - **Request**: The body contains an object with authentication credentials (Content-Type: `application/json`).
 
   ```json
   {
@@ -120,20 +120,20 @@ You will see the kiruna explore at address: http://localhost:5173/
   }
   ```
 
-  - Response: returns `200 OK` (success), `401 Unauthorized` (wrong credentials) or `500 Internal Server Error` (generic error). In case of success, the body contains an object with the authenticated user's information (Content-Type: `application/json`).
+  - **Response**: returns `200 OK` (success), `401 Unauthorized` (wrong credentials) or `500 Internal Server Error` (generic error). In case of success, the body contains an object with the authenticated user's information (Content-Type: `application/json`).
 
 - DELETE `/api/sessions/current`
 
-  - Description: Authenticated, deletes the current session.
-  - Request: No body.
-  - Response: returns `200 OK` (success), `401 Unauthorized` (unauthenticated user) or `500 Internal Server Error` (generic error). No body.
+  - **Description**: Authenticated, deletes the current session.
+  - **Request**: No body.
+  - **Response**: returns `200 OK` (success), `401 Unauthorized` (unauthenticated user) or `500 Internal Server Error` (generic error). No body.
 
 - GET `/api/sessions/current`
 
-  - Description: Authenticated, verifies that the current session is still valid and returns the authenticated user's information.
-  - Request: No body.
-  - Response: returns `200 OK` (success) or `401 Unauthorized` (unauthenticated user).
-  - Response body: In case of success, the body contains an object with the information of the user associated with the current session (Content-Type: `application/json`).
+  - **Description**: Authenticated, verifies that the current session is still valid and returns the authenticated user's information.
+  - **Request**: No body.
+  - **Response**: returns `200 OK` (success) or `401 Unauthorized` (unauthenticated user).
+  - **Response body**: In case of success, the body contains an object with the information of the user associated with the current session (Content-Type: `application/json`).
 
   ```json
   {
@@ -149,8 +149,8 @@ You will see the kiruna explore at address: http://localhost:5173/
 
 - POST `/api/documents`
 
-  - Description: Allows the authenticated user to upload a new document to the system. This endpoint validates the user’s authorization level to ensure they have permission to add documents.
-  - Request: The request body should contain a JSON object with the document's metadata.
+  - **Description**: Allows the authenticated user to upload a new document to the system. This endpoint validates the user’s authorization level to ensure they have permission to add documents.
+  - **Request**: The request body should contain a JSON object with the document's metadata.
 
     ```json
     {
@@ -169,8 +169,8 @@ You will see the kiruna explore at address: http://localhost:5173/
     }
     ```
 
-  - Response: returns `201 Created OK` (created) or `400 Bad Request` (invalid data ) or `401 Unauthorized` (If the user is unauthenticated or lacks sufficient permissions) or `500 Internal Server Error `If an unexpected error occurs.
-  - Response Body: On success (`201 Created`), the body contains an object with the details of the created document.
+  - **Response**: returns `201 Created OK` (created) or `400 Bad Request` (invalid data ) or `401 Unauthorized` (If the user is unauthenticated or lacks sufficient permissions) or `500 Internal Server Error `If an unexpected error occurs.
+  - **Response Body**: On success (`201 Created`), the body contains an object with the details of the created document.
     ```json
     {
       "documentId": 123,
@@ -187,10 +187,10 @@ You will see the kiruna explore at address: http://localhost:5173/
     ```
 
 - GET `/api/documents`
-  - Description: Allows all user to get all documents of the system.
-  - Request: No request.
-  - Response: returns `200 OK` (created) or `400 Bad Request` (invalid data ) or `500 Internal Server Error `If an unexpected error occurs.
-  - Response Body: On success (`200 OK`), the body contains an array of objects with the details of the documents.
+  - **Description**: Allows all user to get all documents of the system.
+  - **Request**: No request.
+  - **Response**: returns `200 OK` (created) or `400 Bad Request` (invalid data ) or `500 Internal Server Error `If an unexpected error occurs.
+  - **Response Body**: On success (`200 OK`), the body contains an array of objects with the details of the documents.
     ```json
     [
       {
@@ -221,10 +221,10 @@ You will see the kiruna explore at address: http://localhost:5173/
     ```
 - GET `/api/documents/:documentId`
 
-  - Description: Allows all user to get the document of the system by giving id.
-  - Request: No request.
-  - Response: returns `200 OK` (created) or `400 Bad Request` (invalid data ) or `500 Internal Server Error `If an unexpected error occurs or `404 Not Found`.
-  - Response Body: On success (`200 OK`), the body contains the object with the details of the documents.
+  - **Description**: Allows all user to get the document of the system by giving id.
+  - **Request**: No request.
+  - **Response**: returns `200 OK` (created) or `400 Bad Request` (invalid data ) or `500 Internal Server Error `If an unexpected error occurs or `404 Not Found`.
+  - **Response Body**: On success (`200 OK`), the body contains the object with the details of the documents.
     ```json
     {
       "documentId": 123,
@@ -266,11 +266,11 @@ You will see the kiruna explore at address: http://localhost:5173/
 
 - PATCH `/api/documents/:documentid`
 
-  - Description: Allows an authenticated urban planner to update a specific document by its ID. This endpoint updates the document's details and reassigns its stakeholders.
+  - **Description**: Allows an authenticated urban planner to update a specific document by its ID. This endpoint updates the document's details and reassigns its stakeholders.
 
-  - Request Parameters: documentid (Integer, required): The unique ID of the document to be updated.
+  - **Request Parameters**: documentid (Integer, required): The unique ID of the document to be updated.
 
-  - Request Body: A JSON object containing the updated document details. The idStakeholder field (array) is optional but will overwrite existing stakeholders if provided.
+  - **Request Body**: A JSON object containing the updated document details. The idStakeholder field (array) is optional but will overwrite existing stakeholders if provided.
 
     ```json
     {
@@ -286,8 +286,8 @@ You will see the kiruna explore at address: http://localhost:5173/
     }
     ```
 
-  - Response: returns `200 OK` (created) or `400 Bad Request` (invalid data) or `500 Internal Server Error `If an unexpected error occurs or `404 Not Found`. `400 Bad Request` if Missing required fields.
-  - Response Body: On success (`200 OK`), the body contains the object with the details of
+  - **Response**: returns `200 OK` (created) or `400 Bad Request` (invalid data) or `500 Internal Server Error `If an unexpected error occurs or `404 Not Found`. `400 Bad Request` if Missing required fields.
+  - **Response Body**: On success (`200 OK`), the body contains the object with the details of
     the documents.
 
     ```json
@@ -306,11 +306,11 @@ You will see the kiruna explore at address: http://localhost:5173/
 
 - PATCH `/api/documents/:documentId/connection`
 
-  - Description: Allows an authenticated urban planner to Updates the connection details between two documents. This allows modifying the relationship or connection type between a document and another specified document.
+  - **Description**: Allows an authenticated urban planner to Updates the connection details between two documents. This allows modifying the relationship or connection type between a document and another specified document.
 
-  - Request Parameters: documentId (Integer, required): The unique ID of the document to be connected to.
+  - **Request Parameters**: documentId (Integer, required): The unique ID of the document to be connected to.
 
-  - Request Body: A JSON object containing the new connection details. The idStakeholder field
+  - **Request Body**: A JSON object containing the new connection details. The idStakeholder field
 
     ```json
     {
@@ -319,7 +319,7 @@ You will see the kiruna explore at address: http://localhost:5173/
     }
     ```
 
-  - Response: `200 OK` Connection updated successfully.
+  - **Response**: `200 OK` Connection updated successfully.
     `400 Bad Request` Missing required fields (IdDocument2 or IdConnection).
     `404 Not Found` if the Document not found.
     `500 Internal Server Error` If an unexpected error occurs.
@@ -459,10 +459,10 @@ You will see the kiruna explore at address: http://localhost:5173/
 
 - GET `/api/document-connections`
 
-  - Description: lists all document connection entries in the table.
+  - **Description**: lists all document connection entries in the table.
 
-  - Request: No Body.
-  - Response: returns `200 OK` (success) or `500 Internal Server Error` If an unexpected error occurs.
+  - **Request**: No Body.
+  - **Response**: returns `200 OK` (success) or `500 Internal Server Error` If an unexpected error occurs.
   - Response body in case of success :
 
   ```json
@@ -476,17 +476,17 @@ You will see the kiruna explore at address: http://localhost:5173/
   ]
   ```
 
-  - Response: `200 OK` Attachments successfully uploaded. `400 Bad Request` Invalid or missing documentId, or no files uploaded.
+  - **Response**: `200 OK` Attachments successfully uploaded. `400 Bad Request` Invalid or missing documentId, or no files uploaded.
     `404 Not Found` Document with the given documentId does not exist.
     `500 Internal Server Error` If an unexpected error occurs during the upload process.
 
 - GET `/api/document-connections/:idDocument`
 
-  - Description: return all the connections for specific document.
+  - **Description**: return all the connections for specific document.
 
-  - Request: No Body.
-  - Response: returns `200 OK` (success) or `500 Internal Server Error` If an unexpected error occurs.
-  - Response body in case of success :
+  - **Request**: No Body.
+  - **Response**: returns `200 OK` (success) or `500 Internal Server Error` If an unexpected error occurs.
+  - **Response body in case of success** :
 
   ```json
   [
@@ -501,8 +501,8 @@ You will see the kiruna explore at address: http://localhost:5173/
 
 - POST `/api/document-connections`
 
-  - Description: Creates a connection between two documents in the system. This endpoint validates that the user has urban planner permissions and ensures documents can be properly linked.
-  - Request: The request body should contain a JSON object with the connection details.
+  - **Description**: Creates a connection between two documents in the system. This endpoint validates that the user has urban planner permissions and ensures documents can be properly linked.
+  - **Request**: The request body should contain a JSON object with the connection details.
 
     ```json
     {
@@ -512,9 +512,9 @@ You will see the kiruna explore at address: http://localhost:5173/
     }
     ```
 
-  - Response: returns `201 Created OK` (created) or `400 Bad Request` (invalid data ) or `401 Unauthorized` (If the user is unauthenticated or lacks sufficient permissions) or `500 Internal Server Error `If an unexpected error occurs.
+  - **Response**: returns `201 Created OK` (created) or `400 Bad Request` (invalid data ) or `401 Unauthorized` (If the user is unauthenticated or lacks sufficient permissions) or `500 Internal Server Error `If an unexpected error occurs.
 
-  - Response Body: On success (`201 Created`), returns the created connection
+  - **Response Body: On success** (`201 Created`), returns the created connection
 
     ```json
     {
@@ -932,7 +932,7 @@ You will see the kiruna explore at address: http://localhost:5173/
 - **App.jsx**: The root component that renders the entire application, integrating routing and layout to ensure smooth app functionality.
 - **WelcomePage.jsx**: The main UI component where the users can start using the application and navigate related pages.
 - **Diagram.jsx** : this Page show the diagram where the users can see the different connections and relationship among documents.
--
+- **SidebarLegend.jsx** : this Page show the legend where the users can use to to understand document icon and the different connections and relationship among documents.
 
 ## Screenshots
 
