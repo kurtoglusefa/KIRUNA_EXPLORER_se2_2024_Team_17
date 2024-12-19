@@ -58,7 +58,7 @@ sections:
 - Unit Testing:
   - Total hours estimated: 5h
   - Total hours spent: 5h
-  - Nr of automated unit test cases : 165 
+  - Nr of automated unit test cases : 170 
   - Coverage (if available): around 90%
     - ![Coverage](../images/test_report/sprint4.png)
 - E2E testing:
