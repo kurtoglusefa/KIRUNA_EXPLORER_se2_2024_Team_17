@@ -8,7 +8,8 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install --ignore-scripts
+RUN npm install 
+#--ignore-scripts
 
 # Copy the entire server application
 COPY . .

@@ -1,12 +1,12 @@
 services:
   client:
-    image: pex9990/kiruna-explorer:client
+    image: pex9990/kiruna_explorer_team17:client
     ports:
       - "5173:5173"
     networks:
       - kirunaexplorer-network
   server:
-    image: pex9990/kiruna-explorer:server
+    image: pex9990/kiruna_explorer_team17:server
     ports:
       - "3001:3001"
     networks:

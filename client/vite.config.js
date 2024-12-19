@@ -10,4 +10,8 @@ export default defineConfig({
    strictPort: true,
    host: true,
   },
+  // esbuild: {
+  //   target: 'esnext',
+  //   platform: 'linux',
+  // },
  });
