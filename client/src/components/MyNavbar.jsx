@@ -238,6 +238,15 @@ function MyNavbar({ documents, setDocuments }) {
                         size='sm'
                         type='reset'
                         onClick={async (e) => {
+                          e.preventDefault();
+                          const allDocuments = await API.getAllDocuments(); // fetch all documents
+                          let filteredResults = await Promise.all(
+                            allDocuments.map(async (doc) => {
+                              const stakeholders = await API.getStakeholderByDocumentId(doc.IdDocument);
+                              return { ...doc, IdStakeholder: stakeholders };
+                            })
+                          );
+                          setDocuments(filteredResults); // store the filtered results                    
                           setSearchTerm('');
                           setSelectedDocument(null);
                         }}

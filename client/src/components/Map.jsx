@@ -153,7 +153,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
       };
       const handleZoomEnd = () => {
         const zoom = map.getZoom();
-        setShowPolygons(zoom >= 15); // Mostra i poligoni solo a zoom >= 12
+        setShowPolygons(zoom >= 13); // Mostra i poligoni solo a zoom >= 12
       };
 
       // Attach the event listener to the map container
@@ -445,7 +445,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
         <Spinner animation="border" variant="primary" />
       ) : (
         <div style={{ maxHeight: '100%', maxWidth: '100%' }}>
-          <MapContainer ref={mapRef} center={[67.8536, 20.2437]} zoomControl={false} zoom={15} minZoom={8} maxBounds={calculateBounds(geoJsonData)} // Constrain the map to Kiruna's bounding box
+          <MapContainer ref={mapRef} center={[67.8536, 20.2437]} zoomControl={false} zoom={13} minZoom={8} maxBounds={calculateBounds(geoJsonData)} // Constrain the map to Kiruna's bounding box
             maxBoundsViscosity={1.0} >
             {/* Location listener */}
             <LocationMarker />
