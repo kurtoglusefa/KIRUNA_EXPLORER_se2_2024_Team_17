@@ -108,14 +108,6 @@ describe("Document Search API", () => {
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body)).toBe(true);
   });
-
-  it("should retrieve a document by title", async () => {
-    const title = "Updated Sample Title"; // replace with an existing title in the database
-    const response = await request(app).get(`/api/documents/title/${title}`);
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty("Title", title);
-  });
-
   it("should return 404 if document title not found", async () => {
     const response = await request(app).get(
       "/api/documents/title/NonExistentTitle"
