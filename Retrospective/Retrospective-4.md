@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/cdb56236-3b3b-444e-bd18-d7ef3ea80494)# RETROSPECTIVE (Team 17)
+# RETROSPECTIVE (Team 17)
 =====================================
 
 The retrospective should include _at least_ the following
