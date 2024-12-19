@@ -44,13 +44,13 @@ sections:
 | 18 -  Add one or more attachments for a document         | 8      | 2      | 10h30m        | 10h      |
 - Hours per task (average, standard deviation)
   - task average:
-    - estimated: ? 
-    - actual: ?
+    - estimated: 1.78h 
+    - actual: 1.79h
   - standard deviation:
-    - estimated: ?
-    - actual: ?
+    - estimated: 1.50h
+    - actual: 1.56h
 - Total task estimation error ratio: sum of total hours estimation / sum of total hours spent -1
-  - 0?
+  - -0.00518
 
   
 ## QUALITY MEASURES 
@@ -58,7 +58,7 @@ sections:
 - Unit Testing:
   - Total hours estimated: 5h
   - Total hours spent: 5h
-  - Nr of automated unit test cases : 165 
+  - Nr of automated unit test cases : 170 
   - Coverage (if available): around 90%
     - ![Coverage](../images/test_report/sprint4.png)
 - E2E testing:
