@@ -35,12 +35,12 @@ sections:
 | Story  | # Tasks | Points | Hours est. | Hours actual |
 |--------|---------|--------|------------|--------------|
 | _#0_                                            | 24      |        | 47h55m    | 50h25m      |
-| 11 - Visualize the area associated with the different documents     | 1       | 2      | 4h        | 4h           |
-| 17 - See on the diagram the document selected in the map                          |    5    | 1      | 2h30m         | 30m       |
-| 12 -  Adjust the position of documents on the diagram                    | 2       | 2      | 4h        | 4h      |
-| 13 -  Adjust the connections of documents on the diagram         | 1      | 6      | 9h        | 9h30m      |
-| 15 -  Filter the documents shown on the diagram         | 1      | 1      | 1h30m        | 1h30m      |
-| 16 -  See on the map the document selected in the diagram         | 1      | 2      | 2h        | 30m      |
+| 11 - Visualize the area associated with the different documents     | 2       | 2      | 4h        | 4h           |
+| 17 - See on the diagram the document selected in the map                          |    1    | 3      | 2h30m         | 30m       |
+| 12 -  Adjust the position of documents on the diagram                    | 2       | 5      | 4h        | 4h      |
+| 13 -  Adjust the connections of documents on the diagram         | 6      | 3      | 9h        | 9h30m      |
+| 15 -  Filter the documents shown on the diagram         | 1      | 3      | 1h30m        | 1h30m      |
+| 16 -  See on the map the document selected in the diagram         | 1      | 3      | 2h        | 30m      |
 | 18 -  Add one or more attachments for a document         | 8      | 2      | 10h30m        | 10h      |
 - Hours per task (average, standard deviation)
   - task average:
