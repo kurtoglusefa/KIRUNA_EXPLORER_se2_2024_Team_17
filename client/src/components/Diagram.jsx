@@ -1,5 +1,5 @@
-import { useEffect, useState, useContext } from 'react';
-import ReactFlow, { Background, Handle, ReactFlowProvider, BackgroundVariant } from 'reactflow';
+import { useEffect, useState, useContext} from 'react';
+import ReactFlow, { Background, Handle, ReactFlowProvider,useReactFlow, BackgroundVariant  } from 'reactflow';
 import 'reactflow/dist/style.css';
 import CardDocument from './CardDocument';
 import AppContext from '../AppContext';
@@ -33,9 +33,6 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
   const [showAddConnection, setShowAddConnection] = useState(false);
   const [selectConnectionType, setSelectConnectionType] = useState("");
 
-
-
-
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
 
@@ -51,11 +48,17 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
   const [filteredDocuments, setFilteredDocuments] = useState([]); // Filtered list of documents for search
   const [selectedDestinationDocument, setSelectedDestinationDocument] = useState(null); // Selected destination document for connection
   const [newConnection, setNewConnection] = useState(false); // New connection object to create
-  const [viewport, setViewport] = useState({ x: 0, y: 0 }); // Track viewport position
+  const [viewport, setViewport] = useState({ x: 0, y: 0,zoom:1 }); // Track viewport position
+
   const offsetY = -150; // Offset for the Y position of the nodes
   const offsetX = 60;
   const crypto = window.crypto || window.msCrypto;
   let array = new Uint32Array(1);
+
+  /*const handleFitView = useCallback(() => {
+    // You can pass optional arguments to fitView (e.g., to fit a specific node or set of nodes).
+    fitView({ padding: 0.1 }); // Optional padding for better visuals
+  }, [fitView]);*/
   const updateConnection = async () => {
 
     try {
@@ -97,8 +100,9 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
     setFilteredDocuments([]); // Clear suggestions after selection
   };
 
-  const handleMove = (e, viewport) => {
-    setViewport(viewport);
+  const handleMove = (e, viewportNew) => {
+    if(viewport.x != viewportNew.x && viewport.y != viewportNew.y)
+    setViewport(viewportNew);
   };
 
   const scaleRanges = {
@@ -145,8 +149,99 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
       return 3;
     }
   };
+  const startYear = 2000;
+  // Define the x-coordinate range
+  const minX = 50;  // Top position for the earliest date
 
+  // Helper to parse `DD/MM/YYYY` format
+  const parseDate = (dateStr) => {
+    if (!dateStr) return { year: null, month: null, day: null };
 
+    const parts = dateStr.split('/'); // Split by `/`
+
+    // Case 1: Year only
+    if (parts.length === 1) {
+      const year = parseInt(parts[0], 10);
+      return { year, month: null, day: null };
+    }
+
+    // Case 2: Month and Year (e.g., "2004/05")
+    if (parts.length === 2) {
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10);
+
+      return { year, month, day: null };
+    }
+
+    // Case 3: Full Date (e.g., "2000/11/27")
+    if (parts.length === 3) {
+      const day = parseInt(parts[2], 10);
+      const month = parseInt(parts[1], 10);
+      const year = parseInt(parts[0], 10);
+      return { year, month, day };
+    }
+
+    // If the date format is not recognized
+    return { year: null, month: null, day: null };
+  };
+
+  const mapDateToX = (dateStr) => {
+    const { year, month, day } = parseDate(dateStr);
+    if (!year || isNaN(year)) return minX; // Default to minX if year is invalid
+
+    // Calculate the year offset from the start year
+    const yearDifference = year - startYear;
+
+    // Compute x position with 200px gap per year
+    let x = minX + yearDifference * gapx;
+
+    // Adjust further for month and day within the year
+    if (month) {
+      const monthRatio = (month - 1) / 12; // Fraction of a year for the month
+      x += monthRatio * gapx; // 200px for one year
+    }
+    if (day) {
+      const dayRatio = day / 365; // Fraction of a year for the day
+      x += dayRatio * gapx; // 200px for one year
+    }
+
+    return x;
+  };
+  const mapScaleToY = (Idscale) => {
+
+    const scale = scales[Idscale]?.scale_text;
+    if (scale === "Text") {
+      return scaleRanges.Text.min;
+    }
+    else if (scale === "Concept") {
+      return scaleRanges.Concept.min;
+    }
+    else if (scale === "Blueprints/effects") {
+      return scaleRanges["Blueprints/Effects"].min;
+    }
+    else {
+      // this is scale type plan
+      const maxScaleNumber = 100000; // The max scale number we need to handle
+      const scale_number = scales[Idscale]?.scale_number.split(":")[1];
+      const normalizedValue = (scale_number - 1) / (maxScaleNumber - 1); // Normalize scale_number to [0, 1]
+
+      const scaledValue = scaleRanges.Plan.min + normalizedValue * (scaleRanges.Plan.max - scaleRanges.Plan.min);
+
+      return scaledValue;
+    }
+  };
+  function MarkerFocus({ viewport }) {
+    const { setViewport: setFlowViewport } = useReactFlow();
+  
+    // Use useEffect to run handleFocus only when the `viewport` changes
+    useEffect(() => {
+      if (viewport.x !=0 && viewport.y !=0) {
+        setFlowViewport({ x: viewport.x, y: viewport.y, zoom: 1 });
+      }
+    }, []); 
+  
+    return null;
+  }
   const OffsetEdge = ({ id, sourceX, sourceY, targetX, targetY, style, data }) => {
     const offset = data?.offset || 50; // Use offset from data (default: 50)
     const connectionDetails = data?.connectionDetails; // Extract connection details
@@ -360,98 +455,12 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
   };
   const fetchDocuments = async () => {
     try {
-      const startYear = 2000;
-      // Define the x-coordinate range
-      const minX = 50;  // Top position for the earliest date
-      const scaleRanges = {
-        Text: { min: -200, max: 0 },
-        Concept: { min: 0, max: 200 },
-        Plan: { min: 200, max: 600 },
-        "Blueprints/Effects": { min: 600, max: 800 },
-      };
-
-      // Helper to parse `DD/MM/YYYY` format
-      const parseDate = (dateStr) => {
-        if (!dateStr) return { year: null, month: null, day: null };
-
-        const parts = dateStr.split('/'); // Split by `/`
-
-        // Case 1: Year only
-        if (parts.length === 1) {
-          const year = parseInt(parts[0], 10);
-          return { year, month: null, day: null };
-        }
-
-        // Case 2: Month and Year (e.g., "2004/05")
-        if (parts.length === 2) {
-          const year = parseInt(parts[0], 10);
-          const month = parseInt(parts[1], 10);
-
-          return { year, month, day: null };
-        }
-
-        // Case 3: Full Date (e.g., "2000/11/27")
-        if (parts.length === 3) {
-          const day = parseInt(parts[2], 10);
-          const month = parseInt(parts[1], 10);
-          const year = parseInt(parts[0], 10);
-          return { year, month, day };
-        }
-
-        // If the date format is not recognized
-        return { year: null, month: null, day: null };
-      };
-
-      const mapDateToX = (dateStr) => {
-        const { year, month, day } = parseDate(dateStr);
-        if (!year || isNaN(year)) return minX; // Default to minX if year is invalid
-
-        // Calculate the year offset from the start year
-        const yearDifference = year - startYear;
-
-        // Compute x position with 200px gap per year
-        let x = minX + yearDifference * gapx;
-
-        // Adjust further for month and day within the year
-        if (month) {
-          const monthRatio = (month - 1) / 12; // Fraction of a year for the month
-          x += monthRatio * gapx; // 200px for one year
-        }
-        if (day) {
-          const dayRatio = day / 365; // Fraction of a year for the day
-          x += dayRatio * gapx; // 200px for one year
-        }
-
-        return x;
-      };
-      const mapScaleToY = (Idscale) => {
-
-        const scale = scales[Idscale]?.scale_text;
-        if (scale === "Text") {
-          return scaleRanges.Text.min;
-        }
-        else if (scale === "Concept") {
-          return scaleRanges.Concept.min;
-        }
-        else if (scale === "Blueprints/effects") {
-          return scaleRanges["Blueprints/Effects"].min;
-        }
-        else {
-          // this is scale type plan
-          const maxScaleNumber = 100000; // The max scale number we need to handle
-          const scale_number = scales[Idscale]?.scale_number.split(":")[1];
-          const normalizedValue = (scale_number - 1) / (maxScaleNumber - 1); // Normalize scale_number to [0, 1]
-
-          const scaledValue = scaleRanges.Plan.min + normalizedValue * (scaleRanges.Plan.max - scaleRanges.Plan.min);
-
-          return scaledValue;
-        }
-      };
+      
       // Convert documents into nodes
       const nodes = documents.map((doc) => {
         const iconSrc = documentTypes[doc.IdType - 1]?.iconsrc || 'other.svg'; // Fallback to a default icon
         const x = mapDateToX(doc.Issuance_Date);
-        const y = mapScaleToY(doc.IdScale);
+        let y = mapScaleToY(doc.IdScale);
         return {
           id: doc.IdDocument.toString(), // Ensure `id` is a string
           position: { x: x, y: y }, // Stagger nodes horizontally
@@ -504,6 +513,20 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
               : { ...node, selected: false } // Deselect all other nodes
           )
         );
+        const x = mapDateToX(selectedDocument.Issuance_Date);
+        const y = mapScaleToY(selectedDocument.IdScale);
+        if(selectedDocument.IdScale==1){
+          setViewport({ x: -x+1000 , y: y+800, zoom: 1 });
+        }
+        else if (selectedDocument.IdScale==2){
+          setViewport({ x: -x+1000 , y: y+300, zoom: 1 });
+        }
+        else if( selectedDocument.IdScale==3){
+          setViewport({ x: -x+1000 , y: y-900, zoom: 1 });
+        }
+        else{
+          setViewport({ x: -x+1000 , y: y, zoom: 1 });
+        }
       } else {
         // If no document is selected, clear all selections
         setNodes((prevNodes) =>
@@ -711,6 +734,7 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
         <div style={{ padding: '15px', height: '89vh', width: '100vw', backgroundColor: '#FDFDFD' }}>
           {/* Diagram */}
           <ReactFlowProvider>
+            { selectedDocument && <MarkerFocus viewport={viewport}></MarkerFocus>}
             <ReactFlow
               onMove={handleMove} // Track movement of the diagram
               nodes={nodes}
@@ -718,6 +742,7 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
               zoomOnPinch={false}  // Disable pinch zooming on touch devices
               zoomOnDoubleClick={false} // Disable zooming by double-clicking
               minZoom={1.0}
+              viewport={viewport}
               maxZoom={1.0}
               snapGrid={[10, 10]}
               snapToGrid={true}
@@ -794,7 +819,6 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
               </svg>
             </ReactFlow>
           </ReactFlowProvider>
-          
         </div>
       </div>
 
