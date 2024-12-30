@@ -296,7 +296,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
     useEffect(() => {
       if (selectedMarker && position != [undefined, undefined]) {
         try {
-          map.flyTo(position, map.getZoom());
+          map.flyTo(position, 15);
         } catch (e) {
           console.error(e);
         }
@@ -446,7 +446,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
       ) : (
         <div style={{ maxHeight: '100%', maxWidth: '100%' }}>
           <MapContainer ref={mapRef} center={[67.8536, 20.2437]} zoomControl={false} zoom={13} minZoom={8} maxBounds={calculateBounds(geoJsonData)} // Constrain the map to Kiruna's bounding box
-            maxBoundsViscosity={1.0} >
+            maxBoundsViscosity={1.0} doubleClickZoom>
             {/* Location listener */}
             <LocationMarker />
 
@@ -857,6 +857,45 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
                   );
                 }
               })}
+            {/* Marker for selected document visible on top of the cluster*/}
+            {selectedDocument && (
+              <Marker
+              zIndexOffset={100}
+              className='document-icon'
+              position={[locationsArea[selectedDocument.IdLocation].Latitude || locations[selectedDocument.IdLocation]?.Latitude , locationsArea[selectedDocument.IdLocation].Longitude || locations[selectedDocument.IdLocation]?.Longitude]}
+              icon={
+                new L.divIcon({
+                  html: ` 
+                  <svg class'document-icon' width="60" height="60">
+                    <circle cx="30" cy="30" r="25" stroke="blue" stroke-width='3px' fill="lightsteelblue" />
+                    <image href="src/icon/${Array.isArray(selectedDocument.IdStakeholder && selectedDocument.IdStakeholder.length > 0) ? selectedDocument.IdStakeholder[0].Color : selectedDocument.IdStakeholder.Color ? selectedDocument.IdStakeholder.Color : '8A9FA4'}/${documentTypes[selectedDocument.IdType - 1]?.iconsrc ? documentTypes[selectedDocument.IdType - 1]?.iconsrc : 'other.svg'}" x="15" y="15" width="30" height="30" />
+                  </svg> 
+                `,
+                  iconSize: [0, 0],
+                  iconAnchor: [10, 10],
+                  popupAnchor: [20, -10],
+                  className: 'document-icon',
+                })
+              }
+              eventHandlers={{
+                mouseover: (e) => {
+                  e.target.openPopup();
+                },
+                mouseout: (e) => {
+                  e.target.closePopup();
+                }
+              }}
+            >
+              <Popup
+                keepInView
+                closeOnClick={false}
+                autoClose={false}
+                open={selectedDocument} // Controlled state
+              // Close popup if user clicks close button
+              >{selectedDocument.Title}</Popup>
+            </Marker>
+            )}
+
             {/* Marker for selected location */}
             {modifyMode && !multipleDocMode ? (
               selectedLocation && !selectedArea ? (
@@ -916,7 +955,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
             }
 
 
-            <CustomZoomHandler />
+            {/* <CustomZoomHandler /> */}
           </MapContainer>
 
           {/* Overlay components*/}
