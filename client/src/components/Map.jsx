@@ -31,7 +31,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
   const [modifyMode, setModifyMode] = useState(false);
   const [dragMode, setDragMode] = useState(false);
   const [loading, setLoading] = useState(true);
-  const offsetDistance = 0.0001; //offset distance between markers
+  const offsetDistance = 0; //offset distance between markers
   const mapRef = useRef(null); // To get a reference to the map instance
 
   // States for multiple document selection
@@ -296,7 +296,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
     useEffect(() => {
       if (selectedMarker && position != [undefined, undefined]) {
         try {
-          map.setView(position, map.getZoom());
+          map.flyTo(position, map.getZoom());
         } catch (e) {
           console.error(e);
         }

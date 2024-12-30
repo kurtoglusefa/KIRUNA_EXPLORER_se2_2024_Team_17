@@ -8,8 +8,10 @@ import '../App.css';
 
 function LoginForm() {
     // state for username and password
-    const [username, setUsername] = useState('mario@test.it');
-    const [password, setPassword] = useState('pwd');
+    // username = freja.johansson@gmail.com
+    // password = pwd
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
     const [errMsg, setErrMsg] = useState('');
 
     const navigate = useNavigate();

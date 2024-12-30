@@ -341,7 +341,7 @@ function MyNavbar({ documents, setDocuments }) {
               <>
                 <div className='d-flex align-items-center'>
                   <Badge bg='light' className='mx-2' style={{ color: 'black', fontSize:'14px' }}>
-                    <span>Signed in as: <strong>{loginState.user.name}</strong></span>
+                    <span>Signed in as: <strong>{loginState.user.name + " " +loginState.user.surname}</strong></span>
                     <br></br>
                     <span>Role: <strong>{loginState.user.role}</strong></span>
                   </Badge>
