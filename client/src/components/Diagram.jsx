@@ -23,44 +23,29 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
   const setSelectedDocument = useContext(AppContext).setSelectedDocument;
   const [typeConnections, setTypeConnections] = useState([]);
   const [connections, setConnections] = useState([]);
-
   const [documentTypes, setDocumentTypes] = useState([]);
   const [stakeholders, setStakeholders] = useState([]);
   const [scales, setScales] = useState([]);
-
   const context = useContext(AppContext);
   const isLogged = context.loginState.loggedIn;
   const [showAddConnection, setShowAddConnection] = useState(false);
   const [selectConnectionType, setSelectConnectionType] = useState("");
-
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
-
   const gapx = 200;
-
   const [selectedEdge, setSelectedEdge] = useState(null);
-
   const [dataReady, setDataReady] = useState(false); // Tracks when the necessary data is ready
   const [documentsReady, setDocumentsReady] = useState(false); // Tracks when documents are loaded
-
   const [modifyMode, setModifyMode] = useState(false); // if false i can only on the document, if true i can move the document
-
   const [filteredDocuments, setFilteredDocuments] = useState([]); // Filtered list of documents for search
   const [selectedDestinationDocument, setSelectedDestinationDocument] = useState(null); // Selected destination document for connection
   const [newConnection, setNewConnection] = useState(false); // New connection object to create
   const [viewport, setViewport] = useState({ x: 0, y: 0,zoom:1 }); // Track viewport position
-
   const offsetY = -150; // Offset for the Y position of the nodes
   const offsetX = 60;
   const crypto = window.crypto || window.msCrypto;
   let array = new Uint32Array(1);
-
-  /*const handleFitView = useCallback(() => {
-    // You can pass optional arguments to fitView (e.g., to fit a specific node or set of nodes).
-    fitView({ padding: 0.1 }); // Optional padding for better visuals
-  }, [fitView]);*/
   const updateConnection = async () => {
-
     try {
       // Call updateConnection API with the new values
       await API.updateDocumentConnection(
@@ -607,7 +592,7 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
         )}
 
         {/* Source handle inside the icon */}
-        <Handle type="source" position="right" id="source" />
+        {isLogged && (<Handle type="source" position="right" id="source" />)}
 
         <img
           src={path}
@@ -619,7 +604,7 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
         />
 
         {/* Target handle inside the icon */}
-        <Handle type="target" position="left" id="target" />
+        {isLogged && (<Handle type="target" position="left" id="target" />)}
 
         {/* Tooltip */}
         <Tooltip id={`tooltip-${data.id}`} place="top" style={{ zIndex: 1000 }}>
