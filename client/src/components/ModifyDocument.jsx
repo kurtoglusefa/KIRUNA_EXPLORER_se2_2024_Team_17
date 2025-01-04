@@ -453,8 +453,9 @@ function ModifyDocument() {
       const newDocument = await API.getDocumentById(documentId);
       const stakeholders = await API.getStakeholderByDocumentId(documentId);
 
-      setNewDocument({ ...newDocument, IdStakeholder: stakeholders });
-
+      //setNewDocument({ ...newDocument, IdStakeholder: stakeholders });
+      setNewDocument(null);
+      
       navigate("/home");
     }
   };

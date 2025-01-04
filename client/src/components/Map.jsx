@@ -862,7 +862,7 @@ function MapComponent({ locations, setLocations, locationsArea, documents, setSe
               <Marker
               zIndexOffset={100}
               className='document-icon'
-              position={[locationsArea[selectedDocument.IdLocation].Latitude || locations[selectedDocument.IdLocation]?.Latitude , locationsArea[selectedDocument.IdLocation].Longitude || locations[selectedDocument.IdLocation]?.Longitude]}
+              position={[locationsArea[selectedDocument?.IdLocation]?.Latitude || locations[selectedDocument?.IdLocation]?.Latitude , locationsArea[selectedDocument?.IdLocation]?.Longitude || locations[selectedDocument?.IdLocation]?.Longitude]}
               icon={
                 new L.divIcon({
                   html: ` 
