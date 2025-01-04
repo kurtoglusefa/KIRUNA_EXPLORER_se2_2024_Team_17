@@ -889,9 +889,9 @@ function Diagram({ locations, locationsArea, documents, fetchDocumentsData }) {
             <p><strong>Type:</strong> {typeConnections[selectedEdge.IdConnection]?.Type}</p>
             <p><strong>Documents:</strong> {documents.find((doc) => doc.IdDocument === parseInt(selectedEdge.IdDocument1)).Title} ↔ {documents.find((doc) => doc.IdDocument === parseInt(selectedEdge.IdDocument2)).Title}</p>
             {/* Add more details as needed */}
-            <button onClick={() => { CloseVisualizeEdge() }} className="mx-2 rounded-pill btn-logout btn btn-sm">
+            <Button variant='danger' onClick={() => { CloseVisualizeEdge() }} className="mx-2 rounded-pill btn btn-sm">
               Close
-            </button>
+            </Button>
 
             {isLogged ? (
               <button onClick={() => {
